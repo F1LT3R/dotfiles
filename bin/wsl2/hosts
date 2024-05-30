@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo vim "+set encoding=utf-8" /mnt/c/Windows/System32/drivers/etc/hosts

@@ -1,6 +1,6 @@
 let g:ale_disable_lsp = 1
 filetype plugin indent on
-set termguicolors
+" set termguicolors
 
 set noerrorbells
 set noswapfile
@@ -282,7 +282,8 @@ vnoremap <C-z> <Nop>
 inoremap <C-z> <Nop>
 cnoremap <C-z> <Nop>
 
-colorscheme xcodedarkvhc
-hi Normal guibg=#000000 guifg=#DDDDDD
-set cursorline
-hi CursorLine guibg=Grey10
+" colorscheme xcodedarkvhc
+colorscheme radicalgoodspeed
+" hi Normal guibg=#000000 guifg=#DDDDDD
+" set cursorline
+" hi CursorLine guibg=Grey10
