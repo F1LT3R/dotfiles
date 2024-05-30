@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Iterate through all .pub keys in the .ssh directory
+for key in ~/.ssh/*.pub; do
+  if [[ -f "$key" ]]; then
+    fingerprint=$(ssh-keygen -lf "$key" -E sha256 | awk '{print $2}')
+    echo "$fingerprint - $key"
+  fi
+done
