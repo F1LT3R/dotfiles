@@ -2,7 +2,7 @@
 
 ## Bash Aliases
 
-- `v` = Edit `~/.bashrc` in VIM.
+- `b` = Edit `~/.bashrc` in VIM.
 - `s` = Source `~/.bashrc`.
 - `lr` = Horizontal `ls`, oldest last (for mobile).
 - `la` = Horizontal `ls`, showing hidden files (for mobile).
