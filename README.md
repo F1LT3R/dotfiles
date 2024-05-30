@@ -4,7 +4,7 @@
 
 - `b` = Edit `~/.bashrc` in VIM.
 - `s` = Source `~/.bashrc`.
-- `lr` = Horizontal `ls`, latest change last (for mobile).
+- `lr` = Horizontal `ls`, latest changed last (for mobile).
 - `la` = Horizontal `ls`, showing hidden files (for mobile).
 - `u` = Move up a directory.
 - `h` = Goto user home directory.
