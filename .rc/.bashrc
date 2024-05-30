@@ -24,11 +24,6 @@ h() {
     cd
 }
 
-# Up Dir (Only works at end of rc file)
-u() {
-    cd ..
-}
-
 # Syntax Highlighting
 cat() {
     batcat --plain --color=always "$@"
@@ -166,3 +161,8 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+# Up Dir (Only works at end of rc file)
+.() {
+    cd ..
+}
