@@ -1,6 +1,5 @@
 # Add bin dirs to PATH
 for dir in ~/bin/*; do
-    echo $dir
     PATH=$PATH:$dir
 done
 export PATH
