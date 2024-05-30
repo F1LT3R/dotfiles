@@ -13,7 +13,9 @@ for keyfile in "$SSH_DIR"/*.pub; do
     if [ $? -eq 0 ]; then
         # Extract just the fingerprint, removing the 'MD5:' prefix and bit length
         fingerprint=$(echo $output | awk '{print $2}' | sed 's/MD5://')
-        echo "$fingerprint - $keyfile"
+        # Make the path relative to the user's home directory
+        relative_path="~${keyfile#$HOME}"
+        echo "$fingerprint $relative_path"
     else
         echo "Skipping $keyfile: Not a valid SSH key file or inaccessible"
     fi
