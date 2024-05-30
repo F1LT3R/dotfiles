@@ -1,2 +1,2 @@
 #!/bin/bash
-tree -if --noreport | grep -i --color=always $1 | awk '{print substr($0, index($0,$2))}'
+tree $@

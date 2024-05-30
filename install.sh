@@ -29,9 +29,10 @@ echo "Linking ~/.profile"
 sudo rm -rf $HOME/.profile
 ln -s $BASE/.rc/.profile $HOME/.profile
 
+mkdir -p ~/bin
 cd bin
 for DIR in *; do
     echo "Linking ~/bin/$DIR"
     rm -f $HOME/bin/$DIR
-    ln -sf $DIR $HOME/bin
+    ln -sf $BASE/bin/$DIR $HOME/bin/$DIR
 done

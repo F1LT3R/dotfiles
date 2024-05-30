@@ -1,5 +1,6 @@
 # Add bin dirs to PATH
-for dir in ~/bin/*/; do
+for dir in ~/bin/*; do
+    echo $dir
     PATH=$PATH:$dir
 done
 export PATH
@@ -18,6 +19,11 @@ alias b='vim ~/.bashrc'
 # Mobile ls
 alias lr='ls -atr --color=auto -C'
 alias la='ls -ax'
+
+# Up Dir (Only works at end of rc file)
+u() {
+    cd ..
+}
 
 # Home
 h() {
@@ -161,8 +167,3 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-
-# Up Dir (Only works at end of rc file)
-.() {
-    cd ..
-}
