@@ -24,8 +24,8 @@ h() {
     cd
 }
 
-# Up Dir
-.() {
+# Up Dir (Only works at end of rc file)
+u() {
     cd ..
 }
 

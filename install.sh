@@ -11,28 +11,27 @@ if [[ "$response" != "y" && "$response" != "Y" ]]; then
 fi
 
 echo
-DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
+BASE=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
 
 echo "Linking ~/.vimrc"
 rm -f $HOME/.vimrc
-ln -s $DIR/.rc/.vimrc $HOME/.vimrc
+ln -s $BASE/.rc/.vimrc $HOME/.vimrc
 
 echo "Linking ~/.vim"
 sudo rm -rf $HOME/.vim
-ln -s $DIR/.vim $HOME/.vim
+ln -s $BASE/.vim $HOME/.vim
 
 echo "Linking ~/.bashrc"
 sudo rm -rf $HOME/.bashrc
-ln -s $DIR/.rc/.bashrc $HOME/.bashrc
+ln -s $BASE/.rc/.bashrc $HOME/.bashrc
 
 echo "Linking ~/.profile"
 sudo rm -rf $HOME/.profile
-ln -s $DIR/.rc/.profile $HOME/.profile
+ln -s $BASE/.rc/.profile $HOME/.profile
 
-
-echo "Linking ~/bin/{sub_dirs}"
-for SUB_DIR in $DIR/bin/*/; do
-  sudo rm -rf $HOME/bin/$SUB_DIR
-  ln -s $DIR/bin/$SUB_DIR $HOME/bin/$SUB_DIR
+cd bin
+for DIR in *; do
+    echo "Linking ~/bin/$DIR"
+    rm -f $HOME/bin/$DIR
+    ln -sf $DIR $HOME/bin
 done
-export PATH

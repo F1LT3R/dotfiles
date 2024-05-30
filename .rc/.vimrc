@@ -13,6 +13,9 @@ set tabstop=4
 set shiftwidth=4
 set expandtab
 
+" Fast quit
+nnoremap <C-q> :qa!<CR>
+
 let mapleader=","
 
 " Needs VIM compiled with Python 2.4+
@@ -246,10 +249,10 @@ nnoremap <A-S-Up> <C-w>K
 nnoremap <A-S-Down> <C-w>J
 
 " Resize Panes
-nnoremap <silent> <C-S-Left> :vertical resize -2<CR>
-nnoremap <silent> <C-S-Right> :vertical resize +2<CR>
-nnoremap <silent> <C-S-Up> :resize +2<CR>
-nnoremap <silent> <C-S-Down> :resize -2<CR>
+nnoremap <silent> <C-S-Left> :vertical resize -4<CR>
+nnoremap <silent> <C-S-Right> :vertical resize +4<CR>
+nnoremap <silent> <C-S-Up> :resize +4<CR>
+nnoremap <silent> <C-S-Down> :resize -4<CR>
 
 :hi SpecialKey ctermfg=8
 :set listchars=eol:¬,tab:⠐⠐⠕,trail:~,extends:>,precedes:<,space:⠐
