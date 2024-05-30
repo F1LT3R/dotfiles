@@ -35,7 +35,7 @@
         length.
     + `pass` - Generate secure pass from `$1` (domain), and
         `$2` (username/email), with `$3` length.
-    + `ssh-gen` - Generate `ed25519` key with `$1` (email)
+    + `ssh-gen` - Generate `ed25519` key pair with `$1` (email)
 
 ## Patch MonoList with Nerdfont Glyphs
 
