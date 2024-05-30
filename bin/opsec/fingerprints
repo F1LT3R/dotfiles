@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Directory containing SSH keys
+SSH_DIR="$HOME/.ssh"
+
+# Check each file in the SSH directory
+echo "Scanning SSH keys in $SSH_DIR"
+for keyfile in "$SSH_DIR"/*.pub; do
+    # Attempt to read the fingerprint of the key using MD5 hash algorithm
+    output=$(ssh-keygen -l -E md5 -f "$keyfile" 2>/dev/null)
+
+    # Check if ssh-keygen succeeded in reading the fingerprint
+    if [ $? -eq 0 ]; then
+        # Extract just the fingerprint, removing the 'MD5:' prefix and bit length
+        fingerprint=$(echo $output | awk '{print $2}' | sed 's/MD5://')
+        echo "$fingerprint - $keyfile"
+    else
+        echo "Skipping $keyfile: Not a valid SSH key file or inaccessible"
+    fi
+done

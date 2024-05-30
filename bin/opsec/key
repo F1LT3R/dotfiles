@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Check if a second argument is given for the password length
+if [[ -n $2 ]]; then
+    length=$2  # Use the provided length
+else
+    length=128  # Default length
+fi
+
+# Generate the password using pwgen
+pwgen $length 1 -sync -H <(echo $@)

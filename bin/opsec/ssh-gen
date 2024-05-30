@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Check if email argument is provided
+if [ -z "$1" ]; then
+  echo "ERROR! Missing email address."
+  echo "Usage: \"ssh-gen your_email@example.com\""
+  exit 1
+fi
+
+ssh-keygen -t ed25519 -C "$1"

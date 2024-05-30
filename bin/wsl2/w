@@ -1,0 +1,3 @@
+#!/bin/bash
+# cmd.exe /C start $1
+powershell.exe Start http://$1
