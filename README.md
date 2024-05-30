@@ -37,7 +37,7 @@
         `$2` (username/email), with `$3` length.
     + `ssh-gen` - Generate `ed25519` key pair with `$1` (email)
 
-## Patch MonoList with Nerdfont Glyphs
+## Patch a Font with Nerdfont Glyphs
 
 https://github.com/ryanoasis/nerd-fonts?tab=readme-ov-file#font-patcher
 
