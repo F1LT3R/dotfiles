@@ -1,10 +1,47 @@
+# Dotfiles
 
+## Bash Aliases
+
+- `v` = Edit `~/.bashrc` in VIM.
+- `s` = Source `~/.bashrc`.
+- `lr` = Horizontal `ls`, oldest last (for mobile).
+- `la` = Horizontal `ls`, showing hidden files (for mobile).
+- `u` = Move up a directory.
+- `h` = Goto user home directory.
+- `cat` = Batcat syntax highlighting, plain mode.
+- `x` = Quick exit for terminal session.
+
+## Bin Commands
+
+- Shell
+    + `clean` - Recursively remove `node_modules` and `.git`
+        dirs.
+    + `s` - Run `npm start`.
+    + `v` - Run `vim $@`.
+    + `t` - Run `tree $@`.
+    + `tg` - Grep for `$1` with `tree`.
+    + `vc` - Open `.vimrc` in VIM.
+- WSL2
+    + `e` - Open `explorer.exe` in current directory.
+    + `hosts` - Open Windows hosts file.
+    + `pom` - Start Pomodoro timer.
+    + `w` - Open web browser at `$1`.
+- Opsec
+    + `fingerprints` - List `~/.ssh/*.pub` keys in
+      hexadecimal (Azure).
+    + `fingerprints-sha` - List `~/.ssh/*.pub` keys in
+        SHA256 (GitHub).
+    + `key` - Generate secure key from `$1`, with `$2`
+        length.
+    + `pass` - Generate secure pass from `$1` (domain), and
+        `$2` (username/email), with `$3` length.
+    + `ssh-gen` - Generate `ed25519` key with `$1` (email)
 
 ## Patch MonoList with Nerdfont Glyphs
 
 https://github.com/ryanoasis/nerd-fonts?tab=readme-ov-file#font-patcher
 
-```
+```bash
 sudo apt install fontforge ttfautohint
 
 git clone --depth 1 https://github.com/ryanoasis/nerd-fonts.git
@@ -14,4 +51,4 @@ FONT_PATH=/home/user/.local/share/fonts/MonoLisaCustom-Regular.ttf
 
 fontforge -script font-patcher  ~/.local/share/fonts/MonoLisaCustom-Light.ttf --use-single-width-glyphs --complete -out ~/.local/share/fonts
 fontforge -script font-patcher  ~/.local/share/fonts/MonoLisaCustom-Regular.ttf --use-single-width-glyphs --complete -out ~/.local/share/fonts
-`
+```

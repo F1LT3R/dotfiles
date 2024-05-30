@@ -13,6 +13,8 @@ set tabstop=4
 set shiftwidth=4
 set expandtab
 
+let g:markdown_fenced_languages = ['html', 'javascript', 'shell']
+
 " Fast quit
 nnoremap <C-q> :qa!<CR>
 
@@ -243,10 +245,10 @@ xnoremap <A-]> :bnext<CR>
 lnoremap <A-[> :bprevious<CR>
 
 " Move Panes
-nnoremap <A-S-Left> <C-w>H
-nnoremap <A-S-Right> <C-w>L
-nnoremap <A-S-Up> <C-w>K
-nnoremap <A-S-Down> <C-w>J
+nnoremap <S-Left> <C-w>H
+nnoremap <S-Right> <C-w>L
+nnoremap <S-Up> <C-w>K
+nnoremap <S-Down> <C-w>J
 
 " Resize Panes
 nnoremap <silent> <C-S-Left> :vertical resize -4<CR>
