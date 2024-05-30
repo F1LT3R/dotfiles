@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+#EG: https://d2vjef5jvl6bfs.cloudfront.net/97206e403eff2acfe7b7_gigaohmbiological_40897522185_1675905090/chunked/index-muted-ZB1R0VFNEL.m3u8
+FILE="$2.mp4"
+ffmpeg -i "$1" -c copy -bsf:a aac_adtstoasc $FILE
+mp4-to-mp3 $FILE
+whisper --language English $FILE

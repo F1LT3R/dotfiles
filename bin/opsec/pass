@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# The first arg is your DOMAIN:USER (string)
+if [ -z "$1" ];
+    then echo "You must provide a DOMAIN:USER, eg: 'twitter.com:me@domain.com'"; exit 1;
+    else DOMAIN_USER="$1";
+fi
+
+# Use a secure password entry for your PASSPHRASE
+echo -n Enter your PASSPHRASE:
+read -s PASSPHRASE
+echo
+
+# Verify your PASSPHRASE by typing it in again
+echo -n Please verify your PASSPHRASE:
+read -s PASSPHRASE_VERIFY
+echo
+
+if [ "$PASSPHRASE" != "$PASSPHRASE_VERIFY" ];
+    then echo "PASSPHRASES did not match!"; exit;
+fi
+
+# The second arg is password LENGTH
+if [ -z "$2" ];
+    # Default to 64 characters for most passwords
+    then LENGTH=64;
+
+    # We can pass a custom length, "16", for our working example
+    else LENGTH=$2;
+fi
+
+# The third argument is our MODE
+if [ -z "$3" ];
+    # Default to SECURE for most passwords
+    then MODE="SECURE";
+
+    # Providing any input, eg: [y, true, simple] -sets MODE to SIMPLE
+    else MODE="SIMPLE";
+fi
+
+# Create our recoverable SEED
+SEED="$PASSPHRASE+$DOMAIN_USER"
+
+# Generate password based on LENGTH, SEED and MODE
+if [ "$MODE" == "SIMPLE" ];
+    then PASS=$(pwgen $LENGTH 1 -H <((echo $SEED)) -cny);
+    else PASS=$(pwgen $LENGTH 1 -H <((echo $SEED)) -cnsy);
+fi
+
+echo $PASS

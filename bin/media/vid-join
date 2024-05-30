@@ -1,0 +1,2 @@
+#!/bin/bash
+ffmpeg -i $1.mp4 -i $1.wav -c:v copy -c:a aac $1_FINAL.mp4

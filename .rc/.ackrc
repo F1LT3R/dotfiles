@@ -1,0 +1,17 @@
+--no-group
+
+--color
+
+#--pager
+#less -r
+
+--ignore-directory=is:env
+--ignore-directory=is:node_modules
+--ignore-file=is:Markserv.log
+--ignore-file=is:npm.debug.*
+--ignore-file=is:*.log
+--ignore-file=is:*.debug
+
+--type-set=css:ext:less
+--type-set=css:ext:scss
+--type-set=json:ext:json

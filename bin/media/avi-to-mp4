@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo $1
+
+ffmpeg -i "$1" -c:v libx264 -crf 20 -preset slow -vf format=yuv420p -c:a aac -movflags +faststart "$1.mp4"

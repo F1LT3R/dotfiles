@@ -1,0 +1,239 @@
+*vim-ai.txt*  Complete text using OpenAI API.
+
+Author:  Martin Bielik <https://madox2.poriadne.sk/>
+License: see https://github.com/madox2/vim-ai/blob/main/LICENSE
+
+INTRODUCTION                                    *vim-ai*
+
+This plugin can be used to generate code, edit text, brainstorm ideas,
+translate, etc.
+
+COMMANDS                                        *vim-ai-commands*
+
+To set-up key bindings and examples see:
+https://github.com/madox2/vim-ai
+
+                                                *:AI*
+
+:AI                                 complete the text on the current line
+:AI {prompt}                        complete the prompt
+<selection> :AI                     complete the selection
+<selection> :AI {instruction}       complete the selection using the instruction
+
+Options: >
+  let g:vim_ai_complete = {
+  \  "engine": "complete",
+  \  "options": {
+  \    "model": "gpt-3.5-turbo-instruct",
+  \    "endpoint_url": "https://api.openai.com/v1/completions",
+  \    "max_tokens": 0,
+  \    "temperature": 0.1,
+  \    "request_timeout": 20,
+  \    "enable_auth": 1,
+  \    "selection_boundary": "#####",
+  \  },
+  \  "ui": {
+  \    "paste_mode": 1,
+  \  },
+  \}
+
+Check OpenAI docs for more information:
+https://platform.openai.com/docs/api-reference/completions
+
+                                                *:AIEdit*
+
+<selection>? :AIEdit                edit the current line or the selection
+<selection>? :AIEdit {instruction}  edit the current line or the selection using
+                                    the instruction
+
+Options: >
+  let g:vim_ai_edit = {
+  \  "engine": "complete",
+  \  "options": {
+  \    "model": "gpt-3.5-turbo-instruct",
+  \    "endpoint_url": "https://api.openai.com/v1/completions",
+  \    "max_tokens": 0,
+  \    "temperature": 0.1,
+  \    "request_timeout": 20,
+  \    "enable_auth": 1,
+  \    "selection_boundary": "#####",
+  \  },
+  \  "ui": {
+  \    "paste_mode": 1,
+  \  },
+  \}
+
+Check OpenAI docs for more information:
+https://platform.openai.com/docs/api-reference/completions
+
+                                                *:AIChat*
+
+:AIChat                             continue or start a new conversation.
+<selection>? :AIChat {instruction}? start a new conversation given the selection,
+                                    the instruction or both
+
+Options: >
+  let s:initial_chat_prompt =<< trim END
+  >>> system
+
+  You are a general assistant.
+  If you attach a code block add syntax type after ``` to enable syntax highlighting.
+  END
+
+  let g:vim_ai_chat = {
+  \  "options": {
+  \    "model": "gpt-3.5-turbo",
+  \    "max_tokens": 0,
+  \    "endpoint_url": "https://api.openai.com/v1/chat/completions",
+  \    "temperature": 1,
+  \    "request_timeout": 20,
+  \    "enable_auth": 1,
+  \    "selection_boundary": "#####",
+  \    "initial_prompt": s:initial_chat_prompt,
+  \  },
+  \  "ui": {
+  \    "code_syntax_enabled": 1,
+  \    "populate_options": 0,
+  \    "open_chat_command": "preset_below",
+  \    "scratch_buffer_keep_open": 0,
+  \    "paste_mode": 1,
+  \  },
+  \}
+
+Check OpenAI docs for more information:
+https://platform.openai.com/docs/api-reference/chat
+
+INCLUDE FILES                                  *vim-ai-include*
+
+To include files in the chat a special `include` role is used: >
+
+  >>> user
+
+  Generate documentation for the following files
+
+  >>> include
+
+  /home/user/myproject/requirements.txt
+  /home/user/myproject/**/*.py
+
+Each file's contents will be added to an additional `user` role message with
+the files separated by `==> {path} <==`, where path is the path to the file.
+Globbing is expanded out via `glob.gob` and relative paths to the current
+working directory (as determined by `getcwd()`) will be resolved to absolute
+paths.
+
+                                                *:AINewChat*
+
+:AINewChat {preset shortname}?      spawn a new conversation with a given open
+                                    chat preset - below, tab or right.
+
+                                                *:AIRedo*
+
+:AIRedo                             repeat last AI command in order to re-try
+                                    or get an alternative completion.
+
+CONFIGURATION                                   *vim-ai-config*
+
+To customize the default configuration, initialize the config variable with
+a selection of options: >
+
+  let g:vim_ai_chat = {
+  \  "options": {
+  \    "model": "gpt-4",
+  \    "temperature": 0.2,
+  \  },
+  \}
+
+Or modify options directly during the vim session: >
+
+  let g:vim_ai_chat['options']['model'] = 'gpt-4'
+  let g:vim_ai_chat['options']['temperature'] = 0.2
+
+You can also customize the options in the chat header: >
+
+  [chat-options]
+  model=gpt-4
+  temperature=0.2
+
+  >>> user
+
+  generate a paragraph of lorem ipsum
+  ...
+
+ROLES
+
+Roles are defined in the `.ini` file: >
+
+    let g:vim_ai_roles_config_file = '/path/to/my/roles.ini'
+
+Example of a role: >
+
+    [grammar]
+    prompt = fix spelling and grammar
+
+    [grammar.options]
+    temperature = 0.4
+
+See roles-example.ini for more examples.
+
+The roles in g:vim_ai_roles_config_file are converted to a Vim dictionary whose
+labels are the names of the roles. Optionally, roles can be added by setting
+g:vim_ai_roles_config_function to the name of a Vimscript function returning a
+dictionary of the same format as g:vim_ai_roles_config_file.
+
+KEY BINDINGS
+
+Examples how configure key bindings and customize commands: >
+
+  " complete text on the current line or in visual selection
+  nnoremap <leader>a :AI<CR>
+  xnoremap <leader>a :AI<CR>
+
+  " edit text with custom context
+  xnoremap <leader>s :AIEdit fix grammar and spelling<CR>
+  nnoremap <leader>s :AIEdit fix grammar and spelling<CR>
+
+  " trigger chat
+  xnoremap <leader>c :AIChat<CR>
+  nnoremap <leader>c :AIChat<CR>
+
+  " redo last AI command
+  nnoremap <leader>r :AIRedo<CR>
+
+CUSTOM COMMANDS
+
+To create custom commands, call `AIRun`, `AIEditRun` and `AIChatRun` functions: >
+
+  " custom command suggesting git commit message, takes no arguments
+  function! AIPromptCommitMessageFn()
+    let l:diff = system('git diff --staged')
+    let l:prompt = "generate a short commit message from the diff below:\n" . l:diff
+    let l:config = {
+    \  "engine": "chat",
+    \  "options": {
+    \    "model": "gpt-3.5-turbo",
+    \    "initial_prompt": ">>> system\nyou are a code assistant",
+    \    "temperature": 1,
+    \  },
+    \}
+    call vim_ai#AIRun(l:config, l:prompt)
+  endfunction
+  command! AIPromptCommitMessage call AIPromptCommitMessageFn(range)
+
+  " custom command that provides a code review for selected code block
+  function! AIPromptCodeReviewFn() range
+    let l:prompt = "programming syntax is " . &filetype . ", review the code below"
+    let l:config = {
+    \  "options": {
+    \    "initial_prompt": ">>> system\nyou are a clean code expert",
+    \  },
+    \}
+    '<,'>call vim_ai#AIChatRun(a:range, l:config, l:prompt)
+  endfunction
+  command! -range=0 AIPromptCodeReview <line1>,<line2>call AIPromptCodeReviewFn(<count>)
+
+ABOUT                                           *vim-ai-about*
+
+Contributions are welcome on GitHub:
+
+https://github.com/madox2/vim-ai

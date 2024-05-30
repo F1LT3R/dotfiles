@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Where NPM Packages will get installed
+export NPM_PACKAGES="$HOME/.npm-packages"
+
+# Node.JS looks here when including modules at runtime
+export NODE_PATH="$NODE_PATH:/usr/local/lib/node_modules"
+
+# Allow modules installed with -g to be run from anywhere
+export PATH="$PATH:$NPM_PACKAGES/bin"
+
+# Update Man paths for Node.JS
+unset MANPATH
+MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
+
+# NVM
+# export NVM_DIR="$HOME/.nvm"
+# . "/usr/local/opt/nvm/nvm.sh"
+
+# Yarn
+# export PATH="$PATH:/opt/yarn-0.24.6/bin"
+# export PATH="$PATH:`yarn global bin`"
+export PATH="$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+# Installing NVM, Node, NPM Yarn w/ Brew
+# https://pastebin.com/FpgmQGfd
