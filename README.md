@@ -20,7 +20,6 @@ Leader key is `,` (comma).
 - `Tab` - Next Buffer,
 - `Shift + Tab` - Previous Buffer,
 - `,,` - Writing mode (Goyo, Pencil).
-
 - Chat-GPT Integration
     + `, x` - Complete line
     + `, f` - Role: `/fix_code`
