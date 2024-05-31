@@ -13,6 +13,7 @@ Leader key is `,` (comma).
 - `Ctrl + \` - TComment toggle.
 - `, T` - Thesaurus.
 - `` , ` `` - Terminal split.
+- `, \\` - Terminal to Normal mode.
 - Chat-GPT Integration
     + `, x` - Complete line
     + `, f` - Role: `/fix_code`
