@@ -4,31 +4,31 @@
 
 Leader key is `,` (comma).
 
-- `Ctrl + q` - Fast quit.
-- `, Space` - Clear search.
-- `, 1` - Toggle number line.
-- `Ctrl + f` - NERDTree toggle.
-- `Ctrl + p` - Ripgrep files.
-- `, p` - Ripgrep file contents.
-- `Ctrl + \` - TComment toggle.
-- `, t` - Thesaurus.
-- `` , ` `` - Terminal split.
-- `, \` - Terminal to Normal mode.
-- `Ctrl + Cursor Keys` - Move focus between panes.
-- `Shift + Cursor Keys` - Move position (order) of panes.
-- `Ctrl + Shift + Cursor Keys` - Resize (expand / contract) panes.
-- `Tab` - Next Buffer.
-- `Shift + Tab` - Previous Buffer.
-- `,,` - Writing mode (Goyo, Pencil).
+- `Ctrl + q` = Fast quit.
+- `, Space` = Clear search.
+- `, 1` = Toggle number line.
+- `Ctrl + f` = NERDTree toggle.
+- `Ctrl + p` = Ripgrep files.
+- `, p` = Ripgrep file contents.
+- `Ctrl + \` = TComment toggle.
+- `, t` = Thesaurus.
+- `` , ` `` = Terminal split.
+- `, \` = Terminal to Normal mode.
+- `Ctrl + Cursor Keys` = Move focus between panes.
+- `Shift + Cursor Keys` = Move position (order) of panes.
+- `Ctrl + Shift + Cursor Keys` = Resize (expand / contract) panes.
+- `Tab` = Next Buffer.
+- `Shift + Tab` = Previous Buffer.
+- `,,` = Writing mode (Goyo, Pencil).
 - Chat-GPT Integration
-    + `, x` - Complete line
-    + `, f` - Role: `/fix_code`
-    + `, r` - Role: `/rewrite` (low temp)
-    + `, w` - Role: `/rewrite_creative` (high temp)
-    + `, a` - Role: `/antonym`
-    + `, s` - Role: `/synonym`
-    + `, g` - Fix grammar and spelling
-    + `, c` - Chat onsole
+    + `, x` = Complete line
+    + `, f` = Role: `/fix_code`
+    + `, r` = Role: `/rewrite` (low temp)
+    + `, w` = Role: `/rewrite_creative` (high temp)
+    + `, a` = Role: `/antonym`
+    + `, s` = Role: `/synonym`
+    + `, g` = Fix grammar and spelling
+    + `, c` = Chat onsole
 
 ## Bash Aliases
 
@@ -44,28 +44,28 @@ Leader key is `,` (comma).
 ## Bin Commands
 
 - Shell
-    + `clean` - Recursively remove `node_modules` and `.git`
+    + `clean` = Recursively remove `node_modules` and `.git`
         dirs.
-    + `s` - Run `npm start`.
-    + `v` - Run `vim $@`.
-    + `t` - Run `tree $@`.
-    + `tg` - Grep for `$1` with `tree`.
-    + `vc` - Open `.vimrc` in VIM.
+    + `s` = Run `npm start`.
+    + `v` = Run `vim $@`.
+    + `t` = Run `tree $@`.
+    + `tg` = Grep for `$1` with `tree`.
+    + `vc` = Open `.vimrc` in VIM.
 - WSL2
-    + `e` - Open `explorer.exe` in current directory.
-    + `hosts` - Open Windows hosts file.
-    + `pom` - Start Pomodoro timer.
-    + `w` - Open web browser at `$1`.
+    + `e` = Open `explorer.exe` in current directory.
+    + `hosts` = Open Windows hosts file.
+    + `pom` = Start Pomodoro timer.
+    + `w` = Open web browser at `$1`.
 - Opsec
-    + `fingerprints` - List `~/.ssh/*.pub` keys in
+    + `fingerprints` = List `~/.ssh/*.pub` keys in
       hexadecimal (Azure).
-    + `fingerprints-sha` - List `~/.ssh/*.pub` keys in
+    + `fingerprints-sha` = List `~/.ssh/*.pub` keys in
         SHA256 (GitHub).
-    + `key` - Generate secure key from `$1`, with `$2`
+    + `key` = Generate secure key from `$1`, with `$2`
         length.
-    + `pass` - Generate secure pass from `$1` (domain), and
+    + `pass` = Generate secure pass from `$1` (domain), and
         `$2` (username/email), with `$3` length.
-    + `ssh-gen` - Generate `ed25519` key pair with `$1` (email)
+    + `ssh-gen` = Generate `ed25519` key pair with `$1` (email)
 
 ## Patch a Font with Nerdfont Glyphs
 
