@@ -241,16 +241,16 @@ nnoremap <C-Up> <C-w>k
 nnoremap <C-Right> <C-w>l
 
 " Move Panes
-nnoremap <S-Left> <C-w>H
-nnoremap <S-Right> <C-w>L
-nnoremap <S-Up> <C-w>K
-nnoremap <S-Down> <C-w>J
+nnoremap <A-Left> <C-w>H
+nnoremap <A-Right> <C-w>L
+nnoremap <A-Up> <C-w>K
+nnoremap <A-Down> <C-w>J
 
 " Resize Panes
-nnoremap <silent> <C-S-Left> :vertical resize -4<CR>
-nnoremap <silent> <C-S-Right> :vertical resize +4<CR>
-nnoremap <silent> <C-S-Up> :resize +4<CR>
-nnoremap <silent> <C-S-Down> :resize -4<CR>
+nnoremap <silent> <S-Left> :vertical resize -4<CR>
+nnoremap <silent> <S-Right> :vertical resize +4<CR>
+nnoremap <silent> <S-Up> :resize +4<CR>
+nnoremap <silent> <S-Down> :resize -4<CR>
 
 :hi SpecialKey ctermfg=8
 :set listchars=eol:¬,tab:⠐⠐⠕,trail:~,extends:>,precedes:<,space:⠐
