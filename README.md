@@ -7,7 +7,16 @@
 ```bash
 sudo apt update
 sudo apt upgrade
-sudo apt install bat tig pwgen ripgrep ack vim fzf tree which
+```
+Ubuntu:
+
+```bash
+sudo apt install bat tig pwgen ripgrep ack vim fzf tree
+```
+Termux:
+
+```bash
+sudo apt install bat tig pwgen ripgrep vim fzf tree which
 ```
 
 ### Install Node and NVM
@@ -51,7 +60,7 @@ Install for Ubuntu:
 ./install.sh
 ```
 
-Install for Yermux:
+Install for Termux:
 
 ```bash
 ./install-root.sh
