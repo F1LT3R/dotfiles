@@ -1,5 +1,29 @@
 # Dotfiles
 
+## VIM
+
+Leader key is `,` (comma).
+
+- `Ctrl + q` - Fast quit.
+- `, Space` - Clear search.
+- `, 1` - Toggle number line.
+- `, 1` - Clear search.
+- `Ctrl + f` - NERDTree Toggle.
+- `Ctrl + p` - Ripgrep Files.
+- `, p` - Ripgrep File Contents.
+- `Ctrl + \` - TComment Toggle.
+- `, T` - Thesaurus.
+- `` , ` `` - Terminal Split.
+- Chat-GPT Integration
+    + `, x` - Complete Line
+    + `, f` - Role: `/fix_code`
+    + `, r` - Role: `/rewrite` (low temp)
+    + `, w` - Role: `/rewrite_creative` (high temp)
+    + `, a` - Role: `/antonym`
+    + `, s` - Role: `/synonym`
+    + `, g` - Fix grammar and spelling
+    + `, c` - Chat-GPT Console
+
 ## Bash Aliases
 
 - `b` = Edit `~/.bashrc` in VIM.
