@@ -34,9 +34,9 @@ npm i -g emoj
 
 ### Backup Existing Bin Scripts
 
-Move any scripts from `~/bin` to `~/bin/old`, as `.bashrc`
-and `.profile` adds `~/bin/*/` to `PATH`, so any scripts in
-`~/bin` will be outside the path of your shell.
+Move any scripts from `~/bin` to `~/bin/old`, as .bashrc
+and .profile build $PATH from the subdirectories of ~/bin, so any scripts in
+~/bin will be outside of your shell path.
 
 ```bash
 mkdir -p ~/bin/old
