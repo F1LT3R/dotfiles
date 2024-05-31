@@ -7,7 +7,7 @@
 ```bash
 sudo apt update
 sudo apt upgrade
-sudo apt install bat tig pwgen ripgrep ack vim fzf tree node
+sudo apt install bat tig pwgen ripgrep ack vim fzf tree
 ```
 
 ### Install Node and NVM
