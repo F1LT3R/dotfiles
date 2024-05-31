@@ -22,7 +22,7 @@ Leader key is `,` (comma).
     + `, a` - Role: `/antonym`
     + `, s` - Role: `/synonym`
     + `, g` - Fix grammar and spelling
-    + `, c` - Chat-GPT Console
+    + `, c` - Chat onsole
 
 ## Bash Aliases
 
