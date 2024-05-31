@@ -1,6 +1,36 @@
 # Dotfiles
 
-## VIM
+
+# Installation
+
+Install Prerequisites.
+
+```bash
+sudo apt update
+sudo apt upgrade
+sudo apt install bat tig pwgen ripgrep ack vim fzf 
+```
+
+Move any scripts from `~/bin` to `~/bin/old`, as `.bashrc`
+and `.profile` adds `~/bin/*/` to `PATH`, so any scripts in
+`~/bin` will be outside the path of your shell.
+
+```bash
+mkdir -p ~/bin/old
+mv ~/bin/* ~/bin/old
+```
+
+Run `install.sh` to symlink files and directories herein.
+
+```bash
+mkdir -p ~/repos
+git clone https://github.com/F1LT3R/dotfiles ~/repos/
+./install
+```
+
+## Keyboard Shortcuts
+
+### VIM
 
 Leader key is `,` (comma).
 
@@ -30,7 +60,7 @@ Leader key is `,` (comma).
     + `, g` = Fix grammar and spelling
     + `, c` = Chat onsole
 
-## Bash Aliases
+### Bash Aliases
 
 - `b` = Edit `~/.bashrc` in VIM.
 - `s` = Source `~/.bashrc`.
@@ -41,7 +71,7 @@ Leader key is `,` (comma).
 - `cat` = Batcat syntax highlighting, plain mode.
 - `x` = Quick exit for terminal session.
 
-## Bin Commands
+### Bin Commands
 
 - Shell
     + `clean` = Recursively remove `node_modules` and `.git`
@@ -67,7 +97,7 @@ Leader key is `,` (comma).
         `$2` (username/email), with `$3` length.
     + `ssh-gen` = Generate `ed25519` key pair with `$1` (email)
 
-## Patch a Font with Nerdfont Glyphs
+### Patch a Font with Nerdfont Glyphs
 
 https://github.com/ryanoasis/nerd-fonts?tab=readme-ov-file#font-patcher
 
