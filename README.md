@@ -7,7 +7,6 @@ Leader key is `,` (comma).
 - `Ctrl + q` - Fast quit.
 - `, Space` - Clear search.
 - `, 1` - Toggle number line.
-- `, 1` - Clear search.
 - `Ctrl + f` - NERDTree Toggle.
 - `Ctrl + p` - Ripgrep Files.
 - `, p` - Ripgrep File Contents.
