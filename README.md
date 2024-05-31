@@ -36,11 +36,9 @@ npm i -g emoj
 
 ⚠️ WARNING! This is a destructive action!
 
-Backup your existing ~/bin scripts.
-
-Move any scripts from `~/bin` to `~/bin/old`, as .bashrc
-and .profile build $PATH from the subdirectories of ~/bin, so any scripts in
-~/bin will be outside of your shell path.
+Backup your existing ~/bin scripts. For example: move scripts from `~/bin` to `~/bin/old`, as .bashrc
+and .profile build your $PATH from the subdirectories of ~/bin; So any scripts in
+~/bin will be outside of your shell path after you run `./install`.
 
 ```bash
 mkdir -p ~/bin/old
