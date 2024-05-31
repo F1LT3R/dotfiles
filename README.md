@@ -32,7 +32,11 @@ nvm install --lts
 npm i -g emoj
 ```
 
-### Backup Existing Bin Scripts
+### Symlink Dotfiles
+
+⚠️ WARNING! This is a destructive action!
+
+Backup your existing ~/bin scripts.
 
 Move any scripts from `~/bin` to `~/bin/old`, as .bashrc
 and .profile build $PATH from the subdirectories of ~/bin, so any scripts in
@@ -42,10 +46,6 @@ and .profile build $PATH from the subdirectories of ~/bin, so any scripts in
 mkdir -p ~/bin/old
 mv ~/bin/* ~/bin/old
 ```
-
-### Symlink Dotfiles
-
-⚠️ WARNING! This is a destructive action!
 
 Clone this repo.
 
