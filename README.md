@@ -3,13 +3,22 @@
 
 # Installation
 
-Install Prerequisites.
+Install Shell Prerequisites
 
 ```bash
 sudo apt update
 sudo apt upgrade
-sudo apt install bat tig pwgen ripgrep ack vim fzf 
+sudo apt install bat tig pwgen ripgrep ack vim fzf tree node
 ```
+
+Install Node and NVM
+
+```bash
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+nvm install --lts
+```
+
+Backup Existing Script from `~/bin`
 
 Move any scripts from `~/bin` to `~/bin/old`, as `.bashrc`
 and `.profile` adds `~/bin/*/` to `PATH`, so any scripts in
