@@ -23,7 +23,7 @@ nvm install --lts
 npm i -g emoj
 ```
 
-### Backup Existing Scripts from `~/bin`
+### Backup Existing Bin Scripts
 
 Move any scripts from `~/bin` to `~/bin/old`, as `.bashrc`
 and `.profile` adds `~/bin/*/` to `PATH`, so any scripts in
@@ -38,10 +38,23 @@ mv ~/bin/* ~/bin/old
 
 ⚠️ WARNING! This is a destructive action!
 
+Clone this repo.
+
 ```bash
 mkdir -p ~/repos
 git clone https://github.com/F1LT3R/dotfiles ~/repos/
-./install
+```
+
+Install for Ubuntu:
+
+```bash
+./install.sh
+```
+
+Install for Yermux:
+
+```bash
+./install-root.sh
 ```
 
 ## Keyboard Shortcuts
