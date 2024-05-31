@@ -17,9 +17,10 @@ Leader key is `,` (comma).
 - `Ctrl + Cursor Keys` - Move focus between panes.
 - `Shift + Cursor Keys` - Move position (order) of panes.
 - `Ctrl + Shift + Cursor Keys` - Resize (expand / contract) panes.
-- `Tab` - Next Buffer
-- `Shift + Tab` - Previous Buffer
-nnoremap <S-Tab> :bprevious<CR>
+- `Tab` - Next Buffer,
+- `Shift + Tab` - Previous Buffer,
+- `,,` - Writing mode (Goyo, Pencil).
+
 - Chat-GPT Integration
     + `, x` - Complete line
     + `, f` - Role: `/fix_code`
