@@ -7,14 +7,14 @@ Leader key is `,` (comma).
 - `Ctrl + q` - Fast quit.
 - `, Space` - Clear search.
 - `, 1` - Toggle number line.
-- `Ctrl + f` - NERDTree Toggle.
-- `Ctrl + p` - Ripgrep Files.
-- `, p` - Ripgrep File Contents.
-- `Ctrl + \` - TComment Toggle.
+- `Ctrl + f` - NERDTree toggle.
+- `Ctrl + p` - Ripgrep files.
+- `, p` - Ripgrep file contents.
+- `Ctrl + \` - TComment toggle.
 - `, T` - Thesaurus.
-- `` , ` `` - Terminal Split.
+- `` , ` `` - Terminal split.
 - Chat-GPT Integration
-    + `, x` - Complete Line
+    + `, x` - Complete line
     + `, f` - Role: `/fix_code`
     + `, r` - Role: `/rewrite` (low temp)
     + `, w` - Role: `/rewrite_creative` (high temp)
