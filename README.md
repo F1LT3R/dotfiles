@@ -11,7 +11,7 @@ Leader key is `,` (comma).
 - `Ctrl + p` - Ripgrep files.
 - `, p` - Ripgrep file contents.
 - `Ctrl + \` - TComment toggle.
-- `, T` - Thesaurus.
+- `, t` - Thesaurus.
 - `` , ` `` - Terminal split.
 - `, \` - Terminal to Normal mode.
 - `Ctrl + Cursor Keys` - Move focus between panes.
