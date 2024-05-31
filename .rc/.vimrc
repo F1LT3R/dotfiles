@@ -240,10 +240,6 @@ nnoremap <C-Down> <C-w>j
 nnoremap <C-Up> <C-w>k
 nnoremap <C-Right> <C-w>l
 
-" Cycle Buffers
-xnoremap <A-]> :bnext<CR>
-lnoremap <A-[> :bprevious<CR>
-
 " Move Panes
 nnoremap <S-Left> <C-w>H
 nnoremap <S-Right> <C-w>L
