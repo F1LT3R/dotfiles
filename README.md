@@ -1,8 +1,8 @@
 # Dotfiles
 
-## Installation
+## Install
 
-### Install Shell Prerequisites
+### Install Shell Packages
 
 ```bash
 sudo apt update
