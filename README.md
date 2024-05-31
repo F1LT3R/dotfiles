@@ -54,13 +54,13 @@ mkdir -p ~/repos
 git clone https://github.com/F1LT3R/dotfiles ~/repos/
 ```
 
-Install for Ubuntu:
+Ubuntu:
 
 ```bash
 ./install.sh
 ```
 
-Install for Termux:
+Termux:
 
 ```bash
 ./install-root.sh
