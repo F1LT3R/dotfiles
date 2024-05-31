@@ -14,9 +14,12 @@ Leader key is `,` (comma).
 - `, T` - Thesaurus.
 - `` , ` `` - Terminal split.
 - `, \` - Terminal to Normal mode.
-- `Ctrl + [Up, Down, Left, Right]` - Move focus between panes.
-- `Shift + [Up, Down, Left, Right]` - Move position (order) of panes.
-- `Ctrl + Shift + [Up, Down, Left, Right]` - Resize (expand / contract) panes.
+- `Ctrl + Cursor Keys` - Move focus between panes.
+- `Shift + Cursor Keys` - Move position (order) of panes.
+- `Ctrl + Shift + Cursor Keys` - Resize (expand / contract) panes.
+- `Tab` - Next Buffer
+- `Shift + Tab` - Previous Buffer
+nnoremap <S-Tab> :bprevious<CR>
 - Chat-GPT Integration
     + `, x` - Complete line
     + `, f` - Role: `/fix_code`
