@@ -11,9 +11,9 @@ set nowrap
 
 set tabstop=4
 set shiftwidth=4
-set expandtab
+" set expandtab
 
-let g:markdown_fenced_languages = ['html', 'javascript', 'shell']
+let g:markdown_fenced_languages = ['html', 'javascript', 'bash']
 
 " Fast quit
 nnoremap <C-q> :qa!<CR>
@@ -228,7 +228,7 @@ set spellfile=~/.config/dotfiles/lib/spell/dict_words_en_us.add
 
 " Map <leader>t to open a terminal
 set splitbelow
-set termwinsize=10x0
+" set termwinsize=10x0
 nnoremap <leader>` :terminal<CR>
 
 " Map Ctrl + Backslash to switch terminal to normal mode

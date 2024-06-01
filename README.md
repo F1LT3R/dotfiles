@@ -19,19 +19,6 @@ Termux:
 sudo apt install bat tig pwgen ripgrep vim fzf tree which
 ```
 
-### Install Node and NVM
-
-```bash
-wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-nvm install --lts
-```
-
-### Install Global Node Packages
-
-```bash
-npm i -g emoj
-```
-
 ### Symlink Dotfiles
 
 ⚠️ WARNING! This is a destructive action!
@@ -62,6 +49,29 @@ Termux:
 
 ```bash
 ./install-root.sh
+```
+
+### Install Node and NVM
+
+```bash
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+nvm install --lts
+```
+
+### Install Global Node Packages
+
+```bash
+npm i -g emoj
+```
+
+### Install Packages via CURL
+
+YTDL
+
+```bash
+mkdir -p ~/.local/bin
+curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o ~/.local/bin/yt-dlp
+chmod a+rx ~/.local/bin/yt-dlp
 ```
 
 ## Keyboard Shortcuts
