@@ -13,12 +13,7 @@ set tabstop=4
 set shiftwidth=4
 " set expandtab
 
-<<<<<<< Updated upstream
 let g:markdown_fenced_languages = ['html', 'javascript', 'bash']
-=======
-
-let g:markdown_fenced_languages = ['html', 'javascript', 'shell']
->>>>>>> Stashed changes
 
 " Copy whole lines to clipboard using XClip
 " Update to XSEL later
