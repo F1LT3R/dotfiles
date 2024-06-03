@@ -13,12 +13,26 @@ set tabstop=4
 set shiftwidth=4
 " set expandtab
 
+<<<<<<< Updated upstream
 let g:markdown_fenced_languages = ['html', 'javascript', 'bash']
+=======
+
+let g:markdown_fenced_languages = ['html', 'javascript', 'shell']
+>>>>>>> Stashed changes
+
+" Copy whole lines to clipboard using XClip
+" Update to XSEL later
+vnoremap <C-y> :w !xclip -selection clipboard<CR><CR>
+
+" Setup following on Termux later:
+" https://ibnishak.github.io/blog/post/copy-to-termux-clip/
 
 " Fast quit
 nnoremap <C-q> :qa!<CR>
 
+" Set Leader to Comma
 let mapleader=","
+
 
 " Needs VIM compiled with Python 2.4+
 "nnoremap <A-n> :GundoToggle<CR>

@@ -8,7 +8,14 @@
 sudo apt update
 sudo apt upgrade
 ```
+<<<<<<< Updated upstream
 Ubuntu:
+=======
+
+ilversearcher-ag  perl universal-ctags xsel/xclip
+
+### Install Node and NVM
+>>>>>>> Stashed changes
 
 ```bash
 sudo apt install bat tig pwgen ripgrep ack vim fzf tree
@@ -32,7 +39,13 @@ mkdir -p ~/bin/old
 mv ~/bin/* ~/bin/old
 ```
 
+<<<<<<< Updated upstream
 Clone this repo.
+=======
+### Symlink Dotfiles
+
+⚠️  WARNING! This is a destructive action!
+>>>>>>> Stashed changes
 
 ```bash
 mkdir -p ~/repos

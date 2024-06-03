@@ -1,8 +1,60 @@
+# Detect OS_MODE
+source ~/bin/system/detect-os-mode
+echo "OS_MODE Detected: $OS_MODE"
+
+# Pull in WSL2 Variables
+# .wsl2rc lives outside of the dotfiles repo
+if [ "$OS_MODE" = "WSL2" ]; then
+    echo "Sourcing: ~/.wsl2rc"
+    source ~/.wsl2rc
+fi
+
+# Windows Shortcuts
+onedrive () {
+    if [ "$OS_MODE" = "WSL2" ]; then
+        cd $(echo $OneDriveFolder)
+    else
+        echo "This is not WSL2."
+    fi
+}
+
+home () {
+    if [ "$OS_MODE" = "WSL2" ]; then
+        cd $(echo $HomeFolder)
+    else
+        echo "This is not WSL2."
+    fi
+}
+
+# Terminal Syntax Highlighting
+cat () {
+    if [ "$OS_MODE" = "WSL2" ]; then
+        bat --plain --color=always "$@"
+    else
+        batcat --plain --color=always "$@"
+    fi
+}
+
+# Load SSH-Agent
+eval `ssh-agent`
+
 # Add bin dirs to PATH
-for dir in ~/bin/*; do
-    PATH=$PATH:$dir
+PRETTY_PATH=''
+cd ~/bin
+for dir in *; do
+    PATH=$PATH:"$HOME/bin/$dir"
+    PRETTY_PATH=$PRETTY_PATH:"~/bin/$dir"
 done
+echo "Bin Paths Added: $PRETTY_PATH"
 export PATH
+cd
+
+weather () {
+ curl wttr.in/moon?QF
+ curl wttr.in/?n2QF
+}
+curl wttr.in/moon?QF
+curl wttr.in/?n2QF
 
 # Set VIM as default editor
 VIM_PATH=$(which vim)
@@ -27,11 +79,6 @@ u() {
 # Home
 h() {
     cd
-}
-
-# Syntax Highlighting
-cat() {
-    batcat --plain --color=always "$@"
 }
 
 # Quick EXit
@@ -106,8 +153,8 @@ parse_git_branch() {
 }
 
 if [ "$color_prompt" = yes ]; then
-    # ✨⚡🔥👘💎💻🕯 💡📁⛏ ➡✝☦🕎▶⚕🔰✳✴❇🏁🗡❇⚔
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[01;31m\]$(parse_git_branch)\[\033[00m\] ⮞ '
+    # ⮞✨⚡🔥👘💎💻🕯 💡📁⛏ ➡✝☦🕎▶⚕🔰✳✴❇🏁🗡❇⚔
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[01;31m\]$(parse_git_branch)\[\033[00m\] ⚡ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(parse_git_branch)\$ '
 fi
