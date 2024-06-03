@@ -2,8 +2,6 @@
 
 ## Install
 
-### Install Dotfiles
-
 ⚠️ WARNING! This is a destructive action!
 
 Your existing ~/bin scripts from `~/bin/*` will be backed up to `~/bin/old`.
@@ -106,14 +104,10 @@ Leader key is `,` (comma).
     + `pom` = Start Pomodoro timer.
     + `w` = Open web browser at `$1`.
 - Opsec
-    + `fingerprints` = List `~/.ssh/*.pub` keys in
-      hexadecimal (Azure).
-    + `fingerprints-sha` = List `~/.ssh/*.pub` keys in
-        SHA256 (GitHub).
-    + `key` = Generate secure key from `$1`, with `$2`
-        length.
-    + `pass` = Generate secure pass from `$1` (domain), and
-        `$2` (username/email), with `$3` length.
+    + `fingerprints` = List `~/.ssh/*.pub` keys in hexadecimal (Azure).
+    + `fingerprints-sha` = List `~/.ssh/*.pub` keys in SHA256 (GitHub).
+    + `key` = Generate secure key from `$1`, with `$2` length.
+    + `pass` = Generate secure pass from `$1` (domain), and `$2` (username/email), with `$3` length.
     + `ssh-gen` = Generate `ed25519` key pair with `$1` (email)
 
 ### Patch a Font with Nerdfont Glyphs
