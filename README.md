@@ -20,7 +20,7 @@ cd dotfiles
 ./install.sh
 ```
 
-### Install Node and NVM
+### Install NVM and Node.js
 
 ```bash
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
