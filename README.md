@@ -2,66 +2,24 @@
 
 ## Install
 
-### Install Shell Packages
-
-```bash
-sudo apt update
-sudo apt upgrade
-```
-<<<<<<< Updated upstream
-Ubuntu:
-=======
-
-ilversearcher-ag  perl universal-ctags xsel/xclip
-
-### Install Node and NVM
->>>>>>> Stashed changes
-
-```bash
-sudo apt install bat tig pwgen ripgrep ack vim fzf tree
-```
-Termux:
-
-```bash
-sudo apt install bat tig pwgen ripgrep vim fzf tree which
-```
-
-### Symlink Dotfiles
+### Install Dotfiles
 
 ⚠️ WARNING! This is a destructive action!
 
-Backup your existing ~/bin scripts. For example: move scripts from `~/bin` to `~/bin/old`, as .bashrc
-and .profile build your $PATH from the subdirectories of ~/bin; So any scripts in
-~/bin will be outside of your shell path after you run `./install`.
+Your existing ~/bin scripts from `~/bin/*` will be backed up to `~/bin/old`.
+
+To install:
 
 ```bash
-mkdir -p ~/bin/old
-mv ~/bin/* ~/bin/old
-```
-
-<<<<<<< Updated upstream
-Clone this repo.
-=======
-### Symlink Dotfiles
-
-⚠️  WARNING! This is a destructive action!
->>>>>>> Stashed changes
-
-```bash
+# Clone this repo
 mkdir -p ~/repos
 git clone https://github.com/F1LT3R/dotfiles ~/repos/
 ```
 
-Ubuntu:
-
 ```bash
+# Run the installer menu
+cd dotfiles
 ./install.sh
-```
-
-Termux:
-
-```bash
-./install-root.sh
 ```
 
 ### Install Node and NVM
@@ -79,7 +37,7 @@ npm i -g emoj
 
 ### Install Packages via CURL
 
-YTDL
+#### YTDL
 
 ```bash
 mkdir -p ~/.local/bin
@@ -93,6 +51,7 @@ chmod a+rx ~/.local/bin/yt-dlp
 
 Leader key is `,` (comma).
 
+- `Ctrl + y` = Copy whole lines to clipboard w/ XClip.
 - `Ctrl + q` = Fast quit.
 - `, Space` = Clear search.
 - `, 1` = Toggle number line.
@@ -129,6 +88,7 @@ Leader key is `,` (comma).
 - `h` = Goto user home directory.
 - `cat` = Batcat syntax highlighting, plain mode.
 - `x` = Quick exit for terminal session.
+- `weather` = Show moon phase, and two-day weather.
 
 ### Bin Commands
 

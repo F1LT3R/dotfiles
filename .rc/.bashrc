@@ -50,11 +50,9 @@ export PATH
 cd
 
 weather () {
- curl wttr.in/moon?QF
- curl wttr.in/?n2QF
+    curl wttr.in/moon?QF
+    curl wttr.in/?n2QF
 }
-curl wttr.in/moon?QF
-curl wttr.in/?n2QF
 
 # Set VIM as default editor
 VIM_PATH=$(which vim)
