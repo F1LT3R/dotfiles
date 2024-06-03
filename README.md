@@ -2,25 +2,21 @@
 
 ## Install
 
-⚠️ WARNING! This is a destructive action!
-
-Your existing ~/bin scripts from `~/bin/*` will be backed up to `~/bin/old`.
-
-To install:
-
 ```bash
 # Clone this repo
 mkdir -p ~/repos
 git clone https://github.com/F1LT3R/dotfiles ~/repos/
 ```
-
 ```bash
+# ⚠️ WARNING! This is a destructive action!
+# Your existing ~/bin/* scripts from will be backed up to `~/bin/old`.
+
 # Run the installer menu
 cd dotfiles
 ./install.sh
 ```
 
-### Install Node and NVM
+### Install NVM and Node.js
 
 ```bash
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
