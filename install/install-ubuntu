@@ -1,8 +1,5 @@
 #!/bin/bash
 
-sudo apt update
-sudo apt upgrade
-sudo apt install bat tig pwgen ripgrep ack vim fzf tree silversearcher-ag perl universal-ctags xclip
+sudo apt install bat xclip
 
-./backup-bin-scripts.sh
-./create-symlinks.sh
+./install-common

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <file> [start_line] [end_line]"
+  exit 1
+fi
+
+if [ -n "$1" ] && [ -z "$2" ]; then
+  git blame "$1"
+elif [ -n "$1" ] && [ -n "$2" ] && [ -z "$3" ]; then
+  git blame "$1" -L "$2"
+elif [ -n "$1" ] && [ -n "$2" ] && [ -n "$3" ]; then
+  git blame "$1" -L "$2,$3"
+else
+  echo "Invalid arguments"
+  exit 1
+fi

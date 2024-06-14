@@ -1,1 +1,8 @@
-foo
+#!/bin/bash
+
+echo
+echo "Installing Node Version Manager"
+
+echo
+echo "Installing Node LTS"
+nvm install --lts

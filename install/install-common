@@ -1,0 +1,9 @@
+#!/bin/bash
+
+./install/backup-bin-scripts
+./install/create-symlinks
+
+sudo apt update
+sudo apt upgrade
+
+sudo apt install tig pwgen ripgrep ack vim fzf tree silversearcher-ag perl universal-ctags

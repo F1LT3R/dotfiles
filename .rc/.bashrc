@@ -12,7 +12,7 @@ fi
 # Windows Shortcuts
 onedrive () {
     if [ "$OS_MODE" = "WSL2" ]; then
-        cd $(echo $OneDriveFolder)
+        cd "$OneDriveFolder"
     else
         echo "This is not WSL2."
     fi
@@ -20,7 +20,7 @@ onedrive () {
 
 home () {
     if [ "$OS_MODE" = "WSL2" ]; then
-        cd $(echo $HomeFolder)
+        cd "$HomeFolder"
     else
         echo "This is not WSL2."
     fi
@@ -62,8 +62,8 @@ export SUDO_EDITOR=vim
 # sudo update-alternatives --config editor
 
 # Quick source
-alias s='source ~/.bashrc'
-alias b='vim ~/.bashrc'
+alias sr='source ~/.bashrc'
+alias br='vim ~/.bashrc'
 
 # Mobile ls
 alias lr='ls -atr --color=auto -C'
@@ -95,16 +95,33 @@ case $- in
       *) return;;
 esac
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
+# Don't put duplicate lines or lines starting with space in the history
 HISTCONTROL=ignoreboth
 
-# append to the history file, don't overwrite it
+# Ignore useless commands
+export HISTIGNORE="ls:ll:cd:pwd:exit"
+
+# Append to the history file, don't overwrite it
 shopt -s histappend
 
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+# Infinite History Length
 HISTSIZE=-1
 HISTFILESIZE=-1
+
+# Use Timestamps w/ History
+# export HISTTIMEFORMAT="%F %T "
+
+# Ensure the history is updated after each command
+export PROMPT_COMMAND='history -a; history -c; history -r'
+
+# History with syntax highlight
+hist () {
+    if [ "$OS_MODE" = "WSL2" ]; then
+        history | sed 's/^[ ]*[0-9]*[ ]*//' | bat --plain --color=always --language=bash --pager="less -R"
+    else
+        history | sed 's/^[ ]*[0-9]*[ ]*//' | batcat --plain --color=always --language=bash --pager="less -R"
+    fi
+}
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -152,7 +169,7 @@ parse_git_branch() {
 
 if [ "$color_prompt" = yes ]; then
     # ⮞✨⚡🔥👘💎💻🕯 💡📁⛏ ➡✝☦🕎▶⚕🔰✳✴❇🏁🗡❇⚔
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[01;31m\]$(parse_git_branch)\[\033[00m\] ⚡ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[01;31m\]$(parse_git_branch)\[\033[00m\] 👘 '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(parse_git_branch)\$ '
 fi

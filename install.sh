@@ -12,21 +12,21 @@ do
             echo
             echo "Installing Dotfiles for $opt..."
             echo
-            ./install/install-ubuntu.sh
+            ./install/install-ubuntu
             break
             ;;
         "WSL2 Ubuntu")
             echo
             echo "Installing Dotfiles for $opt..."
             echo
-            ./install/install-wsl2.sh
+            ./install/install-wsl2
             break
             ;;
         "Termux")
             echo
             echo "Installing Dotfiles for $opt..."
             echo
-            ./install/install-wsl2.sh
+            ./install/install-termux
             break
             ;;
         *) echo "Invalid option $REPLY";;
