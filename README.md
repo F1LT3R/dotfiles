@@ -12,11 +12,13 @@ Ubuntu:
 
 ```bash
 sudo apt install bat tig pwgen ripgrep ack vim fzf tree
+ffmpeg ffprobe
 ```
 Termux:
 
 ```bash
 sudo apt install bat tig pwgen ripgrep vim fzf tree which
+ffmpeg ffprobe
 ```
 
 ### Symlink Dotfiles
