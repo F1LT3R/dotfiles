@@ -1,8 +1,58 @@
+# Detect OS_MODE
+source ~/bin/system/detect-os-mode
+echo "OS_MODE Detected: $OS_MODE"
+
+# Pull in WSL2 Variables
+# .wsl2rc lives outside of the dotfiles repo
+if [ "$OS_MODE" = "WSL2" ]; then
+    echo "Sourcing: ~/.wsl2rc"
+    source ~/.wsl2rc
+fi
+
+# Windows Shortcuts
+onedrive () {
+    if [ "$OS_MODE" = "WSL2" ]; then
+        cd "$OneDriveFolder"
+    else
+        echo "This is not WSL2."
+    fi
+}
+
+home () {
+    if [ "$OS_MODE" = "WSL2" ]; then
+        cd "$HomeFolder"
+    else
+        echo "This is not WSL2."
+    fi
+}
+
+# Terminal Syntax Highlighting
+cat () {
+    if [ "$OS_MODE" = "WSL2" ]; then
+        bat --plain --color=always "$@"
+    else
+        batcat --plain --color=always "$@"
+    fi
+}
+
+# Load SSH-Agent
+eval `ssh-agent`
+
 # Add bin dirs to PATH
-for dir in ~/bin/*; do
-    PATH=$PATH:$dir
+PRETTY_PATH=''
+cd ~/bin
+for dir in *; do
+    PATH=$PATH:"$HOME/bin/$dir"
+    PRETTY_PATH=$PRETTY_PATH:"~/bin/$dir"
 done
+echo "Bin Paths Added: $PRETTY_PATH"
 export PATH
+cd
+
+weather () {
+    curl wttr.in/moon?QF
+    curl wttr.in/?n2QF
+}
 
 # Set VIM as default editor
 VIM_PATH=$(which vim)
@@ -12,8 +62,8 @@ export SUDO_EDITOR=vim
 # sudo update-alternatives --config editor
 
 # Quick source
-alias s='source ~/.bashrc'
-alias b='vim ~/.bashrc'
+alias sr='source ~/.bashrc'
+alias br='vim ~/.bashrc'
 
 # Mobile ls
 alias lr='ls -atr --color=auto -C'
@@ -27,11 +77,6 @@ u() {
 # Home
 h() {
     cd
-}
-
-# Syntax Highlighting
-cat() {
-    batcat --plain --color=always "$@"
 }
 
 # Quick EXit
@@ -50,16 +95,33 @@ case $- in
       *) return;;
 esac
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
+# Don't put duplicate lines or lines starting with space in the history
 HISTCONTROL=ignoreboth
 
-# append to the history file, don't overwrite it
+# Ignore useless commands
+export HISTIGNORE="ls:ll:cd:pwd:exit"
+
+# Append to the history file, don't overwrite it
 shopt -s histappend
 
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+# Infinite History Length
 HISTSIZE=-1
 HISTFILESIZE=-1
+
+# Use Timestamps w/ History
+# export HISTTIMEFORMAT="%F %T "
+
+# Ensure the history is updated after each command
+export PROMPT_COMMAND='history -a; history -c; history -r'
+
+# History with syntax highlight
+hist () {
+    if [ "$OS_MODE" = "WSL2" ]; then
+        history | sed 's/^[ ]*[0-9]*[ ]*//' | bat --plain --color=always --language=bash --pager="less -R"
+    else
+        history | sed 's/^[ ]*[0-9]*[ ]*//' | batcat --plain --color=always --language=bash --pager="less -R"
+    fi
+}
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -106,8 +168,8 @@ parse_git_branch() {
 }
 
 if [ "$color_prompt" = yes ]; then
-    # ✨⚡🔥👘💎💻🕯 💡📁⛏ ➡✝☦🕎▶⚕🔰✳✴❇🏁🗡❇⚔
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[01;31m\]$(parse_git_branch)\[\033[00m\] ⮞ '
+    # ⮞✨⚡🔥👘💎💻🕯 💡📁⛏ ➡✝☦🕎▶⚕🔰✳✴❇🏁🗡❇⚔
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;34m\]\w\[\033[01;31m\]$(parse_git_branch)\[\033[00m\] 👘 '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(parse_git_branch)\$ '
 fi

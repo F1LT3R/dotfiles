@@ -1,0 +1,2 @@
+#!/bin/bash
+git -c color.ui=always diff $1 | less -R

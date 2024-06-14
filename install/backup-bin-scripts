@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "Backing up ~/bin/* to ~/bin/old/*"
+
+mkdir -p ~/bin/old
+mv -f ~/bin/* ~/bin/old

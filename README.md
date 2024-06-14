@@ -37,23 +37,21 @@ mv ~/bin/* ~/bin/old
 Clone this repo.
 
 ```bash
+# Clone this repo
 mkdir -p ~/repos
 git clone https://github.com/F1LT3R/dotfiles ~/repos/
 ```
 
-Ubuntu:
-
 ```bash
+# ⚠️ WARNING! This is a destructive action!
+# Your existing ~/bin/* scripts from will be backed up to `~/bin/old`.
+
+# Run the installer menu
+cd dotfiles
 ./install.sh
 ```
 
-Termux:
-
-```bash
-./install-root.sh
-```
-
-### Install Node and NVM
+### Install NVM and Node.js
 
 ```bash
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
@@ -68,7 +66,7 @@ npm i -g emoj
 
 ### Install Packages via CURL
 
-YTDL
+#### YTDL
 
 ```bash
 mkdir -p ~/.local/bin
@@ -82,6 +80,7 @@ chmod a+rx ~/.local/bin/yt-dlp
 
 Leader key is `,` (comma).
 
+- `Ctrl + y` = Copy whole lines to clipboard w/ XClip.
 - `Ctrl + q` = Fast quit.
 - `, Space` = Clear search.
 - `, 1` = Toggle number line.
@@ -118,6 +117,7 @@ Leader key is `,` (comma).
 - `h` = Goto user home directory.
 - `cat` = Batcat syntax highlighting, plain mode.
 - `x` = Quick exit for terminal session.
+- `weather` = Show moon phase, and two-day weather.
 
 ### Bin Commands
 
@@ -135,14 +135,10 @@ Leader key is `,` (comma).
     + `pom` = Start Pomodoro timer.
     + `w` = Open web browser at `$1`.
 - Opsec
-    + `fingerprints` = List `~/.ssh/*.pub` keys in
-      hexadecimal (Azure).
-    + `fingerprints-sha` = List `~/.ssh/*.pub` keys in
-        SHA256 (GitHub).
-    + `key` = Generate secure key from `$1`, with `$2`
-        length.
-    + `pass` = Generate secure pass from `$1` (domain), and
-        `$2` (username/email), with `$3` length.
+    + `fingerprints` = List `~/.ssh/*.pub` keys in hexadecimal (Azure).
+    + `fingerprints-sha` = List `~/.ssh/*.pub` keys in SHA256 (GitHub).
+    + `key` = Generate secure key from `$1`, with `$2` length.
+    + `pass` = Generate secure pass from `$1` (domain), and `$2` (username/email), with `$3` length.
     + `ssh-gen` = Generate `ed25519` key pair with `$1` (email)
 
 ### Patch a Font with Nerdfont Glyphs

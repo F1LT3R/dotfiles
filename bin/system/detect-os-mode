@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Detect UBUNTU Native Mode
+if grep -qi 'ubuntu' /etc/os-release; then
+    OS_MODE="UBUNTU"
+fi
+
+# Detect WSL2 Ubuntu Mode
+if head /proc/version | grep -qi microsoft; then
+    OS_MODE="WSL2"
+fi
+
+# Detect TERMUX Mode
+if [ -n "$TERMUX_VERSION" ]; then
+    OS_MODE="TERMUX"
+fi
+
+export OS_MODE

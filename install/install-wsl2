@@ -1,0 +1,5 @@
+#!/bin/bash
+
+./install/install-common
+
+sudo apt install bat xclip
