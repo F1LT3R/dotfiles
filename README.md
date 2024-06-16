@@ -2,37 +2,11 @@
 
 ## Install
 
-### Install Shell Packages
-
-```bash
-sudo apt update
-sudo apt upgrade
-```
-Ubuntu:
-
-```bash
-sudo apt install bat tig pwgen ripgrep ack vim fzf tree
-ffmpeg ffprobe
-```
-Termux:
-
-```bash
-sudo apt install bat tig pwgen ripgrep vim fzf tree which
-ffmpeg ffprobe
-```
-
 ### Symlink Dotfiles
 
-⚠️ WARNING! This is a destructive action!
+⚠️ WARNING! This may be a destructive action!
 
-Backup your existing ~/bin scripts. For example: move scripts from `~/bin` to `~/bin/old`, as .bashrc
-and .profile build your $PATH from the subdirectories of ~/bin; So any scripts in
-~/bin will be outside of your shell path after you run `./install`.
-
-```bash
-mkdir -p ~/bin/old
-mv ~/bin/* ~/bin/old
-```
+Your existing `~/bin` scripts will be outside of your shell path after you run `./install.sh`. All scripts in your `~/bin` will be forably moved to `~/bin/old`.
 
 Clone this repo.
 
@@ -43,9 +17,6 @@ git clone https://github.com/F1LT3R/dotfiles ~/repos/
 ```
 
 ```bash
-# ⚠️ WARNING! This is a destructive action!
-# Your existing ~/bin/* scripts from will be backed up to `~/bin/old`.
-
 # Run the installer menu
 cd dotfiles
 ./install.sh
