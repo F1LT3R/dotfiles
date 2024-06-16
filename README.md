@@ -6,7 +6,7 @@
 
 ⚠️ WARNING! This may be a destructive action!
 
-Your existing `~/bin` scripts will be outside of your shell path after you run `./install.sh`. All scripts in your `~/bin` will be forably moved to `~/bin/old`.
+All scripts in `~/bin` will be forably moved to `~/bin/old`.
 
 Clone this repo.
 
