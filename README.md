@@ -94,7 +94,8 @@ Leader key is `,` (comma).
     + `gl $1` = Git Log Pretty for search term. Pipes to Less in Pager mode.
     + `gs` = Git Status. Piped to Less pager.
     + `gb $1 $2 $3` = Git Blame. $1 = f
-    + File. $2 Line. $3 End Line  Piped to Less pager.
+    + File. $2 Line. $3 End Line.
+    + `gd` = Git Diff. Piped to Less pager.
 - Shell
     + `clean` = Recursively remove `node_modules` and `.git`
         dirs.
