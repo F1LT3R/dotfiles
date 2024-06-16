@@ -6,7 +6,7 @@
 
 ⚠️ WARNING! This is a destructive action!
 
-All scripts in `~/bin` will be forably moved to `~/bin/old`. Symlinks will overwrite files when linking to this repository, Eg: `~/.bascrc`.
+All scripts in `~/bin` will be forably moved to `~/bin/old`. Symlinks will overwrite files and directories when linking to this repository, Eg: `~/.bashrc` and `~/.vim/`.
 
 ```bash
 # Clone this repo
