@@ -4,9 +4,9 @@
 
 ### Symlink Dotfiles
 
-⚠️ WARNING! This may be a destructive action!
+⚠️ WARNING! This is a destructive action!
 
-All scripts in `~/bin` will be forably moved to `~/bin/old`.
+All scripts in `~/bin` will be forably moved to `~/bin/old`. Symlinks will overwrite files when linking to this repository, Eg: `~/.bascrc`.
 
 ```bash
 # Clone this repo
