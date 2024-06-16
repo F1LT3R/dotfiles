@@ -78,8 +78,8 @@ Leader key is `,` (comma).
 
 ### Bash Aliases
 
-- `b` = Edit `~/.bashrc` in VIM.
-- `s` = Source `~/.bashrc`.
+- `br` = Edit `~/.bashrc` in VIM.
+- `sr` = Source `~/.bashrc`.
 - `lr` = Horizontal `ls`, latest changed last (for mobile).
 - `la` = Horizontal `ls`, showing hidden files (for mobile).
 - `u` = Move up a directory.
@@ -90,6 +90,8 @@ Leader key is `,` (comma).
 
 ### Bin Commands
 
+- Git
+    + `gl $1` = Git Log Pretty for search term. Pipes to Less in Pager mode.
 - Shell
     + `clean` = Recursively remove `node_modules` and `.git`
         dirs.
