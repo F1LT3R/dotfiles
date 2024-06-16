@@ -8,8 +8,6 @@
 
 All scripts in `~/bin` will be forably moved to `~/bin/old`.
 
-Clone this repo.
-
 ```bash
 # Clone this repo
 mkdir -p ~/repos
