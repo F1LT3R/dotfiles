@@ -1,10 +1,11 @@
 #!/bin/bash
 if [ -n "$1" ]; then
   export LESS_TERMCAP_so=$'\e[01;93'
-  git config color.diff.old "red"
-  git config color.diff.new "green"
-  git config color.diff.meta "magenta"
-  git -c color.ui=always log -S "$1" --source --graph --decorate --all | less -R -p "$1"
+  # git config color.diff.old "red"
+  # git config color.diff.new "green"
+  # git config color.diff.meta "magenta"
+
+  git -c color.ui=always log -S "$1" --source --graph --decorate --all --pretty=format:"%C(yellow)%h%Creset %C(bold white)%s%Creset %C(bold blue)(%cr) %C(bold cyan)<%an>%Creset" | less -R -p "$1"
 else
-  git -c color.ui=always log --source --graph --decorate --all | less -R
+  git -c color.ui=always log --source --graph --decorate --all --pretty=format:"%C(yellow)%h%Creset %C(bold white)%s%Creset %C(bold blue)(%cr) %C(bold cyan)<%an>%Creset" | less -R
 fi

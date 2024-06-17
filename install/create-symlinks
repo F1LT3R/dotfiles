@@ -33,6 +33,10 @@ echo "Linking ~/.profile"
 sudo rm -rf $HOME/.profile
 ln -s $BASE/.rc/.profile $HOME/.profile
 
+echo "Linking ~/.gitconfig"
+sudo rm -rf $HOME/.gitconfig
+ln -s $BASE/.rc/.gitconfig $HOME/.gitconfig
+
 mkdir -p ~/bin
 cd bin
 for DIR in *; do

@@ -3,13 +3,12 @@ SEARCH=$1
 echo "Searching for: $SEARCH"
 
 export LESS_TERMCAP_so=$'\e[01;33m'
-git config color.diff.old "red"
-git config color.diff.new "green"
-git config color.diff.meta "magenta"
+# git config color.diff.old "red"
+# git config color.diff.new "green"
+# git config color.diff.meta "magenta"
 
 if [ -n "$SEARCH" ]; then
   git log -G "$SEARCH" -p --color=always --graph --pretty=format:"%C(yellow)%h%Creset %C(bold white)%s%Creset %C(bold blue)(%cr) %C(bold cyan)<%an>%Creset" | less -R -p "$SEARCH"
 else
-  # git log -p --color=always --graph --pretty=format:"%C(yellow)%h%Creset %C(bold white)%s%Creset %C(bold blue)(%cr) %C(bold cyan)<%an>%Creset" | less -R
   git log --color=always --graph --pretty=format:"%C(yellow)%h%Creset %C(bold white)%s%Creset %C(bold blue)(%cr) %C(bold cyan)<%an>%Creset" | less -R
 fi
