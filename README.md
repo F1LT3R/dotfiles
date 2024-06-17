@@ -97,6 +97,9 @@ Leader key is `,` (comma).
     + `gs` = Git Status. Piped to Less pager.
     + `gb $1 $2 $3` = Git Blame. $1 = File. $2 Line. $3 End Line. $2 and $3 are optional.
     + `gd $1` = Git Diff. $1 = Git Ref (branch, hash, HEAD^, etc). Piped to Less pager.
+    + `gc` = Git Conflicting Files. Runs from root of repo.
+    + `gc.` = Git Conflicting Files. Runs from present
+        directory.
 - Shell
     + `clean` = Recursively remove `node_modules` and `.git`
         dirs.
