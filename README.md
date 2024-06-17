@@ -92,11 +92,12 @@ Leader key is `,` (comma).
 
 - Git
     + `gl $1` = Git Log Pretty for search term. Pipes to Less in Pager mode.
-    + `gla $1` = Git Log Graphed Pretty for search term.
+    + `gla $1` = Git Log --all. Graphed Pretty for search term.
         $1 = Search term. $1 is optional.
     + `gs` = Git Status. Piped to Less pager.
     + `gb $1 $2 $3` = Git Blame. $1 = File. $2 Line. $3 End Line. $2 and $3 are optional.
-    + `gd $1` = Git Diff. $1 = Git Ref (branch, hash, HEAD^, etc). Piped to Less pager.
+    + `gd $1 $1` = Git Diff. $1 = Git Ref (branch, hash, HEAD^, etc). Piped to Less pager. $1 and $1 are optional.
+    + `gdn $1 $1` = Git Diff --name-only. $1 = Git Ref (branch, hash, HEAD^, etc). Piped to Less pager. $1 and $1 are optional.
     + `gc` = Git Conflicting Files. Runs from root of repo.
     + `gc.` = Git Conflicting Files. Runs from present
         directory.

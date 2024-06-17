@@ -1,2 +1,9 @@
 #!/bin/bash
-git -c color.ui=always diff $1 | less -R
+
+if [ -n "$1" ] && [ -n "$2" ]; then
+  git -c color.ui=always diff "$1" "$2" | less -R
+elif [ -n "$1" ]; then
+  git -c color.ui=always diff "$1" | less -R
+else
+  git -c color.ui=always diff | less -R
+fi

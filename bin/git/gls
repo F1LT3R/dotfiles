@@ -1,2 +1,0 @@
-#!/bin/bash
-git -c color.ui=always log -S $1 --source --graph --decorate --all | less -R
