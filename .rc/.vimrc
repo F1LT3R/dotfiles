@@ -1,6 +1,6 @@
 let g:ale_disable_lsp = 1
 filetype plugin indent on
-" set termguicolors
+"set termguicolors
 
 set noerrorbells
 set noswapfile
@@ -12,6 +12,8 @@ set nowrap
 set tabstop=4
 set shiftwidth=4
 " set expandtab
+
+nnoremap <C-s> :set spell! spelllang=en_us<CR>
 
 let g:markdown_fenced_languages = ['html', 'javascript', 'bash']
 
@@ -222,10 +224,14 @@ function! MyHighlights() abort
     hi clear SpellCap
     hi clear SpellRare
     hi clear SpellLocal
-    highlight SpellBad cterm=NONE gui=NONE guibg=#ff0000 guifg=#ffffff
-    highlight SpellCap cterm=NONE gui=NONE guibg=#aa0000 guifg=#eeeeee
-    highlight SpellRare cterm=NONE gui=NONE guibg=#cc00cc guifg=#ffffff
-    highlight SpellLocal cterm=NONE gui=NONE guibg=#0000cc guifg=#ffffff
+    " highlight SpellBad cterm=NONE gui=NONE guibg=#ff0000 guifg=#ffffff
+    " highlight SpellCap cterm=NONE gui=NONE guibg=#aa0000 guifg=#eeeeee
+    " highlight SpellRare cterm=NONE gui=NONE guibg=#cc00cc guifg=#ffffff
+    " highlight SpellLocal cterm=NONE gui=NONE guibg=#0000cc guifg=#ffffff
+    highlight SpellBad cterm=NONE ctermbg=red ctermfg=white
+    highlight SpellCap cterm=NONE ctermbg=darkred ctermfg=lightgrey
+    highlight SpellRare cterm=NONE ctermbg=magenta ctermfg=white
+    highlight SpellLocal cterm=NONE ctermbg=blue ctermfg=white
 endfunction
 
 augroup MyColors
@@ -233,7 +239,8 @@ augroup MyColors
     autocmd ColorScheme * call MyHighlights()
 augroup END
 
-set spellfile=~/.config/dotfiles/lib/spell/dict_words_en_us.add
+set spellfile=~/.vim/spell/dict_words_en_us.add
+set spell spelllang=en_us
 
 " Map <leader>t to open a terminal
 set splitbelow
