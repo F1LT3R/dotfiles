@@ -121,6 +121,12 @@ Leader key is `,` (comma).
     + `pass` = Generate secure pass from `$1` (domain), and `$2` (username/email), with `$3` length.
     + `ssh-gen` = Generate `ed25519` key pair with `$1` (email)
 
+### Silent
+
+Silent tagging system.
+
+
+
 ### Patch a Font with Nerdfont Glyphs
 
 https://github.com/ryanoasis/nerd-fonts?tab=readme-ov-file#font-patcher

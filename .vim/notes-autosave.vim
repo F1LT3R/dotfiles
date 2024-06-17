@@ -1,2 +1,2 @@
 autocmd CursorHold,CursorHoldI * silent! w
-set updatetime=2000
+set updatetime=5000

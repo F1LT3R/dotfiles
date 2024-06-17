@@ -2,6 +2,7 @@
   "suggest.noselect": true,
   "suggest.enablePreselect": false,
   "suggest.minTriggerInputLength": 2,
+  "suggest.acceptSuggestionOnCommitCharacter": true,
   "diagnostic.errorSign": "✘",
   "diagnostic.warningSign": "!",
   "diagnostic.infoSign": "?",

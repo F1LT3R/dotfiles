@@ -1,0 +1,2 @@
+#!/bin/bash
+ack '#\w+' -o --no-filename --group | sort -u

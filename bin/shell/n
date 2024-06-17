@@ -1,4 +1,17 @@
 #!/bin/bash
-FILE="NOTE_$(dt).md";
-DIR="$HOME/notes/";
-vim -c "source ~/.vim/notes-autosave.vim" +startinsert "$DIR/$FILE"
+
+# Ensure the directory exists
+DIR="$HOME/notes/"
+mkdir -p "$DIR"
+
+# Create the file name with the current date and time
+FILE="Note_$(date +%Y-%m-%d_%H-%M-%S).md"
+FILEPATH="$DIR/$FILE"
+
+# Write the initial content to the file
+echo "# Note $(date +%Y/%m/%d) $(date +%H:%M:%S)
+
+" > "$FILEPATH"
+
+# Open the file in vim with autosave enabled
+vim -c "source ~/.vim/notes-autosave.vim" -c "autocmd VimEnter * ++once normal G$" +startinsert "$FILEPATH"
