@@ -5,4 +5,4 @@ export LESS_TERMCAP_so=$'\e[01;33m'
 git config color.diff.old "red"
 git config color.diff.new "green"
 git config color.diff.meta "magenta"
-git log -G $SEARCH -p --color=always --pretty=format:"%C(yellow)%h%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset" | less -R -p"$SEARCH"
+git log -G $SEARCH -p --color=always --pretty=format:"%C(yellow)%h%Creset %C(bold white)%s%Creset %C(bold blue)(%cr) %C(bold cyan)<%an>%Creset" | less -R -p "$SEARCH"
