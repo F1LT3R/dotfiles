@@ -125,7 +125,17 @@ Leader key is `,` (comma).
 
 Silent tagging system.
 
-
+- `!! acheived` = win, celebrate, improvement, accomplishment
+- `#hashtag` = tag, hashtag
+- `$$variable` = variable, variable=value, $variable (to use)
+- `~ todo` = todo, task, todo-spec-compatibility
+- `^ improve` = to-improve, or refine, personal or project
+- `%datetime` = date or time
+- `@name` = person, group, company, entity
+- `&&link` = link, link:[linemchar]
+- `"" reminder` = reminder, popup
+- `::include` = include, include:[line-start,line-end]
+- `*project` = project, category
 
 ### Patch a Font with Nerdfont Glyphs
 

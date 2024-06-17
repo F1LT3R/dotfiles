@@ -1,2 +1,6 @@
 #!/bin/bash
-ack '#\w+' -o --no-filename --group | sort -u
+echo "Silent Tagging System"
+echo "#hashtag, \$\$variable, @name, &&link, %datetime, *project, ::inlclude, ~ todo, ^ improve, !! achievement,  \"\" reminder"
+
+cd ~/notes
+ack '([#@%]\w+|&&\S+|::\w+|$$\w+|\*\w+|~ .*|\^ .*|!! .*|"" .*)' --color | sort -u
