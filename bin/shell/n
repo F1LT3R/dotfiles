@@ -1,0 +1,4 @@
+#!/bin/bash
+FILE="NOTE_$(dt).md";
+DIR="$HOME/notes/";
+vim -c "source ~/.vim/notes-autosave.vim" +startinsert "$DIR/$FILE"

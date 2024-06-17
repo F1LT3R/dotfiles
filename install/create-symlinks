@@ -44,3 +44,10 @@ for DIR in *; do
     rm -f $HOME/bin/$DIR
     ln -sf $BASE/bin/$DIR $HOME/bin/$DIR
 done
+
+if [ ! -d "~/notes" ]; then
+  mkdir -p "~/notes"
+  echo "Directory '~/notes' created."
+else
+  echo "Directory '~/notes' already exists."
+fi
