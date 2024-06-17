@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ -n "$1" ]; then
+  git -c color.ui=always log -S "$1" --source --graph --decorate --all | less -R
+else
+  git -c color.ui=always log --source --graph --decorate --all | less -R
+fi

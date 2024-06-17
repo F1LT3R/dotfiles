@@ -1,5 +1,4 @@
 #!/bin/bash
-# git log -G $1 --color --pretty=format:"%C(yellow)%h%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset"
 SEARCH=$1
 export LESS_TERMCAP_so=$'\e[01;33m'
 git config color.diff.old "red"

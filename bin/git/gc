@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Navigate to the root of the repository
+repo_root=$(git rev-parse --show-toplevel)
+cd "$repo_root" || exit
+
+# List conflicting files
+conflicting_files=$(git ls-files -u | awk '{print $4}' | sort | uniq)
+
+# Check if there are any conflicting files
+if [ -z "$conflicting_files" ]; then
+    echo -e "\033[32mNo conflicting files found.\033[0m"
+else
+    echo -e "\033[31mConflicting files:\033[0m"
+    for file in $conflicting_files; do
+        echo -e "\033[33m$file\033[0m"
+    done
+fi

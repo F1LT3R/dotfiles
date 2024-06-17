@@ -2,39 +2,11 @@
 
 ## Install
 
-### Install Shell Packages
-
-```bash
-sudo apt update
-sudo apt upgrade
-```
-Ubuntu:
-
-```bash
-sudo apt install bat tig pwgen ripgrep ack vim fzf tree
-ffmpeg ffprobe
-```
-Termux:
-
-```bash
-sudo apt install bat tig pwgen ripgrep vim fzf tree which
-ffmpeg ffprobe
-```
-
 ### Symlink Dotfiles
 
 ⚠️ WARNING! This is a destructive action!
 
-Backup your existing ~/bin scripts. For example: move scripts from `~/bin` to `~/bin/old`, as .bashrc
-and .profile build your $PATH from the subdirectories of ~/bin; So any scripts in
-~/bin will be outside of your shell path after you run `./install`.
-
-```bash
-mkdir -p ~/bin/old
-mv ~/bin/* ~/bin/old
-```
-
-Clone this repo.
+All scripts in `~/bin` will be forably moved to `~/bin/old`. Symlinks will overwrite files and directories when linking to this repository, Eg: `~/.bashrc` and `~/.vim/`.
 
 ```bash
 # Clone this repo
@@ -43,9 +15,6 @@ git clone https://github.com/F1LT3R/dotfiles ~/repos/
 ```
 
 ```bash
-# ⚠️ WARNING! This is a destructive action!
-# Your existing ~/bin/* scripts from will be backed up to `~/bin/old`.
-
 # Run the installer menu
 cd dotfiles
 ./install.sh
@@ -109,8 +78,8 @@ Leader key is `,` (comma).
 
 ### Bash Aliases
 
-- `b` = Edit `~/.bashrc` in VIM.
-- `s` = Source `~/.bashrc`.
+- `br` = Edit `~/.bashrc` in VIM.
+- `sr` = Source `~/.bashrc`.
 - `lr` = Horizontal `ls`, latest changed last (for mobile).
 - `la` = Horizontal `ls`, showing hidden files (for mobile).
 - `u` = Move up a directory.
@@ -121,6 +90,13 @@ Leader key is `,` (comma).
 
 ### Bin Commands
 
+- Git
+    + `gl $1` = Git Log Pretty for search term. Pipes to Less in Pager mode.
+    + `gla $1` = Git Log Graphed Pretty for search term.
+        $1 = Search term. $1 is optional.
+    + `gs` = Git Status. Piped to Less pager.
+    + `gb $1 $2 $3` = Git Blame. $1 = File. $2 Line. $3 End Line. $2 and $3 are optional.
+    + `gd $1` = Git Diff. $1 = Git Ref (branch, hash, HEAD^, etc). Piped to Less pager.
 - Shell
     + `clean` = Recursively remove `node_modules` and `.git`
         dirs.
