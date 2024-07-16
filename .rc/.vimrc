@@ -190,6 +190,7 @@ nnoremap <silent> <Leader>p :Rg<CR>
 
 " NERDTree
 nnoremap <C-f> :NERDTreeToggle<CR>
+nnoremap <Leader>f :NERDTreeToggle<CR>
 let NERDTreeShowHidden=1
 
 " let g:syntastic_go_checkers = "gofmt"

@@ -38,6 +38,9 @@ cat () {
 # Load SSH-Agent
 eval `ssh-agent`
 
+# Add ~/.local/bin to PATH
+PATH=$PATH:~/.local/bin
+
 # Add bin dirs to PATH
 PRETTY_PATH=''
 cd ~/bin
@@ -164,7 +167,9 @@ force_color_prompt=yes
 color_prompt=yes
 
 parse_git_branch() {
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/  \1/'
+    # git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/  \1/'
+    # git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ 🌿⤛ \1/'
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ ⤛ \1/'
 }
 
 if [ "$color_prompt" = yes ]; then
