@@ -37,6 +37,10 @@ echo "Linking ~/.gitconfig"
 sudo rm -rf $HOME/.gitconfig
 ln -s $BASE/.rc/.gitconfig $HOME/.gitconfig
 
+echo "Linking ~/.ackrc"
+sudo rm -rf $HOME/.ackrc
+ln -s $BASE/.rc/.ackrc $HOME/.ackrc
+
 mkdir -p ~/bin
 cd bin
 for DIR in *; do

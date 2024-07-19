@@ -1,12 +1,13 @@
 --no-group
-
 --color
 
-#--pager
-#less -r
+--pager
+less -R
 
---ignore-directory=is:env
 --ignore-directory=is:node_modules
+--ignore-directory=is:composer
+--ignore-directory=is:.git
+
 --ignore-file=is:Markserv.log
 --ignore-file=is:npm.debug.*
 --ignore-file=is:*.log
