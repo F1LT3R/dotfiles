@@ -107,6 +107,7 @@ Leader key is `,` (comma).
     + `s` = Run `npm start`.
     + `v` = Run `vim $@`.
     + `t` = Run `tree $@`.
+    + `f` = Find resursive `find $1 $2` where $1 is PATH and $2 is filename.
     + `tg` = Grep for `$1` with `tree`.
     + `vc` = Open `.vimrc` in VIM.
 - WSL2
