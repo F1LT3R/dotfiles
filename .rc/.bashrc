@@ -1,5 +1,5 @@
 # Detect OS_MODE
-source ~/bin/system/detect-os-mode
+source ~/bin/system/detect-os-mode 2>/dev/null
 echo "OS_MODE Detected: $OS_MODE"
 
 # Pull in WSL2 Variables
@@ -28,7 +28,9 @@ home () {
 
 # Terminal Syntax Highlighting
 cat () {
-    if [ "$OS_MODE" = "WSL2" ]; then
+    if [ "$OS_MODE" == "WSL2" ]; then
+        bat --plain --color=always "$@"
+    elif [ "$OS_MODE" == "TERMUX" ]; then
         bat --plain --color=always "$@"
     else
         batcat --plain --color=always "$@"

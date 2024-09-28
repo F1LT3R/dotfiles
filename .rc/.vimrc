@@ -298,7 +298,7 @@ inoremap <C-z> <Nop>
 cnoremap <C-z> <Nop>
 
 " colorscheme xcodedarkvhc
-colorscheme radicalgoodspeed
+" colorscheme radicalgoodspeed
 " hi Normal guibg=#000000 guifg=#DDDDDD
 " set cursorline
 " hi CursorLine guibg=Grey10

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+source ./bin/system/detect-os-mode 2>/dev/null
+
+echo "OS_MODE Detceted: $OS_MODE"
+
 PS3='
 Please select your OS: '
 options=("Ubuntu Native" "WSL2 Ubuntu" "Termux")

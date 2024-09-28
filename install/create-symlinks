@@ -22,7 +22,12 @@ rm -f $HOME/.vimrc
 ln -s $BASE/.rc/.vimrc $HOME/.vimrc
 
 echo "Linking ~/.vim"
-sudo rm -rf $HOME/.vim
+if [["$OS_MODE" != "TERMUX"]]; then
+  sudo rm -rf $HOME/.vim
+else
+  rm -rf $HOME/.vim
+fi
+
 ln -s $BASE/.vim $HOME/.vim
 
 echo "Linking ~/.bashrc"
