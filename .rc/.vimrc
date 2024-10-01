@@ -176,8 +176,13 @@ let g:go_fmt_command = "goimports"
 " automatically highlight variable your cursor is on
 let g:go_auto_sameids = 0
 
-let g:ale_sign_error = '❌'
-let g:ale_sign_warning = '⚠️'
+if $OS_MODE ==# 'TERMUX'
+    let g:ale_sign_error = 'X'
+    let g:ale_sign_warning = '!'
+else
+    let g:ale_sign_error = '❌'
+    let g:ale_sign_warning = '⚠️'
+endif
 
 set signcolumn=number
 
@@ -296,6 +301,10 @@ nnoremap <C-z> <Nop>
 vnoremap <C-z> <Nop>
 inoremap <C-z> <Nop>
 cnoremap <C-z> <Nop>
+
+if $OS_MODE !=# 'TERMUX'
+    colorscheme radicalgoodspeed
+endif
 
 " colorscheme xcodedarkvhc
 " colorscheme radicalgoodspeed

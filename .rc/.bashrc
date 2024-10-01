@@ -26,6 +26,14 @@ home () {
     fi
 }
 
+c: () {
+    if [ "$OS_MODE" = "WSL2" ]; then
+        cd "/mnt/c"
+    else
+        echo "This is not WSL2."
+    fi
+}
+
 # Terminal Syntax Highlighting
 cat () {
     if [ "$OS_MODE" == "WSL2" ]; then
