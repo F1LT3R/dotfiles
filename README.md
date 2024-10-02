@@ -108,6 +108,8 @@ Leader key is `,` (comma).
     + `f` = Find resursive `find $1 $2` where $1 is PATH and $2 is filename.
     + `tg` = Grep for `$1` with `tree`.
     + `vc` = Open `.vimrc` in VIM.
+    + `rl` = Read line from file where $1 is the filepath and $2 is the line to read.
+    + `cl` = Copy line from file to clipboard where $1 is the filepath and $2 is the line to read. Uses `xsel`.
 - WSL2
     + `e` = Open `explorer.exe` in current directory.
     + `c:` = Change directory to `/mnt/c`.

@@ -1,0 +1,4 @@
+#!/bin/bash
+LINE=$(head $1 -n $2 | tail -n 1)
+echo $LINE;
+echo $LINE | xsel --clipboard

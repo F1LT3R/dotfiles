@@ -1,0 +1,2 @@
+#!/bin/bash
+head $1 -n $2 | tail -n 1
