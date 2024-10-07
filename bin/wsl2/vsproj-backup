@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -z "$1" ] || [ -z "$2" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+	echo "Usage: vsproj-backup <source_directory> <destination_directory>"
+	exit 1
+fi
+
+rsync -av --exclude='/bin' --exclude='/obj' --exclude='/.vs' --exclude='/packages' $1 $2

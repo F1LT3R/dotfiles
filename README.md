@@ -118,6 +118,7 @@ Leader key is `,` (comma).
     + `hosts` = Open Windows hosts file.
     + `pom` = Start Pomodoro timer.
     + `w` = Open web browser at `$1`.
+    + `vsproj-backup` = Copy Visual Studio Project to new dir, where `$1` is SOURCE_DIR and `$2` is DEST_DIR, excluding dirs: bin, obj, .vs, packages, node_modules.
 - Opsec
     + `fingerprints` = List `~/.ssh/*.pub` keys in hexadecimal (Azure).
     + `fingerprints-sha` = List `~/.ssh/*.pub` keys in SHA256 (GitHub).
