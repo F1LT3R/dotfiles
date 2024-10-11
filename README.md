@@ -114,7 +114,9 @@ Leader key is `,` (comma).
     + `e` = Open `explorer.exe` in current directory.
     + `c:` = Change directory to `/mnt/c`.
     + `home` = Change directory to Windows `$HomeFolder`.
-    + `onedirve` = Change directory to Microsoft OneDrive folder.
+    + `onedrive` = Change directory to Microsoft OneDrive folder.
+    + `desktop` = Change directory to `$OneDrive`/Desktop folder. 
+    + `downloads` = Change directory to `$HomeFolder`/Downloads. 
     + `hosts` = Open Windows hosts file.
     + `pom` = Start Pomodoro timer.
     + `w` = Open web browser at `$1`.

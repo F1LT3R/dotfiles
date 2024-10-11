@@ -5,4 +5,4 @@ if [ -z "$1" ] || [ -z "$2" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
 	exit 1
 fi
 
-rsync -av --exclude='/bin' --exclude='/obj' --exclude='/.vs' --exclude='/packages' $1 $2
+rsync -av --exclude='*/bin/' --exclude='*/obj/' --exclude='*/.vs/' --exclude='*/packages/' --exclude='*/dist/' --exclude='*/node_modules' "$1" "$2"

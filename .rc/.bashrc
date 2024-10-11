@@ -34,6 +34,23 @@ c: () {
     fi
 }
 
+downloads () {
+    if [ "$OS_MODE" = "WSL2" ]; then
+        cd "$HomeFolder/Downloads"
+    else
+        echo "This is not WSL2."
+    fi
+}
+
+desktop () {
+    if [ "$OS_MODE" = "WSL2" ]; then
+        cd "$OneDriveFolder/Desktop"
+    else
+        echo "This is not WSL2."
+    fi
+}
+
+
 # Terminal Syntax Highlighting
 cat () {
     if [ "$OS_MODE" == "WSL2" ]; then
