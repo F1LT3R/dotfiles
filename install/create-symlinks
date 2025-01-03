@@ -10,7 +10,7 @@ BASE=$(pwd)
 echo "Installing from: $BASE"
 
 echo
-echo 'Are you sure you want to contine? (y/n)'
+echo 'Are you sure you want to continue? (y/n)'
 read -r response
 if [[ "$response" != "y" && "$response" != "Y" ]]; then
   echo "Install.sh exited without making changes."
@@ -22,7 +22,7 @@ rm -f $HOME/.vimrc
 ln -s $BASE/.rc/.vimrc $HOME/.vimrc
 
 echo "Linking ~/.vim"
-if [["$OS_MODE" != "TERMUX"]]; then
+if [[ "$OS_MODE" != "TERMUX" ]]; then
   sudo rm -rf $HOME/.vim
 else
   rm -rf $HOME/.vim
@@ -31,19 +31,35 @@ fi
 ln -s $BASE/.vim $HOME/.vim
 
 echo "Linking ~/.bashrc"
-sudo rm -rf $HOME/.bashrc
+if [[ "$OS_MODE" != "TERMUX" ]]; then
+  sudo rm -rf $HOME/.bashrc
+else
+  rm -rf $HOME/.bashrc
+fi
 ln -s $BASE/.rc/.bashrc $HOME/.bashrc
 
 echo "Linking ~/.profile"
-sudo rm -rf $HOME/.profile
+if [[ "$OS_MODE" != "TERMUX" ]]; then
+  sudo rm -rf $HOME/.profile
+else
+  rm -rf $HOME/.profile
+fi
 ln -s $BASE/.rc/.profile $HOME/.profile
 
 echo "Linking ~/.gitconfig"
-sudo rm -rf $HOME/.gitconfig
+if [[ "$OS_MODE" != "TERMUX" ]]; then
+  sudo rm -rf $HOME/.gitconfig
+else
+  rm -rf $HOME/.gitconfig
+fi
 ln -s $BASE/.rc/.gitconfig $HOME/.gitconfig
 
 echo "Linking ~/.ackrc"
-sudo rm -rf $HOME/.ackrc
+if [[ "$OS_MODE" != "TERMUX" ]]; then
+  sudo rm -rf $HOME/.ackrc
+else
+  rm -rf $HOME/.ackrc
+fi
 ln -s $BASE/.rc/.ackrc $HOME/.ackrc
 
 mkdir -p ~/bin
