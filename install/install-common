@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# ./install/backup-bin-scripts
-# ./install/create-symlinks
-
-pkg update
-pkg upgrade
-
+./install/backup-bin-scripts
+./install/create-symlinks
 
 if [[ "$OS_MODE" != "TERMUX" ]]; then
+    sudo apt update
+    sudo apt upgrade
     sudo apt install ack universal-ctags vim  # These packages have alternate names in Termux
-    sudo apt install tig pwgen ripgrep fzf tree silversearcher-ag perl
+    sudo apt install tig pwgen ripgrep fzf tree silversearcher-ag perl python3
 else
-    pkg install tig pwgen ripgrep fzf tree silversearcher-ag perl
+    pkg update
+    pkg upgrade
+    pkg install tig pwgen ripgrep fzf tree silversearcher-ag perl python3
 fi

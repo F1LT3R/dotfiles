@@ -1,0 +1,12 @@
+#!/bin/bash
+
+mouse_device_id=18  # Replace with your mouse device ID
+mouse_button=1      # Left mouse button
+
+while true; do
+    state=$(xinput --query-state "$mouse_device_id" | grep "button\[1\]=")
+    if [[ "$state" == *"button[1]=down"* ]]; then
+        xdotool click 1
+        sleep 0.01  # Adjust the delay as needed
+    fi
+done

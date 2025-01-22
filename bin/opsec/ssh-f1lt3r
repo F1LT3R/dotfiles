@@ -13,7 +13,7 @@ echo "Removing Identities from SSH-Agent"
 ssh-add -D
 
 echo
-echo "Adding SBLI Key to SSH-Agent"
+echo "Adding F1LT3R GitHub Key to SSH-Agent"
 ssh-add $KEY_FILE
 
 echo
