@@ -11,5 +11,5 @@ if [[ "$OS_MODE" != "TERMUX" ]]; then
 else
     pkg update
     pkg upgrade
-    pkg install tig pwgen ripgrep fzf tree silversearcher-ag perl python3
+    pkg install python3 tig pwgen ripgrep fzf tree silversearcher-ag perl vim
 fi

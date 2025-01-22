@@ -1,5 +1,5 @@
 #!/bin/bash
 
-pkg install bat which ack-grep ctags vim-python
+pkg install bat which ack-grep ctags
 
 ./install/install-common

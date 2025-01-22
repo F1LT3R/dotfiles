@@ -1,8 +1,0 @@
-#!/bin/bash
-(cd ~/Documents/Bible/web-bible &&
-    ack . | fzf --delimiter=':' --reverse --bind 'enter:execute(
-            T="{3}"; V=$(echo {1} | sed "s/[0-9]*\///;s/\// /;s/0//"); echo $T - $V:{2};
-        )+execute(
-            T="{3}"; V=$(echo {1} | sed "s/[0-9]*\///;s/\// /;s/0//"); echo $T - $V:{2} | xclip -sel clip;
-        )+abort'
-)
