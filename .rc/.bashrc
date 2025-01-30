@@ -50,7 +50,6 @@ desktop () {
     fi
 }
 
-
 # Terminal Syntax Highlighting
 cat () {
     if [ "$OS_MODE" == "WSL2" ]; then
@@ -97,13 +96,18 @@ alias br='vim ~/.bashrc'
 alias lr='ls -atr --color=auto -C'
 alias la='ls -ax'
 
-# Up Dir (Only works at end of rc file)
-u() {
+# Nautilus
+./() {
+    (nohup nautilus "$1" >/dev/null 2>&1 & disown) >/dev/null 2>&1
+}
+
+# Back Directory
+-() {
     cd ..
 }
 
 # Home
-h() {
+0() {
     cd
 }
 
