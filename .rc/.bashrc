@@ -116,6 +116,14 @@ x() {
     exit
 }
 
+c() {
+	code "$@"
+}
+
+c.() {
+	code "."
+}
+
 # Node.js & NVM
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
