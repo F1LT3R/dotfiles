@@ -1,6 +1,4 @@
 # Detect OS_MODE
-echo "Current Directory at Start: $(pwd)"
-
 source ~/bin/system/detect-os-mode 2>/dev/null
 echo "OS_MODE Detected: $OS_MODE"
 
