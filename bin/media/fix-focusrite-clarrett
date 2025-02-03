@@ -1,0 +1,6 @@
+#!/bin/bash
+CARD=$(pactl list cards | awk '/Focusrite_Clarett__8Pre/ {print $2}')
+OPTIONS="output:multichannel-output+input:multichannel-input"
+echo $CARD $OPTIONS
+pactl set-card-profile $CARD $OPTIONS
+

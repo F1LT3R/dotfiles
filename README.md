@@ -159,3 +159,10 @@ FONT_PATH=/home/user/.local/share/fonts/MonoLisaCustom-Regular.ttf
 fontforge -script font-patcher  ~/.local/share/fonts/MonoLisaCustom-Light.ttf --use-single-width-glyphs --complete -out ~/.local/share/fonts
 fontforge -script font-patcher  ~/.local/share/fonts/MonoLisaCustom-Regular.ttf --use-single-width-glyphs --complete -out ~/.local/share/fonts
 ```
+
+### Fix Clarrett Soundboard on Ubuntu
+
+```bash
+pactl list cards
+pactl set-card-profile alsa_card.usb-Focusrite_Clarett__8Pre_00004316-00 output:multichannel-output+input:multichannel-input
+```
