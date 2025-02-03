@@ -111,7 +111,7 @@ Leader key is `,` (comma).
     + `vc` = Open `.vimrc` in VIM.
     + `rl` = Read line from file where $1 is the filepath and $2 is the line to read.
     + `cl` = Copy line from file to clipboard where $1 is the filepath and $2 is the line to read. Uses `xsel`.
-    + `ht` = Start `http-server`. Install globally with `npm i -g http-server`.
+    + `ht` = Start `http-server` with Caching disabled. Install globally with `npm i -g http-server`.
     + `9kill` = Kill all processes like `$1`, eg: `9kill "http-server"`.
 - WSL2
     + `e` = Open `explorer.exe` in current directory.
@@ -129,7 +129,9 @@ Leader key is `,` (comma).
     + `fingerprints-sha` = List `~/.ssh/*.pub` keys in SHA256 (GitHub).
     + `key` = Generate secure key from `$1`, with `$2` length.
     + `pass` = Generate secure pass from `$1` (domain), and `$2` (username/email), with `$3` length.
-    + `ssh-gen` = Generate `ed25519` key pair with `$1` (email)
+    + `ssh-gen` = Generate `ed25519` key pair with `$1` (email).
+- Media
+	+ `fix-clarett` = Fix Clarett soundboard after swapping USB ports. 
 
 ### Silent
 
