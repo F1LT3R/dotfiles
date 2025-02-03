@@ -82,11 +82,12 @@ Leader key is `,` (comma).
 - `sr` = Source `~/.bashrc`.
 - `lr` = Horizontal `ls`, latest changed last (for mobile).
 - `la` = Horizontal `ls`, showing hidden files (for mobile).
-- `u` = Move up a directory.
+- `-` = Move up a directory.
 - `h` = Goto user home directory.
 - `cat` = Batcat syntax highlighting, plain mode.
 - `x` = Quick exit for terminal session.
 - `weather` = Show moon phase, and two-day weather.
+- `./` = Open current DIR in Nautilus.
 
 ### Bin Commands
 
@@ -110,6 +111,8 @@ Leader key is `,` (comma).
     + `vc` = Open `.vimrc` in VIM.
     + `rl` = Read line from file where $1 is the filepath and $2 is the line to read.
     + `cl` = Copy line from file to clipboard where $1 is the filepath and $2 is the line to read. Uses `xsel`.
+    + `ht` = Start `http-server`. Install globally with `npm i -g http-server`.
+    + `9kill` = Kill all processes like `$1`, eg: `9kill "http-server"`.
 - WSL2
     + `e` = Open `explorer.exe` in current directory.
     + `c:` = Change directory to `/mnt/c`.

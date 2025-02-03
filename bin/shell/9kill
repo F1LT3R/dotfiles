@@ -1,0 +1,31 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <process_pattern>"
+  exit 1
+fi
+
+PATTERN="$1"
+
+# Get list of PIDs
+PIDS=$(ps aux | grep "$PATTERN" | grep -v grep | grep -v "$0" | awk '{print $2}')
+
+if [ -z "$PIDS" ]; then
+  echo "No processes found matching: $PATTERN"
+  exit 0
+fi
+
+echo "Killing processes: $PIDS"
+
+# Kill processes gracefully first
+echo "$PIDS" | xargs -r kill
+sleep 2
+
+# Force kill any remaining processes
+REMAINING_PIDS=$(ps aux | grep "$PATTERN" | grep -v grep | grep -v "$0" | awk '{print $2}')
+if [ -n "$REMAINING_PIDS" ]; then
+  echo "Force killing remaining processes: $REMAINING_PIDS"
+  echo "$REMAINING_PIDS" | xargs -r kill -9
+fi
+
+echo "Done."
