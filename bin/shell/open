@@ -1,7 +1,7 @@
 #!/bin/bash
-echo "Opening... "
-# if [ -d "$1" ]; then
-#     nautilus "$1"
-# else
-#     xdg-open "$1"
-# fi
+echo "Opening $1 "
+if [ -d "$1" ]; then
+    nautilus "$1"
+else
+    xdg-open "$1"
+fi

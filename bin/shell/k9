@@ -1,0 +1,41 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage: $0 <process_pattern>"
+  exit 1
+fi
+
+PATTERN="$1"
+
+# Get the script's own PID
+SCRIPT_PID=$$
+
+# Find matching processes (excluding this script, grep, and the shell process)
+PIDS=$(ps aux | grep "$PATTERN" | grep -v grep | awk '{print $2}' | grep -v "$SCRIPT_PID")
+
+# Check if any PIDs were found
+if [ -z "$PIDS" ]; then
+  echo "No processes found matching: $PATTERN"
+  exit 0
+fi
+
+# Confirm before killing (optional, remove if unwanted)
+echo "The following processes will be killed: $PIDS"
+read -p "Are you sure? (y/n): " CONFIRM
+if [[ "$CONFIRM" != "y" ]]; then
+  echo "Aborted."
+  exit 1
+fi
+
+# Kill processes safely
+echo "$PIDS" | xargs -r kill
+sleep 2
+
+# Check for remaining processes and force kill if needed
+REMAINING_PIDS=$(ps aux | grep "$PATTERN" | grep -v grep | awk '{print $2}' | grep -v "$SCRIPT_PID")
+if [ -n "$REMAINING_PIDS" ]; then
+  echo "Force killing remaining processes: $REMAINING_PIDS"
+  echo "$REMAINING_PIDS" | xargs -r kill -9
+fi
+
+echo "Done."

@@ -65,7 +65,8 @@ cat () {
 eval `ssh-agent`
 
 # Add ~/.local/bin to PATH
-PRETTY_PATH=''
+PRETTY_PATH='~/.local/bin'
+PATH=$PATH:"~/.local/bin"
 
 for dir in "$HOME/bin"/*/; do
     dir=${dir%/}  # Remove trailing slash

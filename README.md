@@ -112,7 +112,7 @@ Leader key is `,` (comma).
     + `rl` = Read line from file where $1 is the filepath and $2 is the line to read.
     + `cl` = Copy line from file to clipboard where $1 is the filepath and $2 is the line to read. Uses `xsel`.
     + `ht` = Start `http-server` with Caching disabled. Install globally with `npm i -g http-server`.
-    + `9kill` = Kill all processes like `$1`, eg: `9kill "http-server"`.
+    + `k9` = Kill all processes like `$1`, eg: `k9 "http-server"`.
 - WSL2
     + `e` = Open `explorer.exe` in current directory.
     + `c:` = Change directory to `/mnt/c`.
