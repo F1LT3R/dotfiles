@@ -7,9 +7,9 @@ if [[ "$OS_MODE" != "TERMUX" ]]; then
     sudo apt update
     sudo apt upgrade
     sudo apt install ack universal-ctags vim  # These packages have alternate names in Termux
-    sudo apt install tig pwgen ripgrep fzf tree silversearcher-ag perl python3
+    sudo apt install tig pwgen ripgrep fzf tree silversearcher-ag perl python3 btop
 else
     pkg update
     pkg upgrade
-    pkg install python3 tig pwgen ripgrep fzf tree silversearcher-ag perl vim
+    pkg install python3 tig pwgen ripgrep fzf tree silversearcher-ag perl vim btop
 fi
