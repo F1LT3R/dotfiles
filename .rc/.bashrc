@@ -2,6 +2,22 @@
 source ~/bin/system/detect-os-mode 2>/dev/null
 echo "OS_MODE Detected: $OS_MODE"
 
+
+# Add ~/.local/bin to PATH
+PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin'
+PRETTY_PATH=$PATH
+
+for dir in "$HOME/bin"/*/; do
+    dir=${dir%/}  # Remove trailing slash
+    PATH=$PATH:"$dir"
+    PRETTY_PATH=$PRETTY_PATH:"~${dir#$HOME}"
+done
+
+export PATH
+export PRETTY_PATH
+
+echo "\$PATH=$PRETTY_PATH"
+
 # Pull in WSL2 Variables
 # .wsl2rc lives outside of the dotfiles repo
 if [ "$OS_MODE" = "WSL2" ]; then
@@ -63,19 +79,6 @@ cat () {
 
 # Load SSH-Agent
 eval `ssh-agent`
-
-# Add ~/.local/bin to PATH
-PRETTY_PATH='~/.local/bin'
-PATH=$PATH:"~/.local/bin"
-
-for dir in "$HOME/bin"/*/; do
-    dir=${dir%/}  # Remove trailing slash
-    PATH=$PATH:"$dir"
-    PRETTY_PATH=$PRETTY_PATH:"~${dir#$HOME}"
-done
-
-echo "Bin Paths Added: $PRETTY_PATH"
-export PATH
 
 weather () {
     curl wttr.in/moon?QF

@@ -1,50 +1,60 @@
 #!/bin/bash
 
-# The first arg is your DOMAIN:USER (string)
-if [ -z "$1" ];
-    then echo "You must provide a DOMAIN:USER, eg: 'twitter.com:me@domain.com'"; exit 1;
-    else DOMAIN_USER="$1";
-fi
+# Install Dependencies: sudo apt install diceware pwgen xsel
 
-# Use a secure password entry for your PASSPHRASE
-echo -n Enter your PASSPHRASE:
-read -s PASSPHRASE
-echo
+echo "UNIQUE PASSWORD GENERATOR"
 
-# Verify your PASSPHRASE by typing it in again
-echo -n Please verify your PASSPHRASE:
-read -s PASSPHRASE_VERIFY
-echo
+INPUT="\033[1;33m"    # Yellow for input
+OUTPUT="\033[0;36m"   # Cyan for output
+RESET="\033[0m"       # Reset color
+WIPE="\033[1A\033[0G" # Move cursor up & erase line
 
-if [ "$PASSPHRASE" != "$PASSPHRASE_VERIFY" ];
-    then echo "PASSPHRASES did not match!"; exit;
-fi
+GET_PROMPT() {
+    local PROMPT="$1"
+    local DEFAULT="$2"
+	declare -n RESULT="$3" 
 
-# The second arg is password LENGTH
-if [ -z "$2" ];
-    # Default to 64 characters for most passwords
-    then LENGTH=64;
+    echo -ne "${PROMPT}${INPUT}"
+    IFS= read -r VALUE
 
-    # We can pass a custom length, "16", for our working example
-    else LENGTH=$2;
-fi
+    RESULT=${VALUE:-"$DEFAULT"}
+    echo -ne "${RESET}${WIPE}${PROMPT}${OUTPUT}${RESULT}${RESET}\n"
+ 
+    eval "$3=\"$RESULT\""
+}
 
-# The third argument is our MODE
-if [ -z "$3" ];
-    # Default to SECURE for most passwords
-    then MODE="SECURE";
+GET_PROMPT "Domain or device name: " "default.com" DOMAIN
+GET_PROMPT "Login username: " "username" USER
+GET_PROMPT "Pass phrase (blank to gen): " ${SALT:=$(diceware -n 8 -d "_" -s 4)} SALT
+GET_PROMPT "Password length: " "128" LENGTH
 
-    # Providing any input, eg: [y, true, simple] -sets MODE to SIMPLE
-    else MODE="SIMPLE";
-fi
+TEXT="Complexity: " 
+echo "Choose your password character complexity: "
+PS3=$(echo -ne "${TEXT}${INPUT}")
+options=("Simple" "Special")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Simple")
+			COMPLEXITY="Simple"
+			break
+			;;
+        "Special")
+			COMPLEXITY="Special"
+			break
+			;;
+        *) echo -e "Invalid option $REPLY";;
+    esac
+done
+echo -ne "${RESET}${WIPE}${TEXT}${OUTPUT}${COMPLEXITY}${RESET}\n"
 
-# Create our recoverable SEED
-SEED="$PASSPHRASE+$DOMAIN_USER"
+SEED="$DOMAIN+$USER+$SALT"
 
-# Generate password based on LENGTH, SEED and MODE
-if [ "$MODE" == "SIMPLE" ];
-    then PASS=$(pwgen $LENGTH 1 -H <((echo $SEED)) -cny);
+if [ "$COMPLEXITY" == "Simple" ];
+    then PASS=$(pwgen $LENGTH 1 -H <((echo $SEED)) -cn);
     else PASS=$(pwgen $LENGTH 1 -H <((echo $SEED)) -cnsy);
 fi
 
-echo $PASS
+echo "▼▼▼ UNIQUE PASSWORD GENERATED ▼▼▼"
+echo -n "$PASS" | xsel --clipboard --input
+echo -e "$OUTPUT[Copied to clipboard]$RESET"
