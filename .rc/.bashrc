@@ -67,7 +67,7 @@ desktop () {
 }
 
 # Terminal Syntax Highlighting
-cat () {
+bat () {
     if [ "$OS_MODE" == "WSL2" ]; then
         bat --plain --color=always "$@"
     elif [ "$OS_MODE" == "TERMUX" ]; then

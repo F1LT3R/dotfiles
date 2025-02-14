@@ -2,4 +2,9 @@
 
 sudo apt install bat xclip
 
+# Install Menu Launcher
+sudo add-apt-repository ppa:agornostal/ulauncher
+sudo apt install ulauncher
+git clone https://github.com/clemensbartz/ulauncher-emoji.git ~/.local/share/ulauncher/extensions/ulauncher-emoji
+
 ./install/install-common
