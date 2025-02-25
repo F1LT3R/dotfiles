@@ -3,8 +3,45 @@
 sudo apt install bat xclip
 
 # Install Menu Launcher
-sudo add-apt-repository ppa:agornostal/ulauncher
-sudo apt install ulauncher
-git clone https://github.com/clemensbartz/ulauncher-emoji.git ~/.local/share/ulauncher/extensions/ulauncher-emoji
+sudo add-apt-repository ppa:agornostal/ulauncher -y
+sudo apt install ulauncher -y
+git clone https://github.com/Ulauncher/ulauncher-emoji ~/.local/share/ulauncher/extensions/ulauncher-emoji
+git clone https://github.com/rootwork/ulauncher-symbol ~/.local/share/ulauncher/extensions/ulauncher-symbol
+git clone https://github.com/iboyperson/ulauncher-system ~/.local/share/ulauncher/extensions/ulauncher-system
+git clone https://github.com/iboyperson/ulauncher-npms ~/.local/share/ulauncher/extensions/ulauncher-npms
+
+# git clone git@github.com:leogouveia/ulauncher-npmjs.git ~/.local/share/ulauncher/extensions/ulauncher-npmjs
+# git clone git@github.com:barathbheeman/vsw-extension ~/.local/share/ulauncher/extensions/vsw-extension
+# git clone git@github.com:Eckhoff42/Ulauncher-MD-table-generator ~/.local/share/ulauncher/extensions/Ulauncher-MD-table-generator
+# git clone git@github.com:d-enk/ulauncher-case-converter ~/.local/share/ulauncher/extensions/ulauncher-case-converter
+# git clone git@github.com:lazypolymath/ulauncher-git-cheat-sheet ~/.local/share/ulauncher/extensions/ulauncher-git-cheat-sheet
+# git clone git@github.com:Ulauncher/ulauncher-hash ~/.local/share/ulauncher/extensions/ulauncher-hash
+# git clone git@github.com:SeoFernando25/ulauncher-gpt ~/.local/share/ulauncher/extensions/ulauncher-gpt
+# git clone git@github.com:cyprienruffino/ulauncher-tex-to-unicode ~/.local/share/ulauncher/extensions/ulauncher-tex-to-unicode
+# git clone git@github.com:tuanpham-dev/ulauncher-better-calculator ~/.local/share/ulauncher/extensions/ulauncher-better-calculator
+# git clone git@github.com:beobcode/ulauncher-session-actions ~/.local/share/ulauncher/extensions/ulauncher-session-actions
+# git clone git@github.com:Programazing/ulauncher-local-listeners-v2 ~/.local/share/ulauncher/extensions/ulauncher-local-listeners-v2
+# git clone git@github.com:DiFronzo/ulauncher-wikidata-search ~/.local/share/ulauncher/extensions/ulauncher-wikidata-search
+# git clone git@github.com:Dankni95/ulauncher-playerctl ~/.local/share/ulauncher/extensions/ulauncher-playerctl
+# git clone git@github.com:Ronnasayd/ulauncher-css-unit-converter ~/.local/share/ulauncher/extensions/ulauncher-css-unit-converter
+# git clone git@github.com:ubuntupunk/ulauncher-vim ~/.local/share/ulauncher/extensions/ulauncher-vim
+# git clone git@github.com:RolfKoenders/ulauncher-npms ~/.local/share/ulauncher/extensions/ulauncher-npms
+# git clone git@github.com:RolfKoenders/ulauncher-myip ~/.local/share/ulauncher/extensions/ulauncher-myip
+# git clone git@github.com:robertokl/ulauncher-unit-converter ~/.local/share/ulauncher/extensions/ulauncher-unit-converter
+# git clone git@github.com:James-Dumas/ulauncher-run ~/.local/share/ulauncher/extensions/ulauncher-run
+# git clone git@github.com:isacikgoz/ukill ~/.local/share/ulauncher/extensions/ukill
+# git clone git@github.com:brpaz/ulauncher-timestamp ~/.local/share/ulauncher/extensions/ulauncher-timestamp
+# git clone git@github.com:brpaz/ulauncher-awesomelists ~/.local/share/ulauncher/extensions/ulauncher-awesomelists
+# git clone git@github.com:noam09/ulauncher-gnome-control-center ~/.local/share/ulauncher/extensions/ulauncher-gnome-control-center
+# git clone git@github.com:brpaz/ulauncher-currency ~/.local/share/ulauncher/extensions/ulauncher-currency
+# git clone git@github.com:brpaz/ulauncher-github ~/.local/share/ulauncher/extensions/ulauncher-github
+# git clone git@github.com:noam09/ulauncher-units ~/.local/share/ulauncher/extensions/ulauncher-units
+# git clone git@github.com:rkarami/ulauncher-gitmoji ~/.local/share/ulauncher/extensions/ulauncher-gitmoji
+# git clone git@github.com:lifeofcoding/ulauncher-youtube ~/.local/share/ulauncher/extensions/ulauncher-youtube
+# git clone git@github.com:NastuzziSamy/ulauncher-custom-scripts ~/.local/share/ulauncher/extensions/ulauncher-custom-scripts
+# git clone git@github.com:sergius02/ulauncher-apty ~/.local/share/ulauncher/extensions/ulauncher-apty
+# git clone git@github.com:fsevenm/ulauncher-uuid ~/.local/share/ulauncher/extensions/ulauncher-uuid
+# git clone git@github.com:DevKleber/ulauncher-open-link ~/.local/share/ulauncher/extensions/ulauncher-open-link
+
 
 ./install/install-common

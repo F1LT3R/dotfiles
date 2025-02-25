@@ -2,7 +2,6 @@
 source ~/bin/system/detect-os-mode 2>/dev/null
 echo "OS_MODE Detected: $OS_MODE"
 
-
 # Add ~/.local/bin to PATH
 PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin'
 PRETTY_PATH=$PATH
@@ -271,4 +270,12 @@ if ! shopt -oq posix; then
   elif [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
   fi
+fi
+
+if [[ -d "$HOME/.secrets" ]]; then
+    for file in $HOME/.secrets/*.sh; do
+        if [[ -f "$file" ]]; then
+            source "$file"
+        fi
+    done
 fi
