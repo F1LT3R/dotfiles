@@ -3,6 +3,11 @@
 ./install/backup-bin-scripts
 ./install/create-symlinks
 
+# MacOS Packages Installed via Homebrew
+if [[ "$OS_MODE" == "MACOS" ]]; then
+	exit 0
+fi
+
 if [[ "$OS_MODE" != "TERMUX" ]]; then
     sudo apt update
     sudo apt upgrade

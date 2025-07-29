@@ -2,11 +2,9 @@
 
 source ./bin/system/detect-os-mode 2>/dev/null
 
-echo "OS_MODE Detceted: $OS_MODE"
-
 PS3='
 Please select your OS: '
-options=("Ubuntu Native" "WSL2 Ubuntu" "Termux")
+options=("Ubuntu Native" "WSL2 Ubuntu" "Termux", "MacOS")
 echo
 
 select opt in "${options[@]}"
@@ -31,6 +29,13 @@ do
             echo "Installing Dotfiles for $opt..."
             echo
             ./install/install-termux
+            break
+            ;;
+        "MacOS")
+            echo
+            echo "Installing Dotfiles for $opt..."
+            echo
+            ./install/install-macos
             break
             ;;
         *) echo "Invalid option $REPLY";;

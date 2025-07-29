@@ -20,6 +20,4 @@ if [[ "$(uname -s)" == "Darwin" ]] >/dev/null 2>&1; then
 	OS_MODE="MACOS"
 fi
 
-echo "Detected OS Mode: $OS_MODE"
-
 export OS_MODE

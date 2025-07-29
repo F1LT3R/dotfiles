@@ -4,6 +4,12 @@ echo "OS_MODE Detected: $OS_MODE"
 
 # Add ~/.local/bin to PATH
 PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin'
+
+# Add Homebrew to PATH for OSX
+if [ "$OS_MODE" = "MACOS" ]; then
+	eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
 PRETTY_PATH=$PATH
 
 for dir in "$HOME/bin"/*/; do
@@ -110,7 +116,7 @@ alias la='ls -ax'
 }
 
 # Home
-0() {
+h() {
     cd
 }
 
@@ -129,8 +135,13 @@ c.() {
 
 # Node.js & NVM
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+if [ "$OS_MODE" = "MACOS" ]; then
+	[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+	[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+else
+	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+fi
 
 # If not running interactively, don't do anything
 case $- in
