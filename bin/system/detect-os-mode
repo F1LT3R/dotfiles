@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Detect TERMUX Mode
-if [ -n "$TERMUX_VERSION" ]; then
+if [ -n "$TERMUX_VERSION" ] >/dev/null 2>&1; then
     OS_MODE="TERMUX"
 fi
 
@@ -16,7 +16,7 @@ if head /proc/version >/dev/null 2>&1 | grep -qi microsoft >/dev/null 2>&1; then
 fi
 
 # Detect MacOS Mode
-if [[ "$(uname -s)" == "Darwin" ]]; then
+if [[ "$(uname -s)" == "Darwin" ]] >/dev/null 2>&1; then
 	OS_MODE="MACOS"
 fi
 
