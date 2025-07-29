@@ -6,13 +6,20 @@ if [ -n "$TERMUX_VERSION" ]; then
 fi
 
 # Detect UBUNTU Native Mode
-if grep -qi 'ubuntu' /etc/os-release; then
+if grep -qi 'ubuntu' /etc/os-release >/dev/null 2>&1; then
     OS_MODE="UBUNTU"
 fi
 
 # Detect WSL2 Ubuntu Mode
-if head /proc/version | grep -qi microsoft; then
+if head /proc/version >/dev/null 2>&1 | grep -qi microsoft >/dev/null 2>&1; then
     OS_MODE="WSL2"
 fi
+
+# Detect MacOS Mode
+if [[ "$(uname -s)" == "Darwin" ]]; then
+	OS_MODE="MACOS"
+fi
+
+echo "Detected OS Mode: $OS_MODE"
 
 export OS_MODE
