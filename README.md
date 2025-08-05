@@ -1,5 +1,7 @@
 # Dotfiles
 
+Dotfiles with installer for Linux, Windows (WSL2), MacOS and Termux.
+
 ## Install
 
 ### Symlink Dotfiles
