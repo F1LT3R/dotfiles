@@ -5,10 +5,11 @@ echo "OS_MODE Detected: $OS_MODE"
 # Add ~/.local/bin to PATH
 PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin'
 
-# Add Homebrew to PATH for OSX
-if [ "$OS_MODE" = "MACOS" ]; then
-	eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
+# Use local user path for homebrew on locked down environments
+eval "$(~/.homebrew/bin/brew shellenv)"
+
+# User local user path fro homebrew applications
+export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
 
 PRETTY_PATH=$PATH
 
@@ -159,14 +160,24 @@ export HISTIGNORE="ls:ll:cd:pwd:exit"
 shopt -s histappend
 
 # Infinite History Length
-HISTSIZE=-1
-HISTFILESIZE=-1
+
+if [ "$OS_MODE" = "MACOS" ]; then
+    HISTSIZE=1000000
+    HISTFILESIZE=200000
+else
+    HISTSIZE=-1
+    HISTFILESIZE=-1
+fi
 
 # Use Timestamps w/ History
 # export HISTTIMEFORMAT="%F %T "
 
 # Ensure the history is updated after each command
-export PROMPT_COMMAND='history -a; history -c; history -r'
+if [ "$OS_MODE" = "MACOS" ]; then
+    export PROMPT_COMMAND='history -a; history -r'
+else
+    export PROMPT_COMMAND='history -a; history -c; history -r'
+fi
 
 # History with syntax highlight
 hist () {
@@ -259,6 +270,7 @@ fi
 # some more ls aliases
 alias ll='ls -alFG'
 alias l='ls -CFG'
+alias ls='ls -CFG'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -291,5 +303,5 @@ if [[ -d "$HOME/.secrets" ]]; then
     done
 fi
 
+# Dont show the MacOS warning when starting a bash shell
 export BASH_SILENCE_DEPRECATION_WARNING=1
-eval "$(~/.homebrew/bin/brew shellenv)"
