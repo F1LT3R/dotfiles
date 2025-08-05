@@ -23,7 +23,7 @@ ln -s $BASE/.rc/.vimrc $HOME/.vimrc
 
 echo "Linking ~/.vim"
 if [[ "$OS_MODE" != "TERMUX" ]]; then
-  sudo rm -rf $HOME/.vim
+  sudo rm -rf $HOME/.vim || rm -rf $HOME/.vim
 else
   rm -rf $HOME/.vim
 fi
@@ -32,7 +32,7 @@ ln -s $BASE/.vim $HOME/.vim
 
 echo "Linking ~/.bashrc"
 if [[ "$OS_MODE" != "TERMUX" ]]; then
-  sudo rm -rf $HOME/.bashrc
+  sudo rm -rf $HOME/.bashrc || rm -rf $HOME/.bashrc
 else
   rm -rf $HOME/.bashrc
 fi
@@ -40,7 +40,7 @@ ln -s $BASE/.rc/.bashrc $HOME/.bashrc
 
 echo "Linking ~/.profile"
 if [[ "$OS_MODE" != "TERMUX" ]]; then
-  sudo rm -rf $HOME/.profile
+  sudo rm -rf $HOME/.profile || rm -rf $HOME/.profile
 else
   rm -rf $HOME/.profile
 fi
@@ -48,7 +48,7 @@ ln -s $BASE/.rc/.profile $HOME/.profile
 
 echo "Linking ~/.gitconfig"
 if [[ "$OS_MODE" != "TERMUX" ]]; then
-  sudo rm -rf $HOME/.gitconfig
+  sudo rm -rf $HOME/.gitconfig || rm -rf $HOME/.gitconfig
 else
   rm -rf $HOME/.gitconfig
 fi
@@ -56,7 +56,7 @@ ln -s $BASE/.rc/.gitconfig $HOME/.gitconfig
 
 echo "Linking ~/.ackrc"
 if [[ "$OS_MODE" != "TERMUX" ]]; then
-  sudo rm -rf $HOME/.ackrc
+  sudo rm -rf $HOME/.ackrc || rm -rf $HOME/.ackrc
 else
   rm -rf $HOME/.ackrc
 fi

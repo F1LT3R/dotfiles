@@ -257,8 +257,8 @@ fi
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # some more ls aliases
-alias ll='ls -alF'
-alias l='ls -CF'
+alias ll='ls -alFG'
+alias l='ls -CFG'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -290,3 +290,6 @@ if [[ -d "$HOME/.secrets" ]]; then
         fi
     done
 fi
+
+export BASH_SILENCE_DEPRECATION_WARNING=1
+eval "$(~/.homebrew/bin/brew shellenv)"
