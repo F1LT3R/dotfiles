@@ -75,13 +75,13 @@ desktop () {
 # Terminal Syntax Highlighting
 bat () {
     if [ "$OS_MODE" == "WSL2" ]; then
-        bat --plain --color=always "$@"
+        bat --paging=never --color=always "$@"
     elif [ "$OS_MODE" == "MACOS" ]; then
-        $(which bat) "$@"
+        $(which bat) --paging=never "$@"
     elif [ "$OS_MODE" == "TERMUX" ]; then
-        bat --plain --color=always "$@"
+        bat --color=always "$@"
     else
-        batcat --plain --color=always "$@"
+        batcat --plain --paging=never --color=always "$@"
     fi
 }
 
