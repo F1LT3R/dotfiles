@@ -86,7 +86,8 @@ Leader key is `,` (comma).
 - `la` = Horizontal `ls`, showing hidden files (for mobile).
 - `-` = Move up a directory.
 - `h` = Goto user home directory.
-- `cat` = Batcat syntax highlighting, plain mode.
+- `cat` = Uses systems cat.
+- `bat` = Batcat syntax highlighting, plain mode.
 - `x` = Quick exit for terminal session.
 - `weather` = Show moon phase, and two-day weather.
 - `./` = Open current DIR in Nautilus.
@@ -120,8 +121,8 @@ Leader key is `,` (comma).
     + `c:` = Change directory to `/mnt/c`.
     + `home` = Change directory to Windows `$HomeFolder`.
     + `onedrive` = Change directory to Microsoft OneDrive folder.
-    + `desktop` = Change directory to `$OneDrive`/Desktop folder. 
-    + `downloads` = Change directory to `$HomeFolder`/Downloads. 
+    + `desktop` = Change directory to `$OneDrive`/Desktop folder.
+    + `downloads` = Change directory to `$HomeFolder`/Downloads.
     + `hosts` = Open Windows hosts file.
     + `pom` = Start Pomodoro timer.
     + `w` = Open web browser at `$1`.
@@ -133,7 +134,7 @@ Leader key is `,` (comma).
     + `pass` = Generate secure pass from `$1` (domain), and `$2` (username/email), with `$3` length.
     + `ssh-gen` = Generate `ed25519` key pair with `$1` (email).
 - Media
-	+ `fix-clarett` = Fix Clarett soundboard after swapping USB ports. 
+	+ `fix-clarett` = Fix Clarett soundboard after swapping USB ports.
 
 ### Silent
 
