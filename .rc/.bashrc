@@ -76,6 +76,8 @@ desktop () {
 bat () {
     if [ "$OS_MODE" == "WSL2" ]; then
         bat --plain --color=always "$@"
+    elif [ "$OS_MODE" == "MACOS" ]; then
+        $(which bat) "$@"
     elif [ "$OS_MODE" == "TERMUX" ]; then
         bat --plain --color=always "$@"
     else
@@ -104,7 +106,7 @@ alias br='vim ~/.bashrc'
 
 # Mobile ls
 alias lr='ls -atr --color=auto -C'
-alias la='ls -ax'
+alias la='ls -ax --color=auto -c'
 
 # Nautilus
 ./() {
@@ -121,7 +123,7 @@ h() {
     cd
 }
 
-# Quick EXit
+# Quick Exit
 x() {
     exit
 }
@@ -137,8 +139,8 @@ c.() {
 # Node.js & NVM
 export NVM_DIR="$HOME/.nvm"
 if [ "$OS_MODE" = "MACOS" ]; then
-	[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-	[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+    [ -s "$HOME/.homebrew/opt/nvm/nvm.sh" ] && \. "$HOME/.homebrew/opt/nvm/nvm.sh"  # This loads nvm
+    [ -s "$HOME/.homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$HOME/.homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 else
 	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
@@ -258,7 +260,6 @@ if [ -x /usr/bin/dircolors ]; then
     alias ls='ls --color=auto'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
-
     alias grep='grep --color=auto'
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
@@ -268,8 +269,8 @@ fi
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # some more ls aliases
-alias ll='ls -alFG'
-alias l='ls -CFG'
+alias l='ls -alFG'
+alias ll='ls -CFG'
 alias ls='ls -CFG'
 
 # Add an "alert" alias for long running commands.  Use like so:
@@ -295,13 +296,30 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# Dont show the MacOS warning when starting a bash shell
+export BASH_SILENCE_DEPRECATION_WARNING=1
+eval "$(rbenv init -)"
+
+# Source secret exports to shell
 if [[ -d "$HOME/.secrets" ]]; then
-    for file in $HOME/.secrets/*.sh; do
+    for file in "$HOME/.secrets"/*; do
         if [[ -f "$file" ]]; then
             source "$file"
         fi
     done
 fi
 
-# Dont show the MacOS warning when starting a bash shell
-export BASH_SILENCE_DEPRECATION_WARNING=1
+# pnpm
+export PNPM_HOME="/Users/alistair.macdonald/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+# Android Debugging Bridge
+alias adbrestart="adb kill-server && adb start-server"
+alias adbrcon="adb reverse tcp:8081 tcp:8081"
+alias myip='ifconfig en0 | grep inet'
+
+export ANDROID_HOME=~/Library/Android/sdk/
