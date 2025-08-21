@@ -323,3 +323,13 @@ alias adbrcon="adb reverse tcp:8081 tcp:8081"
 alias myip='ifconfig en0 | grep inet'
 
 export ANDROID_HOME=~/Library/Android/sdk/
+
+toggle_vi() {
+    if [[ $SHELLOPTS =~ vi ]]; then
+        set -o emacs
+        echo "Vi mode disabled (switched to default mode)"
+    else
+        set -o vi
+        echo "Vi mode enabled"
+    fi
+}

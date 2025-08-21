@@ -1,9 +1,6 @@
 --no-group
 --color
 
---pager
-less -R
-
 --ignore-directory=is:node_modules
 --ignore-directory=is:composer
 --ignore-directory=is:.git
