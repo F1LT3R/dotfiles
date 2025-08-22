@@ -136,6 +136,8 @@ Leader key is `,` (comma).
     + `ssh-gen` = Generate `ed25519` key pair with `$1` (email).
 - Media
 	+ `fix-clarett` = Fix Clarett soundboard after swapping USB ports.
+- MacOs
+	+ `sc` = Open `~/Pictures/Screenshots/`
 
 ### Silent
 
