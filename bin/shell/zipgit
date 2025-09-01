@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Base name for the zip file (current directory name)
+base_name="$(basename "$(pwd)")"
+
+# Generate timestamp
+timestamp=$(date +%Y-%m-%d_%H-%M-%S)
+
+# Output zip file path (inside .zip directory, with appended timestamp)
+output_dir=".zip"
+output_zip="${output_dir}/${base_name}.${timestamp}.zip"
+
+# Create .zip directory if it doesn't exist
+mkdir -p "$output_dir"
+
+# Temporary file to store the list of non-ignored files
+file_list=$(mktemp)
+
+# Check if .gitignore exists
+if [ ! -f ".gitignore" ]; then
+  echo "Error: .gitignore file not found in the current directory."
+  exit 1
+fi
+
+# Check if git is initialized
+if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+  echo "Error: Not a git repository. Please initialize with 'git init'."
+  exit 1
+fi
+
+# Find all files recursively (including dotfiles, excluding .git itself), get relative paths
+find . -type f -not -path './.git/*' -printf '%P\n' | while IFS= read -r file; do
+  # Skip empty lines or directories (though -type f ensures files)
+  if [ -n "$file" ]; then
+    # Check if the file matches any .gitignore pattern
+    if git check-ignore -q "$file"; then
+      # Exit 0 means ignored: skip
+      :
+    else
+      # Not ignored: add to list
+      echo "$file" >> "$file_list"
+    fi
+  fi
+done
+
+# Create the ZIP from the list of non-ignored files
+zip -r@ "$output_zip" < "$file_list"
+
+# Clean up temp file
+rm "$file_list"
+
+# Check if the zip command was successful
+if [ $? -eq 0 ]; then
+  echo "Successfully created $output_zip (fully respecting .gitignore patterns for all files, including dotfiles where not ignored)."
+else
+  echo "Error: Failed to create $output_zip"
+  exit 1
+fi

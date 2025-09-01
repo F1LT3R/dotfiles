@@ -117,6 +117,7 @@ Leader key is `,` (comma).
     + `ht` = Start `http-server` with Caching disabled. Install globally with `npm i -g http-server`.
     + `k9` = Kill all processes like `$1`, eg: `k9 "http-server"`.
     + `ackp` = `ack` with `less` pager.
+    + `zipgit` = Zips a .git initialized repo using .`gitignore` rules to a `.zip` file in dir `.zip/`. Useful for passing a project to Chat-GPT for comment.
 - WSL2
     + `e` = Open `explorer.exe` in current directory.
     + `c:` = Change directory to `/mnt/c`.
