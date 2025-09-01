@@ -4,6 +4,8 @@
 --ignore-directory=is:node_modules
 --ignore-directory=is:composer
 --ignore-directory=is:.git
+--ignore-directory=is:dist
+--ignore-directory=is:.idea
 
 --ignore-file=is:Markserv.log
 --ignore-file=is:npm.debug.*
