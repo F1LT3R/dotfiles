@@ -269,9 +269,9 @@ fi
 #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 # some more ls aliases
-alias l='ls -alFG'
-alias ll='ls -CFG'
-alias ls='ls -CFG'
+alias l='ls -alFG --color=auto'
+alias ll='ls -CFG --color=auto'
+alias ls='ls -CFG --color=auto'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
