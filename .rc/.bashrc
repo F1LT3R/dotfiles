@@ -6,10 +6,12 @@ echo "OS_MODE Detected: $OS_MODE"
 PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin'
 
 # Use local user path for homebrew on locked down environments
-eval "$(~/.homebrew/bin/brew shellenv)"
+if [ "$OS_MODE" = "MACOS"]; then
+    eval "$(~/.homebrew/bin/brew shellenv)"
 
-# User local user path fro homebrew applications
-export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
+    # User local user path for homebrew applications
+    export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
+fi
 
 PRETTY_PATH=$PATH
 
@@ -114,8 +116,12 @@ alias la='ls -ax --color=auto -c'
 }
 
 # Back Directory
+# Back Directory
 -() {
-    cd ..
+    local n=${1:-1}   # default to 1 if no arg is given
+    for ((i=0; i<n; i++)); do
+        cd .. || return 1
+    done
 }
 
 # Home
