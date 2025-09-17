@@ -6,9 +6,8 @@ echo "OS_MODE Detected: $OS_MODE"
 PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin'
 
 # Use local user path for homebrew on locked down environments
-if [ "$OS_MODE" = "MACOS"]; then
+if [ "$OS_MODE" = "MACOS" ]; then
     eval "$(~/.homebrew/bin/brew shellenv)"
-
     # User local user path for homebrew applications
     export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
 fi
@@ -116,12 +115,11 @@ alias la='ls -ax --color=auto -c'
 }
 
 # Back Directory
-# Back Directory
 -() {
-    local n=${1:-1}   # default to 1 if no arg is given
-    for ((i=0; i<n; i++)); do
-        cd .. || return 1
-    done
+  local n=${1:-1}
+  [[ $n =~ ^[0-9]+$ ]] || n=1     # if not a non-negative int, default to 1
+  (( n < 1 )) && n=1              # clamp 0 to 1
+  cd -P -- "$(printf '../%.0s' $(seq 1 "$n"))" || return
 }
 
 # Home

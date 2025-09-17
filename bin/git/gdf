@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+branch="${1:-main}"
+git diff --name-status -M "origin/${branch}"...HEAD
