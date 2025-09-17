@@ -132,14 +132,6 @@ x() {
     exit
 }
 
-c() {
-	code "$@"
-}
-
-c.() {
-	code "."
-}
-
 # Node.js & NVM
 export NVM_DIR="$HOME/.nvm"
 if [ "$OS_MODE" = "MACOS" ]; then

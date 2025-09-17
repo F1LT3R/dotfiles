@@ -76,7 +76,7 @@ Leader key is `,` (comma).
     + `, a` = Role: `/antonym`
     + `, s` = Role: `/synonym`
     + `, g` = Fix grammar and spelling
-    + `, c` = Chat onsole
+    + `, c` = Chat Console
 
 ### Bash Aliases
 
