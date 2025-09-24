@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
 """
-find_md_unused_images.py (2nd iteration)
+find_md_unused_images.py (3rd iteration)
 
-Fixes:
-- Correctly handles angle-bracketed markdown image URLs: ![alt](<path/to/img.png>)
-- More robust parsing of the (...) contents (title, spaces, quotes)
-- Safer check for "under images dir"
+Adds:
+- --max-size SIZE  -> report images in --images-dir larger than SIZE
+  SIZE accepts bytes (default) or units: KB, MB, GB (case-insensitive).
+  Examples: 200000, 200KB, 2mb, 1.5GB
+
+Retains:
+- Scans .md (or README-only) for Markdown + <img> image refs
+- Exclude directories with --exclude
+- Reports images referenced under --images-dir
+- Reports images in --images-dir that are unused
+- Text or JSON output
+
+Examples:
+  python find_md_unused_images.py --images-dir docs/assets --exclude node_modules --max-size 1.5MB
+  python find_md_unused_images.py --images-dir docs/assets --readme-only --report json --max-size 250KB
 """
 
 from __future__ import annotations
@@ -20,33 +31,26 @@ from typing import Iterable, Set, Dict, List, Tuple
 IMG_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp", ".tif", ".tiff", ".avif"}
 URL_SCHEMES = ("http://", "https://", "data:", "mailto:")
 
-# Capture the whole (...) then we'll parse out the URL ourselves
-MD_IMAGE_PATTERN = re.compile(
-    r"""!\[[^\]]*\]\((?P<inner>[^)]+)\)""",
-    re.IGNORECASE,
-)
-
-HTML_IMG_PATTERN = re.compile(
-    r"""<img[^>]*?\s+src\s*=\s*["'](?P<url>[^"']+)["'][^>]*>""",
-    re.IGNORECASE | re.DOTALL,
-)
-
-REF_DEF_PATTERN = re.compile(
-    r"""^[ \t]*\[[^\]]+\]:[ \t]+(?P<url>\S+)""",
-    re.IGNORECASE | re.MULTILINE,
-)
+# Capture (...) then parse URL out of it
+MD_IMAGE_PATTERN = re.compile(r"""!\[[^\]]*\]\((?P<inner>[^)]+)\)""", re.IGNORECASE)
+HTML_IMG_PATTERN = re.compile(r"""<img[^>]*?\s+src\s*=\s*["'](?P<url>[^"']+)["'][^>]*>""",
+                              re.IGNORECASE | re.DOTALL)
+REF_DEF_PATTERN = re.compile(r"""^[ \t]*\[[^\]]+\]:[ \t]+(?P<url>\S+)""",
+                             re.IGNORECASE | re.MULTILINE)
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Find image links in Markdown and report unused images.")
+    p = argparse.ArgumentParser(description="Find image links in Markdown and report unused/oversized images.")
     p.add_argument("--root", default=".", help="Repo root to scan (default: .)")
     p.add_argument("--images-dir", required=True, help="Directory containing images to check for usage.")
     p.add_argument("--exclude", action="append", default=[],
-                   help="Directory name patterns to exclude (can be used multiple times). "
-                        "Matches on any path segment. Example: --exclude node_modules --exclude .git")
+                   help="Directory name patterns to exclude (can be used multiple times).")
     p.add_argument("--readme-only", action="store_true",
                    help="Only scan README*.md files (case-insensitive).")
     p.add_argument("--report", choices=["text", "json"], default="text",
                    help="Output format (default: text).")
+    p.add_argument("--max-size", default=None,
+                   help="List images in --images-dir larger than SIZE (bytes by default). "
+                        "Supports KB, MB, GB (e.g., 250KB, 1.5MB).")
     return p.parse_args()
 
 def should_exclude(path: Path, exclude_patterns: List[str], root: Path) -> bool:
@@ -64,7 +68,6 @@ def find_markdown_files(root: Path, readme_only: bool, exclude_patterns: List[st
     results: List[Path] = []
     for dirpath, dirnames, filenames in os.walk(root):
         dpath = Path(dirpath)
-        # prune excluded dirs
         dirnames[:] = [d for d in dirnames if not should_exclude(dpath / d, exclude_patterns, root)]
         for fn in filenames:
             if not fn.lower().endswith(".md"):
@@ -78,44 +81,27 @@ def find_markdown_files(root: Path, readme_only: bool, exclude_patterns: List[st
     return results
 
 def _extract_url_from_inner(inner: str) -> str:
-    """
-    Parse the content inside (...) of a markdown image/link and return the URL only.
-    Handles:
-      - Optional surrounding angle brackets: <...>
-      - Optional title after the URL, separated by whitespace, possibly quoted
-    """
     s = inner.strip()
-    # If angle bracket wrapped: take inside <...>
     if s.startswith("<"):
-        # take up to the first '>' after '<'
         closing = s.find(">")
         if closing != -1:
             return s[1:closing].strip()
-        # fall through to generic parsing if malformed
-    # Otherwise: first token before unquoted whitespace is the URL
-    # We'll do a simple split: URL is first contiguous non-space sequence
-    # (Titles typically follow with spaces and quotes)
     return s.split()[0] if s else ""
 
 def extract_urls_from_markdown(text: str) -> Set[str]:
     urls: Set[str] = set()
-
     for m in MD_IMAGE_PATTERN.finditer(text):
         inner = m.group("inner")
         url = _extract_url_from_inner(inner)
         if url:
             urls.add(url)
-
     for m in HTML_IMG_PATTERN.finditer(text):
         urls.add(m.group("url").strip())
-
-    # Reference-style definitions that end with image extensions
     for m in REF_DEF_PATTERN.finditer(text):
         url = m.group("url").strip()
         base = url.lower().split("?", 1)[0].split("#", 1)[0]
         if any(base.endswith(ext) for ext in IMG_EXTS):
             urls.add(url)
-
     return urls
 
 def _strip_fragment_and_query(url: str) -> str:
@@ -125,11 +111,8 @@ def normalize_url_to_path(url: str, md_file: Path, root: Path) -> Path | None:
     if url.startswith(URL_SCHEMES):
         return None
     clean = _strip_fragment_and_query(url)
-
-    # Clean off any accidental surrounding angle brackets (extra safety)
     if clean.startswith("<") and clean.endswith(">"):
         clean = clean[1:-1].strip()
-
     p = Path(clean)
     try:
         if p.is_absolute():
@@ -138,39 +121,32 @@ def normalize_url_to_path(url: str, md_file: Path, root: Path) -> Path | None:
             candidate = (md_file.parent / p).resolve()
     except Exception:
         candidate = (root / str(p).lstrip("/")).resolve()
-
-    # ensure inside root
     try:
         candidate.relative_to(root.resolve())
     except Exception:
         return None
-
     return candidate
 
 def collect_used_images(md_files: Iterable[Path], root: Path) -> Tuple[Set[Path], Dict[Path, Set[Path]]]:
     used: Set[Path] = set()
     by_md: Dict[Path, Set[Path]] = {}
-
     for md in md_files:
         try:
             text = md.read_text(encoding="utf-8", errors="replace")
         except Exception as e:
             print(f"Warning: Could not read {md}: {e}", file=sys.stderr)
+            by_md.setdefault(md, set())
             continue
-
         urls = extract_urls_from_markdown(text)
         resolved: Set[Path] = set()
-
         for u in urls:
             p = normalize_url_to_path(u, md_file=md, root=root)
             if p is None:
                 continue
             if p.suffix.lower() in IMG_EXTS:
                 resolved.add(p)
-
         by_md[md] = resolved
         used.update(resolved)
-
     return used, by_md
 
 def collect_images_in_dir(images_dir: Path) -> Set[Path]:
@@ -196,6 +172,43 @@ def rel(p: Path, root: Path) -> str:
     except Exception:
         return str(p)
 
+_SIZE_RE = re.compile(r"""^\s*(?P<num>\d+(?:\.\d+)?)\s*(?P<Unit>b|kb|mb|gb)?\s*$""", re.IGNORECASE)
+
+def parse_size_to_bytes(s: str) -> int:
+    """
+    Parse sizes like "250KB", "2MB", "1.5GB", "200000" (bytes).
+    Returns integer bytes. Raises ValueError on bad input.
+    """
+    m = _SIZE_RE.match(s)
+    if not m:
+        raise ValueError(f"Invalid size: {s!r}")
+    num = float(m.group("num"))
+    unit = (m.group("Unit") or "b").lower()
+    factor = 1
+    if unit in ("b",):
+        factor = 1
+    elif unit == "kb":
+        factor = 1024
+    elif unit == "mb":
+        factor = 1024 ** 2
+    elif unit == "gb":
+        factor = 1024 ** 3
+    else:
+        raise ValueError(f"Invalid size unit in {s!r}")
+    return int(num * factor)
+
+def human_bytes(num_bytes: int) -> str:
+    """
+    Convert a byte count to a human-readable string using binary units (KiB=1024).
+    Examples: 512 -> '512B', 2048 -> '2.00KB', 2097152 -> '2.00MB'
+    """
+    n = float(num_bytes)
+    for unit in ["B", "KB", "MB", "GB", "TB"]:
+        if n < 1024.0 or unit == "TB":
+            return f"{int(n)}B" if unit == "B" else f"{n:.2f}{unit}"
+        n /= 1024.0
+    return f"{n}B"
+
 def main() -> int:
     args = parse_args()
     try:
@@ -206,12 +219,30 @@ def main() -> int:
             print(f"Error: --images-dir '{images_dir}' does not exist or is not a directory.", file=sys.stderr)
             return 2
 
+        max_size_bytes = None
+        if args.max_size:
+            try:
+                max_size_bytes = parse_size_to_bytes(args.max_size)
+            except ValueError as e:
+                print(f"Error: {e}", file=sys.stderr)
+                return 2
+
         md_files = find_markdown_files(root, args.readme_only, args.exclude)
         used_images, by_md = collect_used_images(md_files, root)
         in_folder = collect_images_in_dir(images_dir)
 
         used_under_images_dir = {p for p in used_images if is_under(p, images_dir)}
         unused = in_folder - used_under_images_dir
+
+        oversized_list: List[Tuple[Path, int]] = []
+        if max_size_bytes is not None:
+            for p in in_folder:
+                try:
+                    size = p.stat().st_size
+                    if size > max_size_bytes:
+                        oversized_list.append((p, size))
+                except OSError as e:
+                    print(f"Warning: Could not stat {p}: {e}", file=sys.stderr)
 
         if args.report == "json":
             report = {
@@ -226,26 +257,45 @@ def main() -> int:
                     rel(md, root): sorted({rel(p, root) for p in paths})
                     for md, paths in by_md.items() if paths
                 },
+                "max_size": args.max_size,
+                "oversized_images": [
+                    {"path": rel(p, root), "bytes": sz}
+                    for p, sz in sorted(oversized_list, key=lambda t: t[0].name.lower())
+                ] if max_size_bytes is not None else [],
             }
             print(json.dumps(report, indent=2))
         else:
             print(f"Repo root: {root}")
             print(f"Images dir: {images_dir}")
             print(f"Excluded dirs: {args.exclude or '∅'}")
-            print(f"Mode: {'README-only' if args.readme_only else 'All .md files'}\n")
+            print(f"Mode: {'README-only' if args.readme_only else 'All .md files'}")
+            if max_size_bytes is not None:
+                print(f"Max size: {args.max_size} ({max_size_bytes} bytes)")
+            print()
 
             print("== Markdown files scanned ==")
             for p in sorted(by_md.keys()):
                 print(f"  - {rel(p, root)}")
+
             print("\n== Images referenced under images-dir ==")
             for p in sorted(used_under_images_dir):
                 print(f"  - {rel(p, root)}")
+
             print("\n== Unused images (safe to consider deleting) ==")
             if unused:
                 for p in sorted(unused):
                     print(f"  - {rel(p, root)}")
             else:
                 print("  (none)")
+
+            if max_size_bytes is not None:
+                print(f"\n== Oversized images (> {args.max_size}) ==")
+                if oversized_list:
+                    for p, sz in sorted(oversized_list, key=lambda t: t[1], reverse=True):
+                        print(f"  - {rel(p, root)}  ({human_bytes(sz)})")
+                else:
+                    print("  (none)")
+
             print("\n== By Markdown file ==")
             for md in sorted(by_md.keys()):
                 imgs = sorted(by_md[md])
