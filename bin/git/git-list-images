@@ -1,0 +1,264 @@
+#!/usr/bin/env python3
+"""
+find_md_unused_images.py (2nd iteration)
+
+Fixes:
+- Correctly handles angle-bracketed markdown image URLs: ![alt](<path/to/img.png>)
+- More robust parsing of the (...) contents (title, spaces, quotes)
+- Safer check for "under images dir"
+"""
+
+from __future__ import annotations
+import argparse
+import json
+import os
+import re
+import sys
+from pathlib import Path
+from typing import Iterable, Set, Dict, List, Tuple
+
+IMG_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp", ".tif", ".tiff", ".avif"}
+URL_SCHEMES = ("http://", "https://", "data:", "mailto:")
+
+# Capture the whole (...) then we'll parse out the URL ourselves
+MD_IMAGE_PATTERN = re.compile(
+    r"""!\[[^\]]*\]\((?P<inner>[^)]+)\)""",
+    re.IGNORECASE,
+)
+
+HTML_IMG_PATTERN = re.compile(
+    r"""<img[^>]*?\s+src\s*=\s*["'](?P<url>[^"']+)["'][^>]*>""",
+    re.IGNORECASE | re.DOTALL,
+)
+
+REF_DEF_PATTERN = re.compile(
+    r"""^[ \t]*\[[^\]]+\]:[ \t]+(?P<url>\S+)""",
+    re.IGNORECASE | re.MULTILINE,
+)
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description="Find image links in Markdown and report unused images.")
+    p.add_argument("--root", default=".", help="Repo root to scan (default: .)")
+    p.add_argument("--images-dir", required=True, help="Directory containing images to check for usage.")
+    p.add_argument("--exclude", action="append", default=[],
+                   help="Directory name patterns to exclude (can be used multiple times). "
+                        "Matches on any path segment. Example: --exclude node_modules --exclude .git")
+    p.add_argument("--readme-only", action="store_true",
+                   help="Only scan README*.md files (case-insensitive).")
+    p.add_argument("--report", choices=["text", "json"], default="text",
+                   help="Output format (default: text).")
+    return p.parse_args()
+
+def should_exclude(path: Path, exclude_patterns: List[str], root: Path) -> bool:
+    if not exclude_patterns:
+        return False
+    try:
+        rel = path.relative_to(root)
+    except Exception:
+        rel = path
+    parts = set(part.lower() for part in rel.parts)
+    pats = set(p.lower() for p in exclude_patterns)
+    return any(p in parts for p in pats)
+
+def find_markdown_files(root: Path, readme_only: bool, exclude_patterns: List[str]) -> List[Path]:
+    results: List[Path] = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dpath = Path(dirpath)
+        # prune excluded dirs
+        dirnames[:] = [d for d in dirnames if not should_exclude(dpath / d, exclude_patterns, root)]
+        for fn in filenames:
+            if not fn.lower().endswith(".md"):
+                continue
+            if readme_only and not fn.lower().startswith("readme"):
+                continue
+            fpath = dpath / fn
+            if should_exclude(fpath, exclude_patterns, root):
+                continue
+            results.append(fpath)
+    return results
+
+def _extract_url_from_inner(inner: str) -> str:
+    """
+    Parse the content inside (...) of a markdown image/link and return the URL only.
+    Handles:
+      - Optional surrounding angle brackets: <...>
+      - Optional title after the URL, separated by whitespace, possibly quoted
+    """
+    s = inner.strip()
+    # If angle bracket wrapped: take inside <...>
+    if s.startswith("<"):
+        # take up to the first '>' after '<'
+        closing = s.find(">")
+        if closing != -1:
+            return s[1:closing].strip()
+        # fall through to generic parsing if malformed
+    # Otherwise: first token before unquoted whitespace is the URL
+    # We'll do a simple split: URL is first contiguous non-space sequence
+    # (Titles typically follow with spaces and quotes)
+    return s.split()[0] if s else ""
+
+def extract_urls_from_markdown(text: str) -> Set[str]:
+    urls: Set[str] = set()
+
+    for m in MD_IMAGE_PATTERN.finditer(text):
+        inner = m.group("inner")
+        url = _extract_url_from_inner(inner)
+        if url:
+            urls.add(url)
+
+    for m in HTML_IMG_PATTERN.finditer(text):
+        urls.add(m.group("url").strip())
+
+    # Reference-style definitions that end with image extensions
+    for m in REF_DEF_PATTERN.finditer(text):
+        url = m.group("url").strip()
+        base = url.lower().split("?", 1)[0].split("#", 1)[0]
+        if any(base.endswith(ext) for ext in IMG_EXTS):
+            urls.add(url)
+
+    return urls
+
+def _strip_fragment_and_query(url: str) -> str:
+    return url.split("#", 1)[0].split("?", 1)[0]
+
+def normalize_url_to_path(url: str, md_file: Path, root: Path) -> Path | None:
+    if url.startswith(URL_SCHEMES):
+        return None
+    clean = _strip_fragment_and_query(url)
+
+    # Clean off any accidental surrounding angle brackets (extra safety)
+    if clean.startswith("<") and clean.endswith(">"):
+        clean = clean[1:-1].strip()
+
+    p = Path(clean)
+    try:
+        if p.is_absolute():
+            candidate = (root / p.relative_to("/")).resolve()
+        else:
+            candidate = (md_file.parent / p).resolve()
+    except Exception:
+        candidate = (root / str(p).lstrip("/")).resolve()
+
+    # ensure inside root
+    try:
+        candidate.relative_to(root.resolve())
+    except Exception:
+        return None
+
+    return candidate
+
+def collect_used_images(md_files: Iterable[Path], root: Path) -> Tuple[Set[Path], Dict[Path, Set[Path]]]:
+    used: Set[Path] = set()
+    by_md: Dict[Path, Set[Path]] = {}
+
+    for md in md_files:
+        try:
+            text = md.read_text(encoding="utf-8", errors="replace")
+        except Exception as e:
+            print(f"Warning: Could not read {md}: {e}", file=sys.stderr)
+            continue
+
+        urls = extract_urls_from_markdown(text)
+        resolved: Set[Path] = set()
+
+        for u in urls:
+            p = normalize_url_to_path(u, md_file=md, root=root)
+            if p is None:
+                continue
+            if p.suffix.lower() in IMG_EXTS:
+                resolved.add(p)
+
+        by_md[md] = resolved
+        used.update(resolved)
+
+    return used, by_md
+
+def collect_images_in_dir(images_dir: Path) -> Set[Path]:
+    files: Set[Path] = set()
+    for dirpath, _, filenames in os.walk(images_dir):
+        dpath = Path(dirpath)
+        for fn in filenames:
+            p = dpath / fn
+            if p.suffix.lower() in IMG_EXTS:
+                files.add(p.resolve())
+    return files
+
+def is_under(child: Path, parent: Path) -> bool:
+    try:
+        child.resolve().relative_to(parent.resolve())
+        return True
+    except Exception:
+        return False
+
+def rel(p: Path, root: Path) -> str:
+    try:
+        return str(p.resolve().relative_to(root.resolve()))
+    except Exception:
+        return str(p)
+
+def main() -> int:
+    args = parse_args()
+    try:
+        root = Path(args.root).resolve()
+        images_dir = (root / args.images_dir).resolve() if not Path(args.images_dir).is_absolute() else Path(args.images_dir).resolve()
+
+        if not images_dir.exists() or not images_dir.is_dir():
+            print(f"Error: --images-dir '{images_dir}' does not exist or is not a directory.", file=sys.stderr)
+            return 2
+
+        md_files = find_markdown_files(root, args.readme_only, args.exclude)
+        used_images, by_md = collect_used_images(md_files, root)
+        in_folder = collect_images_in_dir(images_dir)
+
+        used_under_images_dir = {p for p in used_images if is_under(p, images_dir)}
+        unused = in_folder - used_under_images_dir
+
+        if args.report == "json":
+            report = {
+                "root": str(root),
+                "images_dir": str(images_dir),
+                "exclude": args.exclude,
+                "readme_only": bool(args.readme_only),
+                "markdown_files_scanned": [rel(p, root) for p in sorted(by_md.keys())],
+                "images_found": sorted({rel(p, root) for p in used_under_images_dir}),
+                "unused_images": sorted({rel(p, root) for p in unused}),
+                "by_markdown": {
+                    rel(md, root): sorted({rel(p, root) for p in paths})
+                    for md, paths in by_md.items() if paths
+                },
+            }
+            print(json.dumps(report, indent=2))
+        else:
+            print(f"Repo root: {root}")
+            print(f"Images dir: {images_dir}")
+            print(f"Excluded dirs: {args.exclude or '∅'}")
+            print(f"Mode: {'README-only' if args.readme_only else 'All .md files'}\n")
+
+            print("== Markdown files scanned ==")
+            for p in sorted(by_md.keys()):
+                print(f"  - {rel(p, root)}")
+            print("\n== Images referenced under images-dir ==")
+            for p in sorted(used_under_images_dir):
+                print(f"  - {rel(p, root)}")
+            print("\n== Unused images (safe to consider deleting) ==")
+            if unused:
+                for p in sorted(unused):
+                    print(f"  - {rel(p, root)}")
+            else:
+                print("  (none)")
+            print("\n== By Markdown file ==")
+            for md in sorted(by_md.keys()):
+                imgs = sorted(by_md[md])
+                if not imgs:
+                    continue
+                print(f"  {rel(md, root)}")
+                for ip in imgs:
+                    print(f"    - {rel(ip, root)}")
+
+        return 0
+    except Exception as e:
+        print(e, file=sys.stderr)
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

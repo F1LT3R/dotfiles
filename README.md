@@ -103,7 +103,11 @@ Leader key is `,` (comma).
     + `gdn $1 $1` = Git Diff --name-only. $1 = Git Ref (branch, hash, HEAD^, etc). Piped to Less pager. $1 and $1 are optional.
     + `gc` = Git Conflicting Files. Runs from root of repo.
     + `gc.` = Git Conflicting Files. Runs from present directory.
-    + `cf` - "Changed Files": Check which local branch files are different to remote branch files where `$1`=Remote Branch Name.
+    + `cf` = "Changed Files": Check which local branch files are different to remote branch files where `$1`=Remote Branch Name.
+    + `git-list-images` = List all images used in .md files, compare to DIR to see which can be removed. Also check image sizes. Command example:
+       ```shell
+       git-list-images --images-dir docs/assets --exclude node_modules --exclude .changeset
+       ```
 - Shell
     + `clean` = Recursively remove `node_modules` and `.git`
         dirs.
