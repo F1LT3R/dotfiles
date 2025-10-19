@@ -7,9 +7,7 @@ PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:
 
 # Use local user path for homebrew on locked down environments
 if [ "$OS_MODE" = "MACOS" ]; then
-    eval "$(~/.homebrew/bin/brew shellenv)"
-    # User local user path for homebrew applications
-    export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
+   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
 PRETTY_PATH=$PATH
