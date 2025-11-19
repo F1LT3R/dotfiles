@@ -107,6 +107,9 @@ alias br='vim ~/.bashrc'
 alias lr='ls -atr --color=auto -C'
 alias la='ls -ax --color=auto -c'
 
+# Colored Diffs
+alias diff='diff --color=auto'
+
 # Nautilus
 ./() {
     (nohup nautilus "$1" >/dev/null 2>&1 & disown) >/dev/null 2>&1
@@ -132,13 +135,8 @@ x() {
 
 # Node.js & NVM
 export NVM_DIR="$HOME/.nvm"
-if [ "$OS_MODE" = "MACOS" ]; then
-    [ -s "$HOME/.homebrew/opt/nvm/nvm.sh" ] && \. "$HOME/.homebrew/opt/nvm/nvm.sh"  # This loads nvm
-    [ -s "$HOME/.homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$HOME/.homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
-else
-	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-	[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-fi
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
 # If not running interactively, don't do anything
 case $- in

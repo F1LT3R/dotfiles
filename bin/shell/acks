@@ -1,0 +1,2 @@
+#!/bin/bash
+ack -n "$1" | sort
