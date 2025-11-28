@@ -1,0 +1,1 @@
+curl -L https://github.com/F1LT3R/codestyle/tarball/main | tar -xz --strip-components=1

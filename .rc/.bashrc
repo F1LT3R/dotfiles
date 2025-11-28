@@ -315,3 +315,6 @@ toggle_vi() {
         echo "Vi mode enabled"
     fi
 }
+
+# Added by Antigravity
+export PATH="/Users/user/.antigravity/antigravity/bin:$PATH"
