@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# usage: mkdirs <dir-name> <count>
+
+set -e
+
+name="$1"
+count="$2"
+
+if [[ -z "$name" || -z "$count" ]]; then
+    echo "Usage: $0 <dir-name> <count>"
+    exit 1
+fi
+
+# Determine padding width based on highest number
+width=${#count}
+
+for ((i=0; i<=count; i++)); do
+    printf -v padded "%0${width}d" "$i"
+    mkdir -p "./${name}-${padded}"
+done
