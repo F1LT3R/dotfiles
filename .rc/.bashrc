@@ -1,6 +1,9 @@
 # Detect OS_MODE
 source ~/bin/system/detect-os-mode 2>/dev/null
-echo "OS_MODE Detected: $OS_MODE"
+
+if [[ $- == *i* ]]; then
+	echo "OS_MODE Detected: $OS_MODE"
+fi
 
 # Add ~/.local/bin to PATH
 PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin'
