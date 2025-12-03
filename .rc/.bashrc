@@ -318,3 +318,4 @@ toggle_vi() {
 
 # Added by Antigravity
 export PATH="/Users/user/.antigravity/antigravity/bin:$PATH"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
