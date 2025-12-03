@@ -21,12 +21,16 @@ done
 export PATH
 export PRETTY_PATH
 
-echo "\$PATH=$PRETTY_PATH"
+if [[ $- == *i* ]]; then
+	echo "\$PATH=$PRETTY_PATH"
+fi
 
 # Pull in WSL2 Variables
 # .wsl2rc lives outside of the dotfiles repo
 if [ "$OS_MODE" = "WSL2" ]; then
-    echo "Sourcing: ~/.wsl2rc"
+	if [[ $- == *i* ]]; then
+		echo "Sourcing: ~/.wsl2rc"
+	fi
     source ~/.wsl2rc
 fi
 
@@ -85,7 +89,9 @@ bat () {
 }
 
 # Load SSH-Agent
-eval `ssh-agent`
+if [[ $- == *i* ]]; then
+	eval `ssh-agent`
+fi
 
 weather () {
     curl wttr.in/moon?QF
