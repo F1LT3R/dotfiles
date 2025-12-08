@@ -117,70 +117,6 @@ shopt -s checkwinsize
 force_color_prompt=yes
 color_prompt=yes
 
-# ==========================
-#   Git Branch Function
-# ==========================
-parse_git_branch() {
-    git rev-parse --is-inside-work-tree >/dev/null 2>&1 || return
-
-    local branch
-    branch=$(git symbolic-ref --short HEAD 2>/dev/null || git describe --tags --always)
-
-    local status
-    status=$(git status --porcelain 2>/dev/null)
-
-    local has_staged=0 has_unstaged=0 has_untracked=0 has_conflicts=0
-
-    while IFS= read -r line; do
-        [[ -z "$line" ]] && continue
-        local x=${line:0:1} y=${line:1:1}
-        if   [[ "$x" == "U" || "$y" == "U" ]]; then has_conflicts=1
-        elif [[ "$x" == "?" && "$y" == "?" ]]; then has_untracked=1
-        else
-            [[ "$x" != " " ]] && has_staged=1
-            [[ "$y" != " " ]] && has_unstaged=1
-        fi
-    done <<< "$status"
-
-    local ahead=0 behind=0
-    if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
-        read -r ahead behind < <(git rev-list --left-right --count HEAD...@{u} | tr '\t' ' ')
-    fi
-
-    local symbol="⊢ $branch"
-    local flags=""
-
-    (( has_conflicts )) && flags+=" ✖"
-    (( has_unstaged )) && flags+=" ✚"
-    (( has_staged ))   && flags+=" ●"
-    (( has_untracked )) && flags+=" …"
-
-    if   (( ahead > 0 && behind > 0 )); then flags=" ⇅$flags"
-    elif (( ahead > 0 ));                then flags=" ↑$flags"
-    elif (( behind > 0 ));               then flags=" ↓$flags"
-    fi
-
-    echo "$symbol$flags"
-}
-
-
-
-# ==========================
-#   Clean Final Prompt
-# ==========================
-PS1='\
-\[\033[01;32m\]\u\[\033[00m\]@\
-\[\033[01;31m\]\h\[\033[00m\] \
-$( if [[ "$PWD" == "$HOME" ]]; then \
-      printf "\033[01;33m~\033[00m"; \
-  else \
-      parent=$(dirname "$PWD" | sed "s#$HOME#~#"); \
-      base=$(basename "$PWD"); \
-      printf "\033[01;34m%s/\033[01;33m%s\033[00m" "$parent" "$base"; \
-  fi ) \
-\[\033[01;36m\]$(parse_git_branch)\[\033[00m\]\n\
-\[\033[01;35m\]\$\[\033[00m\] '
-
 
 unset color_prompt force_color_prompt
 
@@ -219,5 +155,86 @@ toggle_vi() {
 export PATH="/Users/user/.antigravity/antigravity/bin:$PATH"
 [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 
-PROMPT_COMMAND=
-readonly PS1
+if [[ $- == *i* ]]; then
+
+    # Plain-text git info: no colors here
+    parse_git_branch() {
+        git rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 0
+
+        local branch status x y
+        branch=$(git symbolic-ref --short HEAD 2>/dev/null || git describe --tags --always 2>/dev/null) || return 0
+        status=$(git status --porcelain 2>/dev/null)
+
+        local has_staged=0 has_unstaged=0 has_untracked=0 has_conflicts=0
+        while IFS= read -r line; do
+            [[ -z "$line" ]] && continue
+            x=${line:0:1}
+            y=${line:1:1}
+            if   [[ "$x" == "U" || "$y" == "U" ]]; then has_conflicts=1
+            elif [[ "$x" == "?" && "$y" == "?" ]]; then has_untracked=1
+            else
+                [[ "$x" != " " ]] && has_staged=1
+                [[ "$y" != " " ]] && has_unstaged=1
+            fi
+        done <<< "$status"
+
+        local ahead=0 behind=0
+        if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
+            read -r ahead behind < <(git rev-list --left-right --count HEAD...@{u})
+        fi
+
+        local symbol="⊢ $branch"
+        local flags=""
+
+        (( has_conflicts )) && flags+=" ✖"
+        (( has_unstaged ))  && flags+=" ✚"
+        (( has_staged   ))  && flags+=" ●"
+        (( has_untracked )) && flags+=" …"
+
+        if   (( ahead > 0 && behind > 0 )); then flags=" ⇅$flags"
+        elif (( ahead > 0 ));               then flags=" ↑$flags"
+        elif (( behind > 0 ));              then flags=" ↓$flags"
+        fi
+
+        printf '%s%s' "$symbol" "$flags"
+    }
+
+    # Path: parent blue, last segment (or ~) yellow – NO \[ \] here
+    path_prompt() {
+        local dir="$PWD" home="$HOME" parent base
+
+        if [[ "$dir" == "$home" ]]; then
+            printf '\033[01;33m~\033[0m'
+        else
+            parent=${dir%/*}
+            base=${dir##*/}
+            parent=${parent/#$home/\~}
+            printf '\033[01;34m%s/\033[01;33m%s\033[0m' "$parent" "$base"
+        fi
+    }
+
+    # Take plain git text and color it – NO \[ \] here
+    git_prompt() {
+        local info
+        info=$(parse_git_branch)
+        [[ -z "$info" ]] && return 0
+
+        local green='\033[1;32m'
+        local yellow='\033[1;33m'
+        local red='\033[1;31m'
+        local magenta='\033[1;35m'
+        local color="$green"
+
+        [[ "$info" == *✖* ]] && color="$magenta"                # conflicts
+        [[ "$info" == *✚* || "$info" == *●* ]] && color="$yellow"  # changes
+        [[ "$info" == *…* ]] && color="$red"                    # untracked
+
+        printf '%b%s\033[0m' "$color" "$info"
+    }
+
+    # Final PS1: user@host PATH GIT \n $
+    PS1="\[\033[01;32m\]\u\[\033[0m\]@\
+\[\033[01;31m\]\h\[\033[0m\] \
+\$(path_prompt) \
+\$(git_prompt)\n\[\033[01;35m\]\$\[\033[0m\] "
+fi
