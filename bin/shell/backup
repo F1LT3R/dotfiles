@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# backup
+# Snapshot-style backup:
+#   ~/Backups/<host>/<timestamp>/<full-absolute-path>/
+# with per-run log at:
+#   ~/Backups/<host>/<timestamp>/backup.log
+
+set -euo pipefail
+# -e : exit on unhandled error
+# -u : error on unset variables
+# -o pipefail : pipeline fails if any command in it fails
+
+# --------------------------------------------------------------------
+# Require at least one path to back up
+# --------------------------------------------------------------------
+if [ "$#" -lt 1 ]; then
+    echo "Usage: $0 <path> [<path> ...]" >&2
+    exit 1
+fi
+
+# --------------------------------------------------------------------
+# Host + timestamp
+#   HOSTNAME_SHORT: namespaces backups per machine
+#   TIMESTAMP: millisecond precision, safe for filenames
+# --------------------------------------------------------------------
+HOSTNAME_SHORT=$(hostname -s)
+TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S_%3N)
+
+# --------------------------------------------------------------------
+# Base destination for this snapshot:
+#   $HOME/Backups/<host>/<timestamp>/
+# rsync -R will recreate the full source paths underneath this.
+# --------------------------------------------------------------------
+DEST_BASE="$HOME/Backups/$HOSTNAME_SHORT/$TIMESTAMP"
+mkdir -p "$DEST_BASE"
+
+# --------------------------------------------------------------------
+# Per-snapshot log file
+# --------------------------------------------------------------------
+LOGFILE="$DEST_BASE/backup.log"
+echo "Destination base: $DEST_BASE"
+echo "Logging to: $LOGFILE"
+
+# Header for this run in the log
+{
+    echo "================================================================"
+    echo "Backup run: $(date +%Y-%m-%d_%H-%M-%S_%3N)"
+    echo "Host: $HOSTNAME_SHORT"
+    echo "Destination: $DEST_BASE"
+    echo "Sources:"
+    for s in "$@"; do
+        echo "  $s"
+    done
+    echo
+} >> "$LOGFILE"
+
+# --------------------------------------------------------------------
+# Loop over each source argument
+# --------------------------------------------------------------------
+for SRC in "$@"; do
+    # Resolve to an absolute canonical path
+    if ! ABS_SRC=$(realpath "$SRC" 2>/dev/null); then
+        echo "Warning: could not resolve '$SRC' with realpath, skipping." | tee -a "$LOGFILE"
+        continue
+    fi
+
+    # Make sure it exists
+    if [ ! -e "$ABS_SRC" ]; then
+        echo "Warning: '$ABS_SRC' does not exist, skipping." | tee -a "$LOGFILE"
+        continue
+    fi
+
+    echo "Backing up: $ABS_SRC" | tee -a "$LOGFILE"
+
+    # If it's a directory, use a trailing slash so rsync copies contents;
+    # if it's a file, do NOT add a trailing slash.
+    if [ -d "$ABS_SRC" ]; then
+        SRC_SPEC="$ABS_SRC"/
+    else
+        SRC_SPEC="$ABS_SRC"
+    fi
+
+    # ----------------------------------------------------------------
+    # rsync:
+    #   -a : archive (preserves perms, times, owner, symlinks, etc.)
+    #   -v : verbose
+    #   -R : --relative, preserves full path starting from "/"
+    #
+    # Example:
+    #   ABS_SRC = /home/user/repos/vuuai
+    #   DEST_BASE = ~/Backups/<host>/<timestamp>
+    # Result:
+    #   ~/Backups/<host>/<timestamp>/home/user/repos/vuuai/...
+    #
+    # We tee output so it goes both to stdout and backup.log.
+    # PIPESTATUS[0] captures rsync's exit code from the pipeline.
+    # ----------------------------------------------------------------
+    rsync -avR "$SRC_SPEC" "$DEST_BASE"/ 2>&1 | tee -a "$LOGFILE"
+    RSYNC_STATUS=${PIPESTATUS[0]}
+
+    if [ "$RSYNC_STATUS" -eq 23 ]; then
+        # Partial transfer: most things copied, some files/attrs skipped.
+        echo "Warning: rsync reported partial transfer for '$ABS_SRC' (code 23)." | tee -a "$LOGFILE"
+        # We *do not* exit here; continue with other sources.
+    elif [ "$RSYNC_STATUS" -ne 0 ]; then
+        # Any other non-zero is treated as fatal.
+        echo "Error: rsync failed for '$ABS_SRC' with code $RSYNC_STATUS." | tee -a "$LOGFILE"
+        exit "$RSYNC_STATUS"
+    fi
+done
+
+echo "Backup complete." | tee -a "$LOGFILE"
+
+REL_PATH=$(realpath --relative-to="$PWD" "$DEST_BASE")
+echo
+echo "Backup complete."
+echo "Snapshot stored at: $REL_PATH"
+echo "You can enter it with:"
+echo "  cd $REL_PATH"
