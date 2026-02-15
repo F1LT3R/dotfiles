@@ -1,6 +1,6 @@
 # Dotfiles
 
-Dotfiles with installer for Linux, Windows (WSL2), MacOS and Termux.
+Dotfiles with installer for Linux, Windows (WSL2), MacOS and Termux (Android).
 
 ## Install
 
