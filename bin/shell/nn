@@ -13,5 +13,4 @@ echo "# Note $(date +%Y/%m/%d) $(date +%H:%M:%S)
 
 " > "$FILEPATH"
 
-# Open the file in vim with autosave enabled
-vim -c "source ~/.vim/notes-autosave.vim" -c "autocmd VimEnter * ++once normal G$" +startinsert "$FILEPATH"
+code $FILEPATH

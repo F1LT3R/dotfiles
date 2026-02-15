@@ -21,7 +21,17 @@ fi
 file_list=$(mktemp)
 
 # only tracked + untracked (not ignored)
-git ls-files --cached --others --exclude-standard > "$file_list"
+# git ls-files --cached --others --exclude-standard > "$file_list"
+git ls-files --cached --others --exclude-standard -- \
+  . \
+  ':!node_modules/**' \
+  ':!.cursor/**' \
+  ':!.zip/**' \
+  ':!.impl/**' \
+  ':!.DS_Store' \
+  ':!.env' \
+  > "$file_list"
+
 
 zip -r@ "$output_zip" < "$file_list"
 

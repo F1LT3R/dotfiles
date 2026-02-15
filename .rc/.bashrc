@@ -6,7 +6,7 @@ if [[ $- == *i* ]]; then
 fi
 
 # Base PATH config
-PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin'
+PATH='/opt/homebrew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin'
 
 # Homebrew for macOS
 if [ "$OS_MODE" = "MACOS" ]; then
@@ -53,8 +53,8 @@ bat () {
 }
 
 # SSH Agent
-if [[ $- == *i* ]]; then
-    eval `ssh-agent`
+if [[ $- == *i* ]] && [[ -z "$SSH_CLIENT" ]]; then
+    eval $(ssh-agent)
 fi
 
 weather () { curl wttr.in/moon?QF; curl wttr.in/?n2QF; }
@@ -74,7 +74,7 @@ alias diff='diff --color=auto'
 
 # FIXED ls aliases
 alias ls='ls --color=auto'
-alias l='ls -alFG'
+alias l='ls -alFGh'
 alias ll='ls -CFG'
 
 # Nautilus launcher
@@ -131,16 +131,6 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 # rbenv
 command -v rbenv >/dev/null && eval "$(rbenv init -)"
 
-# pnpm for MACOS
-if [ "$OS_MODE" = "MACOS" ]; then
-    cd "$OneDriveFolder"
-    export PNPM_HOME="/Users/alistair.macdonald/Library/pnpm"
-    case ":$PATH:" in
-        *":$PNPM_HOME:"*) ;;
-        *) export PATH="$PNPM_HOME:$PATH" ;;
-    esac
-fi
-
 export ANDROID_HOME=~/Library/Android/sdk/
 alias adbrestart="adb kill-server && adb start-server"
 alias adbrcon="adb reverse tcp:8081 tcp:8081"
@@ -184,8 +174,10 @@ if [[ $- == *i* ]]; then
         done <<< "$status"
 
         local ahead=0 behind=0
-        if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
-            read -r ahead behind < <(git rev-list --left-right --count HEAD...@{u})
+        local upstream
+        upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null) || upstream=""
+        if [[ -n "$upstream" ]]; then
+            read -r ahead behind < <(git rev-list --left-right --count 'HEAD...@{u}' 2>/dev/null)
         fi
 
         local symbol="⊢ $branch"
