@@ -1,3 +1,15 @@
 #!/bin/bash
 
-ln -s ~/repos/.agents ./.agents
+# ln -s ~/repos/.agents ./.agents
+
+echo '#!/bin/bash' > .eject.agents.sh
+for item in ~/repos/.agents/* ~/repos/.agents/.*; do
+    name="$(basename "$item")"
+    [[ "$name" == ".git" || "$name" == ".gitignore" || "$name" == "." || "$name" == ".." ]] && continue
+    ln -s "$item" "./$name"
+    grep -qxF "$name" .gitignore 2>/dev/null || echo "$name" >> .gitignore
+    echo "rm -rf './$name'" >> .eject.agents.sh
+    echo "grep -v '^$name\$' .gitignore > .gitignore.tmp && mv .gitignore.tmp .gitignore" >> .eject.agents.sh
+done
+echo "rm -f .eject.agents.sh" >> .eject.agents.sh
+chmod +x .eject.agents.sh

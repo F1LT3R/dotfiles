@@ -47,10 +47,11 @@ desktop () { [ "$OS_MODE" = "WSL2" ] && cd "$OneDriveFolder/Desktop" || echo "No
 # Syntax highlighting via bat
 bat () {
     if [ "$OS_MODE" == "WSL2" ]; then bat --paging=never --color=always "$@"
-    elif [ "$OS_MODE" == "MACOS" ]; then $(which bat) --paging=never "$@"
+    elif [ "$OS_MODE" == "MACOS" ]; then $(which bat) --paging=never --plain "$@"
     elif [ "$OS_MODE" == "TERMUX" ]; then bat --color=always "$@"
-    else batcat --plain --paging=never --color=always "$@"; fi
+    else bat --plain --paging=never --color=always "$@"; fi
 }
+alias cat=bat
 
 # SSH Agent
 if [[ $- == *i* ]] && [[ -z "$SSH_CLIENT" ]]; then
@@ -111,7 +112,7 @@ else
     export PROMPT_COMMAND='history -a; history -c; history -r'
 fi
 
-hist () { history | sed 's/^[ ]*[0-9]*[ ]*//' | batcat --plain --color=always --language=bash --pager="less -R"; }
+hist () { history | sed 's/^[ ]*[0-9]*[ ]*//' | cat --plain --color=always --language=bash --pager="less -R"; }
 
 shopt -s checkwinsize
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -235,3 +236,5 @@ if [[ $- == *i* ]]; then
 \$(path_prompt) \
 \$(git_prompt)\n\[\033[01;35m\]\$\[\033[0m\] "
 fi
+
+. "$HOME/.local/bin/env"
