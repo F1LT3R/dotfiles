@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# tmux-window — open a maximized terminal window running a command
+# Usage: tmux-window <command-string>
+#
+# Modes:
+#   macOS desktop  → new maximized iTerm2 window
+#   Linux desktop  → new maximized gnome-terminal / xterm
+#   SSH            → skip window, run command directly
+#   Basic          → skip window, run command directly
+
+source ~/bin/system/detect-os-mode 2>/dev/null
+
+CMD="$1"
+
+# SSH mode: skip window management entirely
+if [ -n "$SSH_TTY" ]; then
+    eval "$CMD"
+    exit $?
+fi
+
+case "$OS_MODE" in
+    MACOS)
+        osascript <<EOF
+tell application "iTerm2"
+    create window with default profile
+end tell
+delay 0.5
+tell application "System Events"
+    tell process "iTerm2"
+        click menu item "Zoom" of menu "Window" \
+            of menu bar 1
+    end tell
+end tell
+delay 0.5
+tell application "iTerm2"
+    tell current window
+        tell current session of current tab
+            write text "$CMD"
+        end tell
+    end tell
+end tell
+EOF
+        ;;
+    UBUNTU|WSL2)
+        if [ -z "$DISPLAY" ]; then
+            # No display server — headless, run directly
+            eval "$CMD"
+            exit $?
+        fi
+        # Try gnome-terminal first, fall back to xterm
+        if command -v gnome-terminal >/dev/null 2>&1; then
+            gnome-terminal --maximize -- \
+                bash -c "$CMD; exec bash"
+        elif command -v xterm >/dev/null 2>&1; then
+            xterm -maximized -e "$CMD" &
+        else
+            eval "$CMD"
+        fi
+        # Backup maximize with xdotool
+        if command -v xdotool >/dev/null 2>&1; then
+            sleep 0.5
+            xdotool key super+Up 2>/dev/null
+        fi
+        ;;
+    *)
+        # Unknown OS — run directly
+        eval "$CMD"
+        ;;
+esac

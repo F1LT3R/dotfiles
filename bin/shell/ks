@@ -6,9 +6,4 @@ if [ -z "$TARGET" ]; then
 fi
 tmux kill-session -t "$TARGET"
 
-# Close iTerm2 window if on macOS
-if [ "$(uname)" = "Darwin" ]; then
-    osascript -e \
-        'tell application "iTerm2" to close current window' \
-        2>/dev/null &
-fi
+tmux-close-window

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# tls — list available tmux layouts
+
+LAYOUTS_DIR="$HOME/repos/dotfiles/layouts"
+
+if [ ! -d "$LAYOUTS_DIR" ]; then
+    echo "No layouts directory: $LAYOUTS_DIR"
+    exit 1
+fi
+
+FOUND=0
+for f in "$LAYOUTS_DIR"/*.yaml; do
+    [ -f "$f" ] || continue
+    FOUND=1
+    NAME=$(basename "$f" .yaml)
+
+    # Parse description
+    DESC=$(awk '/^description:/ {
+        sub(/^description: */, ""); print; exit
+    }' "$f")
+    [ -z "$DESC" ] && DESC="(no description)"
+
+    # Count columns and panes
+    NUM_COLS=$(grep -c '^ *- width:' "$f")
+    NUM_PANES=$(grep -c '^ *- height:' "$f")
+
+    printf "%-12s %d cols  %d panes   %s\n" \
+        "$NAME" "$NUM_COLS" "$NUM_PANES" "$DESC"
+done
+
+if [ "$FOUND" = "0" ]; then
+    echo "No layouts found in $LAYOUTS_DIR"
+fi

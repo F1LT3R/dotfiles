@@ -22,34 +22,26 @@ else
     INNER="agents-${DIRNAME}-$$"
 fi
 
-# Always launch in a new maximized iTerm2 window
+# Launch in a new terminal window (desktop) or run directly (SSH)
 if [ "$DEV4_READY" != "1" ]; then
     SFLAG=""
     [ "$SHARED" = "1" ] && SFLAG="-s "
-    osascript <<EOF
-tell application "iTerm2"
-    create window with default profile
-end tell
-delay 0.5
-tell application "System Events"
-    tell process "iTerm2"
-        click menu item "Zoom" of menu "Window" \
-            of menu bar 1
-    end tell
-end tell
-delay 0.5
-tell application "iTerm2"
-    tell current window
-        tell current session of current tab
-            write text "exec env DEV4_READY=1 dev4 ${SFLAG}'$DIR'"
-        end tell
-    end tell
-end tell
-EOF
-    exit 0
+
+    if [ -n "$SSH_TTY" ] || \
+       [ "$OS_MODE" != "MACOS" -a -z "$DISPLAY" ]; then
+        # Direct mode — no new window, skip READY flag
+        DEV4_READY=1
+    else
+        tmux-window \
+            "exec env DEV4_READY=1 dev4 ${SFLAG}'$DIR'"
+        exit 0
+    fi
 fi
 
-sleep 0.5
+# Only sleep in desktop mode (window animation)
+if [ -z "$SSH_TTY" ]; then
+    sleep 0.5
+fi
 
 # Calculate pane sizes (percentages of terminal)
 # ┌─────────────┬───────────────────┬──────────────┐
@@ -85,7 +77,12 @@ if [ "$SHARED" = "1" ] && \
       tmux resize-pane -t "${OUTER}:0.4" -y "$ROW_NOTIFY" && \
       tmux resize-pane -t "${OUTER}:0.6" -y "$ROW_AIRLOCK" \
     ) &
-    exec tmux attach -t "$GRP"
+    if [ -n "$SSH_TTY" ]; then
+        tmux attach -t "$GRP"
+        echo "Detached. Reattach: tmux attach -t $GRP"
+    else
+        exec tmux attach -t "$GRP"
+    fi
 fi
 
 # Create session with pane 0 (force full terminal size)
@@ -170,4 +167,9 @@ tmux select-pane -t "$OUTER:0.2"
   tmux resize-pane -t "${OUTER}:0.4" -y "$ROW_NOTIFY" && \
   tmux resize-pane -t "${OUTER}:0.6" -y "$ROW_AIRLOCK" \
 ) &
-exec tmux attach -t "$OUTER"
+if [ -n "$SSH_TTY" ]; then
+    tmux attach -t "$OUTER"
+    echo "Detached. Reattach: tmux attach -t $OUTER"
+else
+    exec tmux attach -t "$OUTER"
+fi

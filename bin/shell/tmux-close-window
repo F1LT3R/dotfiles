@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# tmux-close-window — close the current terminal window
+# Usage: tmux-close-window
+# No-op in SSH mode (you stay in your shell)
+
+source ~/bin/system/detect-os-mode 2>/dev/null
+
+# SSH mode: don't close anything
+if [ -n "$SSH_TTY" ]; then
+    exit 0
+fi
+
+case "$OS_MODE" in
+    MACOS)
+        osascript -e \
+            'tell application "iTerm2" to close current window' \
+            2>/dev/null &
+        ;;
+    UBUNTU|WSL2)
+        if command -v xdotool >/dev/null 2>&1; then
+            xdotool getactivewindow windowclose \
+                2>/dev/null &
+        fi
+        ;;
+esac

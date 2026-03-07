@@ -15,9 +15,4 @@ tmux list-sessions -F '#{session_name} #{session_group}' \
     while read s; do tmux kill-session -t "$s"; done
 tmux kill-session -t "$TARGET" 2>/dev/null
 
-# Close iTerm2 window if on macOS
-if [ "$(uname)" = "Darwin" ]; then
-    osascript -e \
-        'tell application "iTerm2" to close current window' \
-        2>/dev/null &
-fi
+tmux-close-window

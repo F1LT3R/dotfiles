@@ -119,5 +119,5 @@ Need to test if `#{window_width}` expands inside `run-shell` in hooks.
 
 - Should ephemeral mode kill an existing `dev-<dirname>-*` on launch? (Probably not)
 - Should fzf `.md` default query be configurable? (Low priority)
-- Linux support: replace osascript block with xdotool/wmctrl (separate task)
+- ~~Linux support: replace osascript block with xdotool/wmctrl (separate task)~~ DONE — tmux-mesh-v2 added `tmux-window`/`tmux-close-window` helpers with macOS, Linux desktop, SSH, and basic mode support
 - Resize hook: need to test if `#{window_width}` expands inside `run-shell` in hooks

@@ -85,34 +85,26 @@ END {
 }
 ' "$LAYOUT")"
 
-# --- iTerm2 window launch ---
+# --- Terminal window launch ---
 if [ "$TL_READY" != "1" ]; then
     SFLAG=""
     [ "$SHARED" = "1" ] && SFLAG="-s "
-    osascript <<EOF
-tell application "iTerm2"
-    create window with default profile
-end tell
-delay 0.5
-tell application "System Events"
-    tell process "iTerm2"
-        click menu item "Zoom" of menu "Window" \
-            of menu bar 1
-    end tell
-end tell
-delay 0.5
-tell application "iTerm2"
-    tell current window
-        tell current session of current tab
-            write text "exec env TL_READY=1 tl ${SFLAG}'$NAME' '$DIR'"
-        end tell
-    end tell
-end tell
-EOF
-    exit 0
+
+    if [ -n "$SSH_TTY" ] || \
+       [ "$OS_MODE" != "MACOS" -a -z "$DISPLAY" ]; then
+        # Direct mode — no new window, skip READY flag
+        TL_READY=1
+    else
+        tmux-window \
+            "exec env TL_READY=1 tl ${SFLAG}'$NAME' '$DIR'"
+        exit 0
+    fi
 fi
 
-sleep 0.5
+# Only sleep in desktop mode (window animation)
+if [ -z "$SSH_TTY" ]; then
+    sleep 0.5
+fi
 
 COLS=$(tput cols)
 ROWS=$(tput lines)
@@ -230,7 +222,12 @@ if [ "$SHARED" = "1" ] && \
           done; \
       done \
     ) &
-    exec tmux attach -t "$GRP"
+    if [ -n "$SSH_TTY" ]; then
+        tmux attach -t "$GRP"
+        echo "Detached. Reattach: tmux attach -t $GRP"
+    else
+        exec tmux attach -t "$GRP"
+    fi
 fi
 
 # --- Create session ---
@@ -349,4 +346,9 @@ fi
       done; \
   done \
 ) &
-exec tmux attach -t "$SESSION"
+if [ -n "$SSH_TTY" ]; then
+    tmux attach -t "$SESSION"
+    echo "Detached. Reattach: tmux attach -t $SESSION"
+else
+    exec tmux attach -t "$SESSION"
+fi

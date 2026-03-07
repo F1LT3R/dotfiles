@@ -98,7 +98,7 @@ tl -s dev4 ~/repos/my-project     # shared session
 
 What it does:
 1. Parses `layouts/<name>.yaml`
-2. Opens a new maximized iTerm2 window
+2. Opens a new maximized terminal window (desktop) or runs directly (SSH)
 3. Creates the tmux session with correct dimensions
 4. Builds the pane structure (columns, then rows)
 5. Expands variables (`$DIR`, `${SESSION}`, `${INNER}`) in commands
@@ -106,9 +106,19 @@ What it does:
 7. Resizes panes to percentage targets
 8. Attaches with the focus pane selected
 
+### `tls` — List Layouts
+
+Lists all available layouts with a summary.
+
+```
+$ tls
+dev4         3 cols  7 panes   IDE workflow with claude, vim, file tree
+test1        3 cols  7 panes   (no description)
+```
+
 ### `ks` — Kill Session
 
-Kills the current tmux session and closes the iTerm2 window.
+Kills the current tmux session and closes the terminal window (desktop) or returns to shell (SSH).
 
 ```bash
 ks              # kill current session
@@ -117,7 +127,7 @@ ks dev-airlock  # kill a named session
 
 ### `kg` — Kill Group
 
-Kills all sessions in the current session's group, then closes the iTerm2 window. Use this to tear down shared-mode sessions.
+Kills all sessions in the current session's group, then closes the terminal window (desktop) or returns to shell (SSH). Use this to tear down shared-mode sessions.
 
 ```bash
 kg              # kill current group
@@ -208,17 +218,54 @@ Expanded at load time by `tl`:
 - Comments allowed (unlike JSON)
 - Parsed with awk (no external dependencies)
 
+## Platform Support
+
+Tmux Mesh detects four terminal modes automatically:
+
+| Mode | Detection | Window launch | Attach style |
+|------|-----------|--------------|-------------|
+| **macOS** | `OS_MODE=MACOS` + no `$SSH_TTY` | New maximized iTerm2 window | `exec tmux attach` |
+| **Linux desktop** | `OS_MODE=UBUNTU` + `$DISPLAY` set + no `$SSH_TTY` | New maximized gnome-terminal | `exec tmux attach` |
+| **SSH** | `$SSH_TTY` is set (any OS) | Skip — already in a terminal | `tmux attach` (no exec) |
+| **Basic** | Everything else (TERMUX, unknown) | Skip — run in current terminal | `tmux attach` (no exec) |
+
+### SSH Workflow
+
+SSH is a first-class mode. Sessions persist on the remote host:
+
+```bash
+# From any machine:
+ssh myhost
+dev4 -s ~/repos/project        # start or join shared session
+
+# Disconnect (close laptop, wifi drops, ctrl+b d)
+# Session keeps running on the host
+
+# Reconnect from anywhere:
+ssh myhost
+dev4 -s ~/repos/project        # rejoins the same session
+```
+
+Key SSH behaviors:
+- No window management — you're already in a terminal
+- No `exec` — detaching returns you to your SSH shell
+- No delays — the 0.5s sleeps are for desktop window animation
+- `ks`/`kg` kill sessions at full power but don't close the terminal
+
 ## File Structure
 
 ```
 dotfiles/
   bin/shell/
-    ts          # tmux save (export layout to yaml)
-    tl          # tmux load (build session from yaml)
-    ks          # kill session
-    kg          # kill session group
-    dev4        # standalone IDE launcher (original)
+    ts               # tmux save (export layout to yaml)
+    tl               # tmux load (build session from yaml)
+    tls              # list available layouts
+    ks               # kill session
+    kg               # kill session group
+    tmux-window      # helper: open maximized terminal window
+    tmux-close-window # helper: close terminal window
+    dev4             # standalone IDE launcher (original)
   layouts/
-    dev4.yaml   # exported layout files
+    dev4.yaml        # exported layout files
     ...
 ```

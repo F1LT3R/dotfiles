@@ -137,10 +137,10 @@ The `tr` script needs to:
 **Strategy:** build all splits first, then resize, then send commands.
 Use the same background-subshell resize pattern from dev4.
 
-### Cross-platform window management
-- macOS: osascript + iTerm2 (current approach)
-- Linux: xdotool or wmctrl for window maximize
-- Detect with `uname` and branch
+### Cross-platform window management — DONE
+Implemented via `tmux-window` and `tmux-close-window` helpers.
+Supports macOS (iTerm2), Linux desktop (gnome-terminal/xterm),
+SSH (no window management), and basic/TERMUX (run directly).
 
 ### Session naming
 - Ephemeral (default): `<layout>-$$` (PID-based, unique)
