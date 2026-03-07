@@ -156,6 +156,15 @@ tmux send-keys -t "$OUTER:0.1" \
 tmux send-keys -t "$OUTER:0.0" \
     "cd '$DIR' && fstop" Enter
 tmux send-keys -t "$OUTER:0.2" "$CLAUDE_CMD" Enter
+
+# Set pane titles (shown in terminal tab via set-titles)
+tmux select-pane -t "$OUTER:0.0" -T "fstop"
+tmux select-pane -t "$OUTER:0.1" -T "fzf"
+tmux select-pane -t "$OUTER:0.2" -T "claude"
+tmux select-pane -t "$OUTER:0.3" -T "terminal"
+tmux select-pane -t "$OUTER:0.4" -T "notify"
+tmux select-pane -t "$OUTER:0.5" -T "vim"
+tmux select-pane -t "$OUTER:0.6" -T "airlock"
 tmux select-pane -t "$OUTER:0.2"
 
 # Resize after attach (hooks don't resolve pane targets properly)

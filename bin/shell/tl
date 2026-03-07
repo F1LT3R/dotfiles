@@ -290,6 +290,12 @@ for ci in $(seq 0 $((NUM_COLS - 1))); do
             tmux send-keys -t "$SESSION:0.${PI}" \
                 "$CMD" Enter
         fi
+        # Set pane title from layout name
+        eval "PNAME=\$COL${ci}_PANE${ri}_NAME"
+        if [ -n "$PNAME" ]; then
+            tmux select-pane -t "$SESSION:0.${PI}" \
+                -T "$PNAME"
+        fi
         PI=$((PI + 1))
     done
 done
