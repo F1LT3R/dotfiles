@@ -1,3 +1,4 @@
+#
 # Detect OS_MODE
 source ~/bin/system/detect-os-mode 2>/dev/null
 
@@ -6,7 +7,7 @@ if [[ $- == *i* ]]; then
 fi
 
 # Base PATH config
-PATH='/opt/homebrew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin'
+PATH='/opt/homebrew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin:~/.cargo/bin/:/Applications/WezTerm.app/Contents/MacOS'
 
 # Homebrew for macOS
 if [ "$OS_MODE" = "MACOS" ]; then
@@ -28,6 +29,8 @@ export PRETTY_PATH
 if [[ $- == *i* ]]; then
     echo "\$PATH=$PRETTY_PATH"
 fi
+
+alias devlayout='tmux select-layout "07dc,230x56,0,0{40x56,0,0,17,135x56,41,0[135x37,41,0,18,135x18,41,38,22],53x56,177,0[53x26,177,0,19,53x15,177,27,20,53x13,177,43,21]}"'
 
 # WSL2 config
 if [ "$OS_MODE" = "WSL2" ]; then
@@ -65,6 +68,10 @@ VIM_PATH=$(which vim)
 export EDITOR=$VIM_PATH
 export VISUAL=$VIM_PATH
 export SUDO_EDITOR=vim
+
+# Airlock
+export AIRLOCK=~/.airlock
+export AIRLOCK_CONFIG=$AIRLOCK/config.toml
 
 # Aliases
 alias sr='source ~/.bashrc'
@@ -238,3 +245,4 @@ if [[ $- == *i* ]]; then
 fi
 
 . "$HOME/.local/bin/env"
+. "$HOME/.cargo/env"

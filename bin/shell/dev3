@@ -1,0 +1,14 @@
+#!/bin/bash
+DIR="${1:-$(pwd)}"
+DIR="$(cd "$DIR" && pwd)"
+OUTER="dev-test"
+
+tmux kill-session -t "$OUTER" 2>/dev/null
+tmux new-session -d -s "$OUTER" -c "$DIR"
+tmux split-window -t "$OUTER:0.0" -h -c "$DIR"
+tmux split-window -t "$OUTER:0.1" -h -c "$DIR"
+tmux split-window -t "$OUTER:0.1" -v -c "$DIR"
+
+tmux split-window -t "$OUTER:0.3" -v -c "$DIR"
+tmux split-window -t "$OUTER:0.3" -v -c "$DIR"
+tmux attach -t "$OUTER"

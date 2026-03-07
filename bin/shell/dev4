@@ -1,0 +1,173 @@
+#!/bin/bash
+
+# Parse flags
+SHARED=0
+while getopts "s" opt; do
+    case $opt in
+        s) SHARED=1 ;;
+        *) echo "Usage: dev4 [-s] [path]"; exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+DIR="${1:-$(pwd)}"
+DIR="$(cd "$DIR" && pwd)"
+DIRNAME="$(basename "$DIR")"
+
+if [ "$SHARED" = "1" ]; then
+    OUTER="dev-${DIRNAME}"
+    INNER="agents-${DIRNAME}"
+else
+    OUTER="dev-${DIRNAME}-$$"
+    INNER="agents-${DIRNAME}-$$"
+fi
+
+# Always launch in a new maximized iTerm2 window
+if [ "$DEV4_READY" != "1" ]; then
+    SFLAG=""
+    [ "$SHARED" = "1" ] && SFLAG="-s "
+    osascript <<EOF
+tell application "iTerm2"
+    create window with default profile
+end tell
+delay 0.5
+tell application "System Events"
+    tell process "iTerm2"
+        click menu item "Zoom" of menu "Window" \
+            of menu bar 1
+    end tell
+end tell
+delay 0.5
+tell application "iTerm2"
+    tell current window
+        tell current session of current tab
+            write text "exec env DEV4_READY=1 dev4 ${SFLAG}'$DIR'"
+        end tell
+    end tell
+end tell
+EOF
+    exit 0
+fi
+
+sleep 0.5
+
+# Calculate pane sizes (percentages of terminal)
+# ┌─────────────┬───────────────────┬──────────────┐
+# │ 0 fstop 21% │ 2 claude   47%   │ 4 notify 31% │
+# │        h:78%│           h:69%  │        h:31% │
+# ├─────────────┤                   ├──────────────┤
+# │ 1 fzf   21% │                   │ 5 vim    31% │
+# │        h:20%├───────────────────┤        h:37% │
+# │             │ 3 terminal 47%   ├──────────────┤
+# │             │           h:29%  │ 6 airlock 31%│
+# │             │                   │        h:29% │
+# └─────────────┴───────────────────┴──────────────┘
+COLS=$(tput cols)
+ROWS=$(tput lines)
+COL1=$(( COLS * 21 / 100 ))
+COL3=$(( COLS * 31 / 100 ))
+ROW_FZF=$(( ROWS * 20 / 100 ))
+ROW_TERM=$(( ROWS * 29 / 100 ))
+ROW_NOTIFY=$(( ROWS * 31 / 100 ))
+ROW_AIRLOCK=$(( ROWS * 29 / 100 ))
+
+# Shared mode: if session exists, create grouped session and attach
+if [ "$SHARED" = "1" ] && \
+   tmux has-session -t "$OUTER" 2>/dev/null; then
+    GRP="${OUTER}-$$"
+    tmux new-session -d -t "$OUTER" -s "$GRP"
+    tmux select-pane -t "${GRP}:0.2"
+    ( sleep 1 && \
+      tmux resize-pane -t "${OUTER}:0.0" -x "$COL1" && \
+      tmux resize-pane -t "${OUTER}:0.4" -x "$COL3" && \
+      tmux resize-pane -t "${OUTER}:0.1" -y "$ROW_FZF" && \
+      tmux resize-pane -t "${OUTER}:0.3" -y "$ROW_TERM" && \
+      tmux resize-pane -t "${OUTER}:0.4" -y "$ROW_NOTIFY" && \
+      tmux resize-pane -t "${OUTER}:0.6" -y "$ROW_AIRLOCK" \
+    ) &
+    exec tmux attach -t "$GRP"
+fi
+
+# Create session with pane 0 (force full terminal size)
+tmux new-session -d -s "$OUTER" -c "$DIR" \
+    -x "$COLS" -y "$ROWS"
+
+# Shared mode: set window-size and resize hook
+if [ "$SHARED" = "1" ]; then
+    tmux set-option -t "$OUTER" window-size latest
+    HOOK='W=#{window_width}; H=#{window_height}; '
+    HOOK+="tmux resize-pane -t ${OUTER}:0.0"
+    HOOK+=" -x \$((W*21/100)); "
+    HOOK+="tmux resize-pane -t ${OUTER}:0.4"
+    HOOK+=" -x \$((W*31/100)); "
+    HOOK+="tmux resize-pane -t ${OUTER}:0.1"
+    HOOK+=" -y \$((H*20/100)); "
+    HOOK+="tmux resize-pane -t ${OUTER}:0.3"
+    HOOK+=" -y \$((H*29/100)); "
+    HOOK+="tmux resize-pane -t ${OUTER}:0.4"
+    HOOK+=" -y \$((H*31/100)); "
+    HOOK+="tmux resize-pane -t ${OUTER}:0.6"
+    HOOK+=" -y \$((H*29/100))"
+    tmux set-hook -t "$OUTER" after-resize-window \
+        "run-shell '$HOOK'"
+fi
+
+# Split pane 0 horizontally → 0 | 1
+tmux split-window -t "$OUTER:0.0" -h -c "$DIR"
+
+# Split pane 1 horizontally → 0 | 1 | 2
+tmux split-window -t "$OUTER:0.1" -h -c "$DIR"
+
+# Split col2 (pane 1) vertically → 0 | 1(top),2(bot) | 3
+tmux split-window -t "$OUTER:0.1" -v -c "$DIR"
+
+# Split col3 (pane 3) vertically → 0 | 1,2 | 3(top),4(bot)
+tmux split-window -t "$OUTER:0.3" -v -c "$DIR"
+
+# Split col3 bottom (pane 4) vertically → 0 | 1,2 | 3,4,5
+tmux split-window -t "$OUTER:0.4" -v -c "$DIR"
+
+# Split col1 (pane 0) vertically, fzf at bottom
+tmux split-window -t "$OUTER:0.0" -v -l "$ROW_FZF" -c "$DIR"
+
+# ──────────────────────────────────────────
+# Layout:
+#   pane 0 (col1 top)  │  pane 2 (col2 top)  │  pane 4 (col3 top)
+#   pane 1 (col1 bot)  │  pane 3 (col2 bot)  │  pane 5 (col3 mid)
+#                       │                     │  pane 6 (col3 bot)
+# ──────────────────────────────────────────
+
+# Inner session: attach if exists, else create
+CLAUDE_CMD="cd '$DIR' && unset TMUX"
+CLAUDE_CMD="$CLAUDE_CMD && { tmux attach -t '$INNER'"
+CLAUDE_CMD="$CLAUDE_CMD 2>/dev/null"
+CLAUDE_CMD="$CLAUDE_CMD || tmux new-session -s '$INNER'"
+CLAUDE_CMD="$CLAUDE_CMD 'claude --resume 2>/dev/null"
+CLAUDE_CMD="$CLAUDE_CMD || claude'; }"
+
+# Start programs in each pane
+tmux send-keys -t "$OUTER:0.3" \
+    "cd '$DIR' && source ~/.secrets/llms/OPENROUTER_API_KEY && ssh-f1lt3r && clear && ll" Enter
+tmux send-keys -t "$OUTER:0.4" \
+    "cd '$DIR' && agent-notify" Enter
+tmux send-keys -t "$OUTER:0.5" \
+    "cd '$DIR' && vim --servername DEV ." Enter
+tmux send-keys -t "$OUTER:0.6" \
+    "cd '$DIR' && airlock dash" Enter
+tmux send-keys -t "$OUTER:0.1" \
+    "cd '$DIR' && while true; do f=\$(fzf -q '.md') && vim --servername DEV --remote \"\$f\" && tmux select-pane -t 5; done" Enter
+tmux send-keys -t "$OUTER:0.0" \
+    "cd '$DIR' && fstop" Enter
+tmux send-keys -t "$OUTER:0.2" "$CLAUDE_CMD" Enter
+tmux select-pane -t "$OUTER:0.2"
+
+# Resize after attach (hooks don't resolve pane targets properly)
+( sleep 1 && \
+  tmux resize-pane -t "${OUTER}:0.0" -x "$COL1" && \
+  tmux resize-pane -t "${OUTER}:0.4" -x "$COL3" && \
+  tmux resize-pane -t "${OUTER}:0.1" -y "$ROW_FZF" && \
+  tmux resize-pane -t "${OUTER}:0.3" -y "$ROW_TERM" && \
+  tmux resize-pane -t "${OUTER}:0.4" -y "$ROW_NOTIFY" && \
+  tmux resize-pane -t "${OUTER}:0.6" -y "$ROW_AIRLOCK" \
+) &
+exec tmux attach -t "$OUTER"

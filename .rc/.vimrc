@@ -7,7 +7,8 @@ set noswapfile
 set noundofile
 
 set number
-set nowrap
+set wrap
+set textwidth=0
 
 set tabstop=4
 set shiftwidth=4
@@ -287,11 +288,11 @@ autocmd User GoyoEnter call pencil#init()
 autocmd User GoyoEnter Limelight
 autocmd User GoyoEnter set nolist
 autocmd User GoyoLeave Limelight!
-autocmd User GoyoLeave set list
+autocmd User GoyoLeave set nolist
 
 " Customize Pencil settings
-let g:pencil#wrapModeDefault = 'soft'
-let g:pencil#autoformat = 1
+let g:pencil#wrapModeDefault = 'off'
+let g:pencil#autoformat = 0
 
 " Toggle Goyo with a key mapping
 nnoremap <Leader>, :Goyo<CR>
@@ -311,3 +312,6 @@ endif
 " hi Normal guibg=#000000 guifg=#DDDDDD
 " set cursorline
 " hi CursorLine guibg=Grey10
+
+" Clear showbreak after plugins load
+autocmd VimEnter * set showbreak=
