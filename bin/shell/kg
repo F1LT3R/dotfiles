@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 TARGET="${1:-$(tmux display-message -p '#{session_group}' 2>/dev/null)}"
 if [ -z "$TARGET" ]; then
     TARGET="$(tmux display-message -p '#{session_name}' 2>/dev/null)"

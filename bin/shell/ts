@@ -1,0 +1,259 @@
+#!/usr/bin/env bash
+# ts — tmux save: export current tmux session layout to yaml
+
+LAYOUTS_DIR="$HOME/repos/dotfiles/layouts"
+
+if [ -z "$1" ]; then
+    echo "Usage: ts <name> [description]"
+    exit 1
+fi
+
+NAME="$1"
+DESC="${2:-}"
+OUTFILE="${LAYOUTS_DIR}/${NAME}.yaml"
+
+# Must be inside tmux
+if [ -z "$TMUX" ]; then
+    echo "Error: not inside a tmux session."
+    exit 1
+fi
+
+SESSION=$(tmux display-message -p '#{session_name}')
+SESSION_DIR=$(tmux display-message -p '#{pane_current_path}')
+WIN_W=$(tmux display-message -p '#{window_width}')
+WIN_H=$(tmux display-message -p '#{window_height}')
+PANE_COUNT=$(tmux list-panes | wc -l | tr -d ' ')
+
+echo "Session: $SESSION  Window: ${WIN_W}x${WIN_H}"
+echo "Panes: $PANE_COUNT"
+echo ""
+
+# Collect pane info
+declare -a PANE_X PANE_Y PANE_W PANE_H PANE_CMD PANE_NAME
+for i in $(seq 0 $((PANE_COUNT - 1))); do
+    # Get pane geometry
+    INFO=$(tmux display-message -t "$SESSION:0.$i" -p \
+        '#{pane_left} #{pane_top} #{pane_width} #{pane_height}')
+    read -r px py pw ph <<< "$INFO"
+    PANE_X[$i]=$px
+    PANE_Y[$i]=$py
+    PANE_W[$i]=$pw
+    PANE_H[$i]=$ph
+
+    # Highlight this pane
+    tmux select-pane -t "$SESSION:0.$i"
+    sleep 0.3
+
+    # Guess running process
+    PID=$(tmux display-message -t "$SESSION:0.$i" \
+        -p '#{pane_pid}')
+    CHILD=$(pgrep -P "$PID" 2>/dev/null | head -1)
+    if [ -n "$CHILD" ]; then
+        GUESS=$(ps -o command= -p "$CHILD" 2>/dev/null \
+            | head -1)
+    else
+        GUESS=""
+    fi
+
+    # Width/height as percentage of window
+    WPCT=$((pw * 100 / WIN_W))
+    HPCT=$((ph * 100 / WIN_H))
+
+    # Auto-detect short name from detected command
+    AUTO_LABEL="shell"
+    if [ -n "$GUESS" ]; then
+        AUTO_SEG=$(echo "$GUESS" | \
+            sed 's/.*[;&|]\{1,2\}//' | \
+            sed 's/^ *//')
+        FIRST_WORD=$(echo "$AUTO_SEG" | \
+            awk '{print $1}')
+        SECOND_WORD=$(echo "$AUTO_SEG" | \
+            awk '{print $2}')
+        # If first word is a runtime, use the script name
+        case "$(basename "$FIRST_WORD")" in
+            node|python|python3|ruby|perl|bash|sh)
+                if [ -n "$SECOND_WORD" ]; then
+                    AUTO_LABEL=$(basename "$SECOND_WORD")
+                else
+                    AUTO_LABEL=$(basename "$FIRST_WORD")
+                fi
+                ;;
+            *)
+                AUTO_LABEL=$(basename "$FIRST_WORD")
+                ;;
+        esac
+    fi
+
+    echo "--- Pane $i (${pw}x${ph}, ${WPCT}%x${HPCT}%) ---"
+    read -r -p \
+        "  Title (enter=$AUTO_LABEL): " USER_NAME
+    if [ -n "$USER_NAME" ]; then
+        PANE_NAME[$i]="$USER_NAME"
+    else
+        PANE_NAME[$i]="$AUTO_LABEL"
+    fi
+
+    # Simplify and templatize detected command
+    SHORT_CMD="$GUESS"
+    if [ -n "$GUESS" ]; then
+        # Replace runtime scripts with global name
+        RUNTIME=$(echo "$GUESS" | awk '{print $1}')
+        case "$(basename "$RUNTIME")" in
+            node|python|python3|ruby|perl|bash|sh)
+                SCRIPT=$(echo "$GUESS" | \
+                    awk '{print $2}')
+                if [ -n "$SCRIPT" ]; then
+                    SNAME=$(basename "$SCRIPT")
+                    if command -v "$SNAME" \
+                        >/dev/null 2>&1; then
+                        SHORT_CMD="$SNAME"
+                    fi
+                fi
+                ;;
+        esac
+        # Replace session name with ${SESSION}
+        SHORT_CMD=$(echo "$SHORT_CMD" | \
+            sed "s|$SESSION|\${SESSION}|g")
+        # Replace directory path with \$DIR
+        SHORT_CMD=$(echo "$SHORT_CMD" | \
+            sed "s|$SESSION_DIR|\\\$DIR|g")
+        echo "  Detected: $GUESS"
+    fi
+    if [ -n "$SHORT_CMD" ]; then
+        read -r -p \
+            "  Command (enter=$SHORT_CMD): " USER_CMD
+    else
+        read -r -p \
+            "  Command (enter=skip): " USER_CMD
+    fi
+    if [ -n "$USER_CMD" ]; then
+        PANE_CMD[$i]="$USER_CMD"
+    elif [ -n "$SHORT_CMD" ]; then
+        PANE_CMD[$i]="$SHORT_CMD"
+    else
+        PANE_CMD[$i]=""
+    fi
+    echo ""
+done
+
+# Group panes into columns by pane_left (x position)
+declare -a COL_STARTS
+declare -A COL_PANES
+PREV_X=-1
+for i in $(seq 0 $((PANE_COUNT - 1))); do
+    x=${PANE_X[$i]}
+    if [ "$x" != "$PREV_X" ]; then
+        # Check if this x already seen (panes may not be
+        # sorted by x then y)
+        FOUND=0
+        for cx in "${COL_STARTS[@]}"; do
+            if [ "$cx" = "$x" ]; then
+                FOUND=1
+                break
+            fi
+        done
+        if [ "$FOUND" = "0" ]; then
+            COL_STARTS+=("$x")
+        fi
+    fi
+    # Append pane index to this column
+    if [ -z "${COL_PANES[$x]}" ]; then
+        COL_PANES[$x]="$i"
+    else
+        COL_PANES[$x]="${COL_PANES[$x]} $i"
+    fi
+done
+
+# Sort columns by x position
+IFS=$'\n' SORTED_COLS=($(printf '%s\n' \
+    "${COL_STARTS[@]}" | sort -n))
+unset IFS
+
+# Ask for focus pane
+FOCUS_PANE=$(tmux display-message -p '#{pane_index}')
+echo "Focus pane: $FOCUS_PANE (range: 0-$((PANE_COUNT - 1)))"
+read -r -p \
+    "Change focus pane? (enter=$FOCUS_PANE): " NEW_FOCUS
+if [ -n "$NEW_FOCUS" ]; then
+    FOCUS_PANE="$NEW_FOCUS"
+fi
+
+# Find focus as [col, row]
+FOCUS_COL=0
+FOCUS_ROW=0
+for ci in "${!SORTED_COLS[@]}"; do
+    cx=${SORTED_COLS[$ci]}
+    ROW=0
+    for pi in ${COL_PANES[$cx]}; do
+        if [ "$pi" = "$FOCUS_PANE" ]; then
+            FOCUS_COL=$ci
+            FOCUS_ROW=$ROW
+        fi
+        ROW=$((ROW + 1))
+    done
+done
+
+echo ""
+
+# Write yaml
+{
+    echo "name: $NAME"
+    if [ -n "$DESC" ]; then
+        echo "description: $DESC"
+    fi
+    echo "focus: [$FOCUS_COL, $FOCUS_ROW]"
+    echo ""
+    echo "columns:"
+
+    for cx in "${SORTED_COLS[@]}"; do
+        # Column width from first pane in column
+        FIRST_PANE=${COL_PANES[$cx]%% *}
+        COL_W=${PANE_W[$FIRST_PANE]}
+        COL_PCT=$((COL_W * 100 / WIN_W))
+        echo "  - width: ${COL_PCT}%"
+        echo "    panes:"
+
+        # Sort panes in column by y position
+        IFS=' ' read -ra PANES_IN_COL \
+            <<< "${COL_PANES[$cx]}"
+        IFS=$'\n' SORTED_PANES=($(for pi in \
+            "${PANES_IN_COL[@]}"; do
+            echo "${PANE_Y[$pi]} $pi"
+        done | sort -n | awk '{print $2}'))
+        unset IFS
+
+        for pi in "${SORTED_PANES[@]}"; do
+            ph=${PANE_H[$pi]}
+            HPCT=$((ph * 100 / WIN_H))
+            echo "      - height: ${HPCT}%"
+            PNAME="${PANE_NAME[$pi]}"
+            if [ -n "$PNAME" ]; then
+                echo "        name: $PNAME"
+            fi
+            CMD="${PANE_CMD[$pi]}"
+            if [ -n "$CMD" ]; then
+                CMD_ESC=$(echo "$CMD" | \
+                    sed 's/"/\\"/g')
+                echo "        cmd: \"$CMD_ESC\""
+            fi
+        done
+    done
+} > "$OUTFILE"
+
+echo "Saved to $OUTFILE"
+echo ""
+cat "$OUTFILE"
+echo ""
+
+# Offer to register as command
+read -e -i "$NAME" -p \
+    "Create shell command? (ctrl+c=cancel): " REG_NAME
+if [ -n "$REG_NAME" ]; then
+    BINFILE="$HOME/repos/dotfiles/bin/shell/$REG_NAME"
+    cat > "$BINFILE" << REGEOF
+#!/usr/bin/env bash
+exec tl $NAME "\$@"
+REGEOF
+    chmod +x "$BINFILE"
+    echo "Created $BINFILE"
+fi

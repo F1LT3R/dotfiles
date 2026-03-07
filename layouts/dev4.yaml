@@ -1,0 +1,25 @@
+name: dev4
+description: IDE workflow with claude, vim, file tree
+focus: [2, 1]
+
+columns:
+  - width: 5%
+    panes:
+      - height: 77%
+        cmd: "echo \"123\""
+      - height: 20%
+        cmd: "echo \"fzf\""
+  - width: 62%
+    panes:
+      - height: 18%
+        cmd: "echo \"claude\""
+      - height: 79%
+        cmd: "echo \"term\""
+  - width: 30%
+    panes:
+      - height: 13%
+        cmd: "echo \"notify\""
+      - height: 64%
+        cmd: "echo \"vim\""
+      - height: 18%
+        cmd: "echo \"airlock\""

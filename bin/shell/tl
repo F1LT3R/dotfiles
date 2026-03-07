@@ -1,2 +1,352 @@
-#!/bin/bash
-tail $@
+#!/usr/bin/env bash
+# tl — tmux load: build a tmux session from a layout yaml
+
+LAYOUTS_DIR="$HOME/repos/dotfiles/layouts"
+
+# Parse flags
+SHARED=0
+while getopts "s" opt; do
+    case $opt in
+        s) SHARED=1 ;;
+        *) echo "Usage: tl [-s] <name> [path]"; exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+if [ -z "$1" ]; then
+    echo "Usage: tl [-s] <name> [path]"
+    exit 1
+fi
+
+NAME="$1"
+LAYOUT="${LAYOUTS_DIR}/${NAME}.yaml"
+
+if [ ! -f "$LAYOUT" ]; then
+    echo "Layout not found: $LAYOUT"
+    exit 1
+fi
+
+DIR="${2:-$(pwd)}"
+DIR="$(cd "$DIR" && pwd)"
+DIRNAME="$(basename "$DIR")"
+
+if [ "$SHARED" = "1" ]; then
+    SESSION="${NAME}-${DIRNAME}"
+    INNER="agents-${DIRNAME}"
+else
+    SESSION="${NAME}-${DIRNAME}-$$"
+    INNER="agents-${DIRNAME}-$$"
+fi
+
+# --- Parse YAML layout ---
+# Extract columns and panes using awk
+# Output format: COL<n>_WIDTH=<pct>
+#                COL<n>_PANE<m>_HEIGHT=<pct>
+#                COL<n>_PANE<m>_CMD=<cmd>
+#                FOCUS_COL=<n> FOCUS_ROW=<m>
+
+eval "$(awk '
+/^focus:/ {
+    gsub(/[\[\] ]/, "", $2)
+    split($2, f, ",")
+    printf "FOCUS_COL=%s\nFOCUS_ROW=%s\n", f[1], f[2]
+}
+/^columns:/ { in_cols=1; col=-1; next }
+in_cols && /^  - width:/ {
+    col++; pane=-1
+    gsub(/%/, "", $3)
+    printf "COL%d_WIDTH=%s\n", col, $3
+    next
+}
+in_cols && /^      - height:/ {
+    pane++
+    gsub(/%/, "", $3)
+    printf "COL%d_PANE%d_HEIGHT=%s\n", col, pane, $3
+    printf "COL%d_PANE_COUNT=%d\n", col, pane+1
+    next
+}
+in_cols && /^        name:/ {
+    nm = $0
+    sub(/^        name: */, "", nm)
+    gsub(/'\''/, "'\''\\'\'''\''", nm)
+    printf "COL%d_PANE%d_NAME='\''%s'\''\n", col, pane, nm
+    next
+}
+in_cols && /^        cmd:/ {
+    cmd = $0
+    sub(/^        cmd: *"?/, "", cmd)
+    sub(/"$/, "", cmd)
+    gsub(/'\''/, "'\''\\'\'''\''", cmd)
+    printf "COL%d_PANE%d_CMD='\''%s'\''\n", col, pane, cmd
+    next
+}
+END {
+    printf "NUM_COLS=%d\n", col+1
+}
+' "$LAYOUT")"
+
+# --- iTerm2 window launch ---
+if [ "$TL_READY" != "1" ]; then
+    SFLAG=""
+    [ "$SHARED" = "1" ] && SFLAG="-s "
+    osascript <<EOF
+tell application "iTerm2"
+    create window with default profile
+end tell
+delay 0.5
+tell application "System Events"
+    tell process "iTerm2"
+        click menu item "Zoom" of menu "Window" \
+            of menu bar 1
+    end tell
+end tell
+delay 0.5
+tell application "iTerm2"
+    tell current window
+        tell current session of current tab
+            write text "exec env TL_READY=1 tl ${SFLAG}'$NAME' '$DIR'"
+        end tell
+    end tell
+end tell
+EOF
+    exit 0
+fi
+
+sleep 0.5
+
+COLS=$(tput cols)
+ROWS=$(tput lines)
+
+# --- Print layout summary ---
+MODE="ephemeral"
+[ "$SHARED" = "1" ] && MODE="shared"
+echo "Loading: $NAME → $SESSION"
+echo "Dir: $DIR"
+echo "Mode: $MODE"
+echo ""
+
+# Build column headers and rows
+MAX_ROWS=0
+for ci in $(seq 0 $((NUM_COLS - 1))); do
+    eval "PC=\$COL${ci}_PANE_COUNT"
+    [ "$PC" -gt "$MAX_ROWS" ] && MAX_ROWS=$PC
+done
+
+# Print column headers
+HEADER=""
+DIVIDER=""
+for ci in $(seq 0 $((NUM_COLS - 1))); do
+    eval "CW=\$COL${ci}_WIDTH"
+    HEADER+="$(printf '  Col %d (%s%%)' $ci "$CW")"
+    DIVIDER+="  ─────────────"
+    # Pad to 16 chars
+    while [ ${#HEADER} -lt $(( (ci + 1) * 16 )) ]; do
+        HEADER+=" "
+    done
+done
+echo "$HEADER"
+echo "$DIVIDER"
+
+# Print pane rows
+for ri in $(seq 0 $((MAX_ROWS - 1))); do
+    ROW=""
+    for ci in $(seq 0 $((NUM_COLS - 1))); do
+        eval "PC=\$COL${ci}_PANE_COUNT"
+        if [ "$ri" -lt "$PC" ]; then
+            eval "PH=\$COL${ci}_PANE${ri}_HEIGHT"
+            eval "CMD=\$COL${ci}_PANE${ri}_CMD"
+            eval "LABEL=\$COL${ci}_PANE${ri}_NAME"
+            if [ -z "$LABEL" ] && [ -n "$CMD" ]; then
+                LAST_SEG=$(echo "$CMD" | \
+                    sed 's/.*[;&|]\{1,2\}//' | \
+                    sed 's/^ *//')
+                LABEL=$(echo "$LAST_SEG" | \
+                    awk '{print $1}')
+            fi
+            [ -z "$LABEL" ] && LABEL="shell"
+            CELL="$(printf '%-9s %s%%' "$LABEL" "$PH")"
+        else
+            CELL=""
+        fi
+        ROW+="  $CELL"
+        while [ ${#ROW} -lt $(( (ci + 1) * 16 )) ]; do
+            ROW+=" "
+        done
+    done
+    echo "$ROW"
+done
+
+# Print focus info
+eval "FC_PC=\$COL${FOCUS_COL}_PANE_COUNT"
+eval "FC_CMD=\$COL${FOCUS_COL}_PANE${FOCUS_ROW}_CMD"
+FC_LABEL=""
+eval "FC_LABEL=\$COL${FOCUS_COL}_PANE${FOCUS_ROW}_NAME"
+if [ -z "$FC_LABEL" ] && [ -n "$FC_CMD" ]; then
+    FC_SEG=$(echo "$FC_CMD" | \
+        sed 's/.*[;&|]\{1,2\}//' | \
+        sed 's/^ *//')
+    FC_LABEL=$(echo "$FC_SEG" | awk '{print $1}')
+fi
+[ -z "$FC_LABEL" ] && FC_LABEL="shell"
+echo ""
+echo "Focus: [$FOCUS_COL, $FOCUS_ROW] $FC_LABEL"
+echo ""
+
+# --- Shared mode: reattach if session exists ---
+if [ "$SHARED" = "1" ] && \
+   tmux has-session -t "$SESSION" 2>/dev/null; then
+    GRP="${SESSION}-$$"
+    tmux new-session -d -t "$SESSION" -s "$GRP"
+
+    # Calculate focus pane index
+    FPANE=0
+    for ci in $(seq 0 $((NUM_COLS - 1))); do
+        eval "PC=\$COL${ci}_PANE_COUNT"
+        if [ "$ci" -lt "$FOCUS_COL" ]; then
+            FPANE=$((FPANE + PC))
+        elif [ "$ci" -eq "$FOCUS_COL" ]; then
+            FPANE=$((FPANE + FOCUS_ROW))
+        fi
+    done
+    tmux select-pane -t "${GRP}:0.${FPANE}"
+
+    # Resize panes after attach
+    ( sleep 1; \
+      for ci in $(seq 0 $((NUM_COLS - 1))); do
+          eval "PC=\$COL${ci}_PANE_COUNT"
+      done; \
+      PI=0; \
+      for ci in $(seq 0 $((NUM_COLS - 1))); do
+          eval "CW=\$COL${ci}_WIDTH"; \
+          eval "PC=\$COL${ci}_PANE_COUNT"; \
+          FIRST=$PI; \
+          tmux resize-pane -t "${SESSION}:0.${FIRST}" \
+              -x $((COLS * CW / 100)); \
+          for ri in $(seq 0 $((PC - 1))); do
+              eval "PH=\$COL${ci}_PANE${ri}_HEIGHT"; \
+              tmux resize-pane -t "${SESSION}:0.${PI}" \
+                  -y $((ROWS * PH / 100)); \
+              PI=$((PI + 1)); \
+          done; \
+      done \
+    ) &
+    exec tmux attach -t "$GRP"
+fi
+
+# --- Create session ---
+tmux new-session -d -s "$SESSION" -c "$DIR" \
+    -x "$COLS" -y "$ROWS"
+
+# --- Build pane structure ---
+# Strategy: create all column splits first, then row splits.
+# After new-session we have 1 pane (index 0).
+#
+# Step 1: horizontal splits to create columns.
+# Each split adds a pane to the right.
+for ci in $(seq 1 $((NUM_COLS - 1))); do
+    tmux split-window -t "$SESSION:0.${ci}" \
+        -h -c "$DIR" 2>/dev/null || \
+    tmux split-window -t "$SESSION:0.$((ci - 1))" \
+        -h -c "$DIR"
+done
+
+# Step 2: vertical splits within each column.
+# After horizontal splits, panes 0..NUM_COLS-1 map to
+# columns left to right. We split each column pane
+# vertically for additional rows. Each split inserts a
+# pane after the current one and shifts later indices.
+#
+# We track the base pane index for each column.
+PI=0
+for ci in $(seq 0 $((NUM_COLS - 1))); do
+    eval "PC=\$COL${ci}_PANE_COUNT"
+    BASE=$PI
+    for ri in $(seq 1 $((PC - 1))); do
+        TARGET=$((BASE + ri - 1))
+        tmux split-window -t "$SESSION:0.${TARGET}" \
+            -v -c "$DIR"
+    done
+    PI=$((PI + PC))
+done
+
+TOTAL_PANES=$PI
+
+# --- Expand variables and send commands ---
+for ci in $(seq 0 $((NUM_COLS - 1))); do
+    eval "PC=\$COL${ci}_PANE_COUNT"
+done
+
+PI=0
+for ci in $(seq 0 $((NUM_COLS - 1))); do
+    eval "PC=\$COL${ci}_PANE_COUNT"
+    for ri in $(seq 0 $((PC - 1))); do
+        eval "CMD=\$COL${ci}_PANE${ri}_CMD"
+        if [ -n "$CMD" ]; then
+            # Expand layout variables
+            CMD=$(echo "$CMD" | sed \
+                -e "s|\\\$DIR|$DIR|g" \
+                -e "s|\${DIR}|$DIR|g" \
+                -e "s|\\\$SESSION|$SESSION|g" \
+                -e "s|\${SESSION}|$SESSION|g" \
+                -e "s|\\\$INNER|$INNER|g" \
+                -e "s|\${INNER}|$INNER|g")
+            tmux send-keys -t "$SESSION:0.${PI}" \
+                "$CMD" Enter
+        fi
+        PI=$((PI + 1))
+    done
+done
+
+# --- Focus pane ---
+FPANE=0
+for ci in $(seq 0 $((NUM_COLS - 1))); do
+    eval "PC=\$COL${ci}_PANE_COUNT"
+    if [ "$ci" -lt "$FOCUS_COL" ]; then
+        FPANE=$((FPANE + PC))
+    elif [ "$ci" -eq "$FOCUS_COL" ]; then
+        FPANE=$((FPANE + FOCUS_ROW))
+    fi
+done
+tmux select-pane -t "$SESSION:0.${FPANE}"
+
+# --- Shared mode: window-size and resize hook ---
+if [ "$SHARED" = "1" ]; then
+    tmux set-option -t "$SESSION" window-size latest
+    HOOK='W=#{window_width}; H=#{window_height}; '
+    PI=0
+    for ci in $(seq 0 $((NUM_COLS - 1))); do
+        eval "CW=\$COL${ci}_WIDTH"
+        eval "PC=\$COL${ci}_PANE_COUNT"
+        FIRST=$PI
+        HOOK+="tmux resize-pane -t ${SESSION}:0.${FIRST}"
+        HOOK+=" -x \$((W*${CW}/100)); "
+        for ri in $(seq 0 $((PC - 1))); do
+            eval "PH=\$COL${ci}_PANE${ri}_HEIGHT"
+            HOOK+="tmux resize-pane"
+            HOOK+=" -t ${SESSION}:0.${PI}"
+            HOOK+=" -y \$((H*${PH}/100)); "
+            PI=$((PI + 1))
+        done
+    done
+    tmux set-hook -t "$SESSION" after-resize-window \
+        "run-shell '$HOOK'"
+fi
+
+# --- Resize after attach ---
+( sleep 1; \
+  PI=0; \
+  for ci in $(seq 0 $((NUM_COLS - 1))); do
+      eval "CW=\$COL${ci}_WIDTH"; \
+      eval "PC=\$COL${ci}_PANE_COUNT"; \
+      FIRST=$PI; \
+      tmux resize-pane -t "${SESSION}:0.${FIRST}" \
+          -x $((COLS * CW / 100)); \
+      for ri in $(seq 0 $((PC - 1))); do
+          eval "PH=\$COL${ci}_PANE${ri}_HEIGHT"; \
+          tmux resize-pane -t "${SESSION}:0.${PI}" \
+              -y $((ROWS * PH / 100)); \
+          PI=$((PI + 1)); \
+      done; \
+  done \
+) &
+exec tmux attach -t "$SESSION"

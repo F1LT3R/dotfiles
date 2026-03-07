@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Parse flags
 SHARED=0
@@ -151,11 +151,11 @@ tmux send-keys -t "$OUTER:0.3" \
 tmux send-keys -t "$OUTER:0.4" \
     "cd '$DIR' && agent-notify" Enter
 tmux send-keys -t "$OUTER:0.5" \
-    "cd '$DIR' && vim --servername DEV ." Enter
+    "cd '$DIR' && vim --servername $OUTER ." Enter
 tmux send-keys -t "$OUTER:0.6" \
     "cd '$DIR' && airlock dash" Enter
 tmux send-keys -t "$OUTER:0.1" \
-    "cd '$DIR' && while true; do f=\$(fzf -q '.md') && vim --servername DEV --remote \"\$f\" && tmux select-pane -t 5; done" Enter
+    "cd '$DIR' && while true; do f=\$(fzf -q '.md') && vim --servername $OUTER --remote \"\$f\" && tmux select-pane -t 5; done" Enter
 tmux send-keys -t "$OUTER:0.0" \
     "cd '$DIR' && fstop" Enter
 tmux send-keys -t "$OUTER:0.2" "$CLAUDE_CMD" Enter
