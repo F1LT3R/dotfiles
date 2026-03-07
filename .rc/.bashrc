@@ -2,6 +2,8 @@
 # Detect OS_MODE
 source ~/bin/system/detect-os-mode 2>/dev/null
 
+# case $- in *i*) ;; *) return ;; esac
+
 if [[ $- == *i* ]]; then
     echo "OS_MODE Detected: $OS_MODE"
 fi
@@ -104,7 +106,6 @@ elif [ "$OS_MODE" == "UBUNTU" ]; then
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 fi
 
-case $- in *i*) ;; *) return ;; esac
 
 # History settings
 HISTCONTROL=ignoreboth
@@ -244,5 +245,6 @@ if [[ $- == *i* ]]; then
 \$(git_prompt)\n\[\033[01;35m\]\$\[\033[0m\] "
 fi
 
-. "$HOME/.local/bin/env"
-. "$HOME/.cargo/env"
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

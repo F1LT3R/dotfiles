@@ -40,6 +40,10 @@ set -sg escape-time 0
 # Heavy pane borders
 set -g pane-border-lines heavy
 
+# Show session name in terminal/tab title
+set -g set-titles on
+set -g set-titles-string '#S — #I: #W'
+
 # Prefix + Shift+Arrow: resize pane by 5
 bind -r S-Left resize-pane -L 5
 bind -r S-Right resize-pane -R 5

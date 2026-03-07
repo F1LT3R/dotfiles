@@ -62,6 +62,12 @@ else
 fi
 ln -s $BASE/.rc/.ackrc $HOME/.ackrc
 
+if [[ "$OS_MODE" != "TERMUX" ]]; then
+  echo "Linking ~/.tmux.conf"
+  sudo rm -f $HOME/.tmux.conf || rm -f $HOME/.tmux.conf
+  ln -s $BASE/.rc/.tmux.conf $HOME/.tmux.conf
+fi
+
 mkdir -p ~/bin
 cd bin
 for DIR in *; do
