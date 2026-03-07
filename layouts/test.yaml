@@ -1,0 +1,24 @@
+name: test
+focus: [0, 0]
+
+columns:
+  - width: 7%
+    panes:
+      - height: 77%
+        cmd: "echo \"fstop\""
+      - height: 20%
+        cmd: "echo fzf"
+  - width: 86%
+    panes:
+      - height: 69%
+        cmd: "echo \"claude\""
+      - height: 28%
+        cmd: "echo \"term\""
+  - width: 5%
+    panes:
+      - height: 30%
+        cmd: "echo \"notify\""
+      - height: 37%
+        cmd: "echo \"vim\""
+      - height: 28%
+        cmd: "echo \"airlock\""

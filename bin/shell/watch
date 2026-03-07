@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+PLANS_DIR=$1
+DATE_FMT='+%Y/%m/%d %H:%M:%S'
+CWD="$(pwd -P)"
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+RESET='\033[0m'
+
+relpath() {
+	local path="$1"
+	case "$path" in
+		"$CWD"/*) printf '%s\n' "${path#"$CWD"/}" ;;
+		*)        printf '%s\n' "$path" ;;
+	esac
+}
+
+if [ "$OS_MODE" = "MACOS" ]; then
+	# ---------- macOS: fswatch (heuristic) ----------
+	command -v fswatch >/dev/null 2>&1 || {
+		echo "fswatch not found (brew install fswatch)"
+		exit 1
+	}
+
+	declare -A SEEN
+
+	fswatch -r -l 0.2 \
+		-e '.*' \
+		-i '.*\.plan\.md$' \
+		"$PLANS_DIR" | while read -r file; do
+
+		ts="$(date "$DATE_FMT")"
+		out="$(relpath "$file")"
+
+		if [ -e "$file" ]; then
+			if [ -z "${SEEN["$file"]}" ]; then
+				SEEN["$file"]=1
+				printf '%s %bCREATE%b %s\n' "$ts" "$GREEN" "$RESET" "$out"
+			else
+				printf '%s %bMODIFY%b %s\n' "$ts" "$YELLOW" "$RESET" "$out"
+			fi
+		else
+			unset SEEN["$file"]
+			printf '%s %bDELETE%b %s\n' "$ts" "$RED" "$RESET" "$out"
+		fi
+	done
+
+else
+	# ---------- Linux: inotifywait (authoritative) ----------
+	command -v inotifywait >/dev/null 2>&1 || {
+		echo "inotifywait not found (sudo apt install inotify-tools)"
+		exit 1
+	}
+
+	inotifywait -m -r -e create,modify,delete,move \
+		--timefmt '%Y/%m/%d %H:%M:%S' \
+		--format '%T %e %w%f' \
+		"$PLANS_DIR" | grep '\.plan\.md$' | while read -r ts ev path; do
+
+		out="$(relpath "$path")"
+		line="$ts $ev $out"
+
+		case "$ev" in
+			*CREATE*)
+				printf '%b%s%b\n' "$GREEN" "$line" "$RESET"
+				;;
+			*MODIFY*)
+				printf '%b%s%b\n' "$YELLOW" "$line" "$RESET"
+				;;
+			*DELETE*)
+				printf '%b%s%b\n' "$RED" "$line" "$RESET"
+				;;
+			*MOVED*)
+				printf '%b%s%b\n' "$CYAN" "$line" "$RESET"
+				;;
+			*)
+				echo "$line"
+				;;
+		esac
+	done
+fi

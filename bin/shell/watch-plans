@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+PLANS_DIR="$HOME/.cursor/plans"
+DATE_FMT='+%Y/%m/%d %H:%M:%S'
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+RESET='\033[0m'
+
+if [ "$OS_MODE" = "MACOS" ]; then
+	# ---------- macOS: fswatch (heuristic) ----------
+	command -v fswatch >/dev/null 2>&1 || {
+		echo "fswatch not found (brew install fswatch)"
+		exit 1
+	}
+
+	declare -A SEEN
+
+	fswatch -r -l 0.2 \
+		-e '.*' \
+		-i '.*\.plan\.md$' \
+		"$PLANS_DIR" | while read -r file; do
+
+		ts="$(date "$DATE_FMT")"
+
+		if [ -e "$file" ]; then
+			if [ -z "${SEEN["$file"]}" ]; then
+				SEEN["$file"]=1
+				printf '%s %bCREATE%b %s\n' "$ts" "$GREEN" "$RESET" "$file"
+			else
+				printf '%s %bMODIFY%b %s\n' "$ts" "$YELLOW" "$RESET" "$file"
+			fi
+		else
+			unset SEEN["$file"]
+			printf '%s %bDELETE%b %s\n' "$ts" "$RED" "$RESET" "$file"
+		fi
+	done
+
+else
+	# ---------- Linux: inotifywait (authoritative) ----------
+	command -v inotifywait >/dev/null 2>&1 || {
+		echo "inotifywait not found (sudo apt install inotify-tools)"
+		exit 1
+	}
+
+	inotifywait -m -r -e create,modify,delete,move \
+		--timefmt '%Y/%m/%d %H:%M:%S' \
+		--format '%T %e %w%f' \
+		"$PLANS_DIR" | grep '\.plan\.md$' | while read -r line; do
+
+		case "$line" in
+			*CREATE*)
+				printf '%b%s%b\n' "$GREEN" "$line" "$RESET"
+				;;
+			*MODIFY*)
+				printf '%b%s%b\n' "$YELLOW" "$line" "$RESET"
+				;;
+			*DELETE*)
+				printf '%b%s%b\n' "$RED" "$line" "$RESET"
+				;;
+			*MOVED*)
+				printf '%b%s%b\n' "$CYAN" "$line" "$RESET"
+				;;
+			*)
+				echo "$line"
+				;;
+		esac
+	done
+fi

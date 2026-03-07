@@ -1,0 +1,101 @@
+#!/bin/bash
+DIR="${1:-$(pwd)}"
+DIR="$(cd "$DIR" && pwd)"
+OUTER="dev-$(basename "$DIR")"
+INNER="agents-$(basename "$DIR")"
+
+# Always launch in a new maximized iTerm2 window
+if [ "$DEV4_READY" != "1" ]; then
+    osascript <<EOF
+tell application "iTerm2"
+    create window with default profile
+end tell
+delay 0.5
+tell application "System Events"
+    tell process "iTerm2"
+        click menu item "Zoom" of menu "Window" \
+            of menu bar 1
+    end tell
+end tell
+delay 0.5
+tell application "iTerm2"
+    tell current window
+        tell current session of current tab
+            write text "DEV4_READY=1 dev4 '$DIR'"
+        end tell
+    end tell
+end tell
+EOF
+    exit 0
+fi
+
+sleep 0.5
+
+# Calculate column widths (3-column layout: 2/12, 7/12, 3/12)
+COLS=$(tput cols)
+ROWS=$(tput lines)
+COL1=$(( COLS * 2 / 12 ))
+COL3=$(( COLS * 3 / 12 ))
+ROW2=$(( ROWS / 3 ))
+
+# If session already exists, create grouped session and attach
+if tmux has-session -t "$OUTER" 2>/dev/null; then
+    tmux new-session -d -t "$OUTER" -s "${OUTER}-$$"
+    ( sleep 1 && \
+      tmux resize-pane -t "${OUTER}:0.0" -x "$COL1" && \
+      tmux resize-pane -t "${OUTER}:0.3" -x "$COL3" && \
+      tmux resize-pane -t "${OUTER}:0.2" -y "$ROW2" \
+    ) &
+    tmux attach -t "${OUTER}-$$"
+    exit 0
+fi
+
+# Create session with pane 0
+tmux new-session -d -s "$OUTER" -c "$DIR"
+
+# Split pane 0 horizontally → 0 | 1
+tmux split-window -t "$OUTER:0.0" -h -c "$DIR"
+
+# Split pane 1 horizontally → 0 | 1 | 2
+tmux split-window -t "$OUTER:0.1" -h -c "$DIR"
+
+# Split col2 (pane 1) vertically → 0 | 1(top),2(bot) | 3
+tmux split-window -t "$OUTER:0.1" -v -c "$DIR"
+
+# Split col3 (pane 3) vertically → 0 | 1,2 | 3(top),4(bot)
+tmux split-window -t "$OUTER:0.3" -v -c "$DIR"
+
+# Split col3 bottom (pane 4) vertically → 0 | 1,2 | 3,4,5
+tmux split-window -t "$OUTER:0.4" -v -c "$DIR"
+
+# ──────────────────────────────────────────
+# Layout:
+#   pane 0 (col1)  │  pane 1 top (col2)  │  pane 3 (col3 top)
+#                   │  pane 2 bot (col2)  │  pane 4 (col3 mid)
+#                   │                     │  pane 5 (col3 bot)
+# ──────────────────────────────────────────
+
+# Inner session: attach if exists, else create
+CLAUDE_CMD="cd '$DIR' && unset TMUX"
+CLAUDE_CMD="$CLAUDE_CMD && { tmux attach -t '$INNER'"
+CLAUDE_CMD="$CLAUDE_CMD 2>/dev/null"
+CLAUDE_CMD="$CLAUDE_CMD || tmux new-session -s '$INNER'"
+CLAUDE_CMD="$CLAUDE_CMD 'claude --resume 2>/dev/null"
+CLAUDE_CMD="$CLAUDE_CMD || claude'; }"
+
+# Start programs in each pane (claude & fstop last — they capture keys)
+tmux send-keys -t "$OUTER:0.2" \
+    "cd '$DIR' && source ~/.secrets/llms/OPENROUTER_API_KEY && ssh-f1lt3r && clear && ll" Enter
+tmux send-keys -t "$OUTER:0.3" "cd '$DIR' && agent-notify" Enter
+tmux send-keys -t "$OUTER:0.4" "cd '$DIR' && vim ." Enter
+tmux send-keys -t "$OUTER:0.5" "cd '$DIR' && airlock dash" Enter
+tmux send-keys -t "$OUTER:0.0" "cd '$DIR' && fstop" Enter
+tmux send-keys -t "$OUTER:0.1" "$CLAUDE_CMD" Enter
+
+# Resize after attach (hooks don't resolve pane targets properly)
+( sleep 1 && \
+  tmux resize-pane -t "${OUTER}:0.0" -x "$COL1" && \
+  tmux resize-pane -t "${OUTER}:0.3" -x "$COL3" && \
+  tmux resize-pane -t "${OUTER}:0.2" -y "$ROW2" \
+) &
+tmux attach -t "$OUTER"

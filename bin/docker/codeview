@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+set -e
+
+PORT=8081
+NAME=codeview
+PASSWORD=read-only
+
+docker rm -f "$NAME" >/dev/null 2>&1 || true
+
+docker run -d --rm \
+	--name "$NAME" \
+	-p "${PORT}:8080" \
+	-e PASSWORD="${PASSWORD}" \
+	-v "$PWD:/home/coder/project:ro" \
+	ghcr.io/coder/code-server:latest \
+	--bind-addr 0.0.0.0:8080 \
+	--auth password \
+	/home/coder/project
+
+echo
+echo "✔ code-server (read-only) is running"
+echo
+echo "URL (Mac browser):   http://127.0.0.1:${PORT}"
+echo "URL (Phone / LAN):   http://$(ipconfig getifaddr en0):${PORT}"
+echo "Password:            ${PASSWORD}"
+echo
+echo "To stop:"
+echo "  docker stop ${NAME}"

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+TARGET="${1:-$(tmux display-message -p '#{session_group}' 2>/dev/null)}"
+if [ -z "$TARGET" ]; then
+    TARGET="$(tmux display-message -p '#{session_name}' 2>/dev/null)"
+fi
+if [ -z "$TARGET" ]; then
+    echo "Not in a tmux session and no name given."
+    exit 1
+fi
+
+# Kill all grouped sessions, then the target
+tmux list-sessions -F '#{session_name} #{session_group}' \
+    2>/dev/null | \
+    awk -v g="$TARGET" '$2 == g { print $1 }' | \
+    while read s; do tmux kill-session -t "$s"; done
+tmux kill-session -t "$TARGET" 2>/dev/null
+
+# Close iTerm2 window if on macOS
+if [ "$(uname)" = "Darwin" ]; then
+    osascript -e \
+        'tell application "iTerm2" to close current window' \
+        2>/dev/null &
+fi

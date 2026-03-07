@@ -1,6 +1,8 @@
 # Dotfiles
 
-Dotfiles with installer for Linux, Windows (WSL2), MacOS and Termux.
+Dotfiles with installer for Linux, Windows (WSL2), MacOS and Termux (Android).
+
+See also: **[Tmux Mesh](TMUX-MESH.md)** — save, load, and share multi-pane tmux workspaces from yaml layout files.
 
 ## Install
 

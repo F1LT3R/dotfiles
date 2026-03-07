@@ -1,0 +1,78 @@
+#!/bin/bash
+DIR="${1:-$(pwd)}"
+DIR="$(cd "$DIR" && pwd)"
+OUTER="dev-$(basename $DIR)"
+INNER="agents-$(basename $DIR)"
+
+if [ -n "$TMUX" ]; then
+    osascript <<EOF
+tell application "iTerm2"
+    create window with default profile
+end tell
+delay 0.5
+tell application "System Events"
+    tell process "iTerm2"
+        click menu item "Zoom" of menu "Window" of menu bar 1
+    end tell
+end tell
+delay 0.3
+tell application "iTerm2"
+    tell current window
+        tell current session of current tab
+            write text "dev2 '$DIR'"
+        end tell
+    end tell
+end tell
+EOF
+    exit 0
+fi
+
+osascript <<EOF
+tell application "iTerm2"
+    if not zoomed of current window then
+        tell application "System Events"
+            tell process "iTerm2"
+                click menu item "Zoom" of menu "Window" of menu bar 1
+            end tell
+        end tell
+    end if
+end tell
+EOF
+
+sleep 1
+COLS=$(tput cols)
+COL1=$(( COLS / 12 * 2 ))
+COL3=$(( COLS / 12 * 3 ))
+echo $COLS, $COL1, $COL3
+# exit 0
+
+if tmux has-session -t "$OUTER" 2>/dev/null; then
+    tmux resize-pane -t "$OUTER:0.0" -x $COL1
+    tmux resize-pane -t "$OUTER:0.2" -x $COL3
+    tmux attach -t "$OUTER"
+    exit 0
+fi
+
+tmux new-session -d -s "$OUTER" -c "$DIR"
+
+# Split Panes
+tmux split-window -t "$OUTER:0.0" -h -c "$DIR"
+tmux split-window -t "$OUTER:0.1" -h -c "$DIR"
+tmux split-window -t "$OUTER:0.1" -v -c "$DIR"
+tmux split-window -t "$OUTER:0.3" -v -c "$DIR"
+tmux split-window -t "$OUTER:0.3" -v -c "$DIR"
+
+# Size panes
+tmux send-keys -t "$OUTER:0.0" "tmux resize-pane -t 0.0 -x $COL1" Enter
+tmux send-keys -t "$OUTER:0.0" "tmux resize-pane -t 0.3 -x $COL3" Enter
+sleep 1
+
+# Start Progs
+tmux send-keys -t "$OUTER:0.1" "cd '$DIR' && unset TMUX && tmux new-session -s '$INNER' 'claude --resume 2>/dev/null || claude'" Enter
+tmux send-keys -t "$OUTER:0.2" "cd '$DIR' && source ~/.secrets/llms/OPENROUTER_API_KEY && ssh-f1lt3r && clear && ll" Enter
+tmux send-keys -t "$OUTER:0.3" "cd '$DIR' && agent-notify" Enter
+tmux send-keys -t "$OUTER:0.4" "cd '$DIR' && vim ." Enter
+tmux send-keys -t "$OUTER:0.5" "cd '$DIR' && airlock dash" Enter
+tmux send-keys -t "$OUTER:0.0" "cd '$DIR' && fstop" Enter
+
+tmux attach -t "$OUTER"

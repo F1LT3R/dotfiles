@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+TARGET="${1:-$(tmux display-message -p '#{session_name}' 2>/dev/null)}"
+if [ -z "$TARGET" ]; then
+    echo "Not in a tmux session and no name given."
+    exit 1
+fi
+tmux kill-session -t "$TARGET"
+
+# Close iTerm2 window if on macOS
+if [ "$(uname)" = "Darwin" ]; then
+    osascript -e \
+        'tell application "iTerm2" to close current window' \
+        2>/dev/null &
+fi

@@ -1,0 +1,2 @@
+#!/bin/bash
+git commit --amend --author="$(git config user.name) <$(git config user.email)>" --no-edit

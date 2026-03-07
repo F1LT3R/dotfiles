@@ -1,3 +1,4 @@
+#
 # Detect OS_MODE
 source ~/bin/system/detect-os-mode 2>/dev/null
 
@@ -8,7 +9,7 @@ if [[ $- == *i* ]]; then
 fi
 
 # Base PATH config
-PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin'
+PATH='/opt/homebrew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin:/snap/bin/code:/snap/bin:~/.cargo/bin/:/Applications/WezTerm.app/Contents/MacOS'
 
 # Homebrew for macOS
 if [ "$OS_MODE" = "MACOS" ]; then
@@ -31,6 +32,8 @@ if [[ $- == *i* ]]; then
     echo "\$PATH=$PRETTY_PATH"
 fi
 
+alias devlayout='tmux select-layout "07dc,230x56,0,0{40x56,0,0,17,135x56,41,0[135x37,41,0,18,135x18,41,38,22],53x56,177,0[53x26,177,0,19,53x15,177,27,20,53x13,177,43,21]}"'
+
 # WSL2 config
 if [ "$OS_MODE" = "WSL2" ]; then
     if [[ $- == *i* ]]; then
@@ -49,14 +52,15 @@ desktop () { [ "$OS_MODE" = "WSL2" ] && cd "$OneDriveFolder/Desktop" || echo "No
 # Syntax highlighting via bat
 bat () {
     if [ "$OS_MODE" == "WSL2" ]; then bat --paging=never --color=always "$@"
-    elif [ "$OS_MODE" == "MACOS" ]; then $(which bat) --paging=never "$@"
+    elif [ "$OS_MODE" == "MACOS" ]; then $(which bat) --paging=never --plain "$@"
     elif [ "$OS_MODE" == "TERMUX" ]; then bat --color=always "$@"
-    else batcat --plain --paging=never --color=always "$@"; fi
+    else bat --plain --paging=never --color=always "$@"; fi
 }
+alias cat=bat
 
 # SSH Agent
-if [[ $- == *i* ]]; then
-    eval `ssh-agent`
+if [[ $- == *i* ]] && [[ -z "$SSH_CLIENT" ]]; then
+    eval $(ssh-agent)
 fi
 
 weather () { curl wttr.in/moon?QF; curl wttr.in/?n2QF; }
@@ -67,6 +71,10 @@ export EDITOR=$VIM_PATH
 export VISUAL=$VIM_PATH
 export SUDO_EDITOR=vim
 
+# Airlock
+export AIRLOCK=~/.airlock
+export AIRLOCK_CONFIG=$AIRLOCK/config.toml
+
 # Aliases
 alias sr='source ~/.bashrc'
 alias br='vim ~/.bashrc'
@@ -76,7 +84,7 @@ alias diff='diff --color=auto'
 
 # FIXED ls aliases
 alias ls='ls --color=auto'
-alias l='ls -alFG'
+alias l='ls -alFGh'
 alias ll='ls -CFG'
 
 # Nautilus launcher
@@ -112,7 +120,7 @@ else
     export PROMPT_COMMAND='history -a; history -c; history -r'
 fi
 
-hist () { history | sed 's/^[ ]*[0-9]*[ ]*//' | batcat --plain --color=always --language=bash --pager="less -R"; }
+hist () { history | sed 's/^[ ]*[0-9]*[ ]*//' | cat --plain --color=always --language=bash --pager="less -R"; }
 
 shopt -s checkwinsize
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -131,16 +139,6 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 
 # rbenv
 command -v rbenv >/dev/null && eval "$(rbenv init -)"
-
-# pnpm for MACOS
-if [ "$OS_MODE" = "MACOS" ]; then
-    cd "$OneDriveFolder"
-    export PNPM_HOME="/Users/alistair.macdonald/Library/pnpm"
-    case ":$PATH:" in
-        *":$PNPM_HOME:"*) ;;
-        *) export PATH="$PNPM_HOME:$PATH" ;;
-    esac
-fi
 
 export ANDROID_HOME=~/Library/Android/sdk/
 alias adbrestart="adb kill-server && adb start-server"
@@ -185,8 +183,10 @@ if [[ $- == *i* ]]; then
         done <<< "$status"
 
         local ahead=0 behind=0
-        if git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1; then
-            read -r ahead behind < <(git rev-list --left-right --count HEAD...@{u})
+        local upstream
+        upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null) || upstream=""
+        if [[ -n "$upstream" ]]; then
+            read -r ahead behind < <(git rev-list --left-right --count 'HEAD...@{u}' 2>/dev/null)
         fi
 
         local symbol="⊢ $branch"

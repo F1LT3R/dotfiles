@@ -1,0 +1,10 @@
+echo '#!/bin/bash' > .eject-agents.sh
+for item in ~/repos/.agents/*; do
+    name="$(basename "$item")"
+    ln -s "$item" "./$name"
+    grep -qxF "$name" .gitignore 2>/dev/null || echo "$name" >> .gitignore
+    echo "rm -f \"./$name\"" >> undo.sh
+    echo "sed -i '' '/^${name}\$/d' .gitignore" >> undo.sh
+done
+echo "rm -f undo.sh" >> undo.sh
+chmod +x undo.sh

@@ -1,0 +1,224 @@
+# Tmux Mesh
+
+A system for building, saving, and restoring multi-pane tmux workspaces from yaml layout files.
+
+## Why This Exists
+
+AI-assisted development is multi-process. A single terminal isn't enough when you're running Claude Code, file watchers, notification streams, vim with a remote server, fzf pipelines, and a working shell all at once. You need a cockpit, not a window.
+
+The problem is that building these layouts by hand is tedious, and losing them is painful. Tmux solves the multiplexing, but it doesn't solve the orchestration — creating the right splits, sizing them proportionally, launching the right programs in the right panes, and being able to do it all again in one command.
+
+Tmux Mesh makes layouts portable and repeatable. Experiment with a pane arrangement manually, export it to yaml with `ts`, then replay it anywhere with `tl`. Register it as a named command and it becomes a one-word launcher. Share a session across multiple screens for streaming or pair programming. Kill everything cleanly when you're done.
+
+The goal: zero friction between "I want this workspace" and having it.
+
+## Global Tmux Config
+
+`~/.tmux.conf`:
+
+```
+# Prefix: Ctrl+Space (ergonomic, cross-platform)
+unbind C-b
+set -g prefix C-Space
+bind C-Space send-prefix
+
+# Mouse: click to select pane, drag borders to resize, scroll
+set -g mouse on
+
+# Vi mode for copy/scroll (Prefix + [ to enter, y to copy)
+setw -g mode-keys vi
+
+# Copy to system clipboard (macOS)
+set -g set-clipboard on
+bind -T copy-mode-vi y send -X copy-pipe-and-cancel "pbcopy"
+bind -T copy-mode-vi Enter send -X copy-pipe-and-cancel "pbcopy"
+bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-pipe-and-cancel "pbcopy"
+
+# No escape delay (fixes vim Esc responsiveness)
+set -sg escape-time 0
+
+# Heavy pane borders
+set -g pane-border-lines heavy
+
+# Prefix + Shift+Arrow: resize pane by 5
+bind -r S-Left resize-pane -L 5
+bind -r S-Right resize-pane -R 5
+bind -r S-Up resize-pane -U 5
+bind -r S-Down resize-pane -D 5
+
+# Quick pane jumps
+bind f select-pane -t 1    # fzf
+bind c select-pane -t 2    # claude
+```
+
+**Tip:** Hold **Option** while clicking/dragging in iTerm2 to bypass tmux mouse capture for native text selection.
+
+## Commands
+
+### `ts <name> [description]` — Tmux Save
+
+Exports the current tmux session layout to `layouts/<name>.yaml`.
+
+Run this inside any tmux session. It walks each pane in order:
+1. Highlights the pane so you can see which one it's asking about
+2. Detects the running process as a pre-fill guess
+3. Prompts you to confirm, edit, or clear the command
+4. Asks which pane should receive focus on restore
+5. Writes the yaml file
+6. Offers to register the layout as a named shell command
+
+```
+$ ts dev4 "IDE workflow with claude, vim, file tree"
+
+Session: dev-airlock-1036  Window: 231x57
+Panes: 7
+
+--- Pane 0 (12x43, 5%x77%) ---
+  Detected: fstop
+  Command (enter=shell, type to override): cd $DIR && fstop
+
+--- Pane 1 (12x11, 5%x20%) ---
+  Detected: fzf
+  Command (enter=shell, type to override): cd $DIR && fzf
+...
+
+Saved to layouts/dev4.yaml
+Register as command? (name or enter=skip): dev4
+Created bin/shell/dev4
+```
+
+### `tl [-s] <name> [path]` — Tmux Load
+
+Builds a tmux session from a layout yaml file.
+
+```bash
+tl dev4 ~/repos/my-project        # ephemeral session
+tl -s dev4 ~/repos/my-project     # shared session
+```
+
+What it does:
+1. Parses `layouts/<name>.yaml`
+2. Opens a new maximized iTerm2 window
+3. Creates the tmux session with correct dimensions
+4. Builds the pane structure (columns, then rows)
+5. Expands variables (`$DIR`, `${SESSION}`, `${INNER}`) in commands
+6. Sends startup commands to each pane
+7. Resizes panes to percentage targets
+8. Attaches with the focus pane selected
+
+### `ks` — Kill Session
+
+Kills the current tmux session and closes the iTerm2 window.
+
+```bash
+ks              # kill current session
+ks dev-airlock  # kill a named session
+```
+
+### `kg` — Kill Group
+
+Kills all sessions in the current session's group, then closes the iTerm2 window. Use this to tear down shared-mode sessions.
+
+```bash
+kg              # kill current group
+kg dev-airlock  # kill a named group
+```
+
+## Ephemeral vs Shared Mode
+
+### Ephemeral (default)
+
+Every launch creates a completely independent session with a PID-based name:
+
+```
+dev4-airlock-12345    (outer session)
+agents-airlock-12345  (inner claude session)
+```
+
+- `tl dev4 /path` twice = two independent workspaces
+- Each has its own Claude Code instance, vim, everything
+- `ks` kills one without affecting the other
+- Sessions persist if you close the window (tmux detaches, doesn't die)
+
+### Shared (`-s` flag)
+
+Uses a stable, directory-based session name:
+
+```
+dev4-airlock          (base session)
+agents-airlock        (inner claude session)
+```
+
+- `tl -s dev4 /path` twice = two views of the same session (grouped)
+- Both windows show the same panes and content
+- `window-size latest` makes the most recent client control dimensions
+- An `after-resize-window` hook re-applies percentage-based pane sizes when switching between screens
+- `ks` kills your view only; `kg` kills everything
+
+**Use case:** Run shared mode on your work monitor and an external monitor. One screen for streaming/presenting, one for actually working. Both show the same session, each sized to its own display.
+
+## Layout File Format
+
+Layouts live in `layouts/<name>.yaml`:
+
+```yaml
+name: dev4
+description: IDE workflow with claude, vim, file tree
+focus: [1, 0]  # column 1, pane 0
+
+columns:
+  - width: 21%
+    panes:
+      - height: 78%
+        cmd: "cd $DIR && fstop"
+      - height: 20%
+        cmd: "cd $DIR && fzf"
+
+  - width: 47%
+    panes:
+      - height: 69%
+        cmd: "cd $DIR && unset TMUX && { tmux attach -t ${INNER} 2>/dev/null || tmux new-session -s ${INNER} 'claude --resume 2>/dev/null || claude'; }"
+      - height: 29%
+        cmd: "cd $DIR && source ~/.secrets/llms/OPENROUTER_API_KEY && ssh-f1lt3r && clear && ll"
+
+  - width: 31%
+    panes:
+      - height: 31%
+        cmd: "cd $DIR && agent-notify"
+      - height: 37%
+        cmd: "cd $DIR && vim --servername ${SESSION} ."
+      - height: 29%
+        cmd: "cd $DIR && airlock dash"
+```
+
+### Variables
+
+Expanded at load time by `tl`:
+
+| Variable | Expands to | Example |
+|----------|-----------|---------|
+| `$DIR` | Target directory | `/Users/user/repos/airlock` |
+| `${SESSION}` | Session name | `dev4-airlock-12345` |
+| `${INNER}` | Inner session name | `agents-airlock-12345` |
+
+### Why YAML
+
+- Human-readable and hand-editable
+- Easy to tweak percentages or swap commands
+- Comments allowed (unlike JSON)
+- Parsed with awk (no external dependencies)
+
+## File Structure
+
+```
+dotfiles/
+  bin/shell/
+    ts          # tmux save (export layout to yaml)
+    tl          # tmux load (build session from yaml)
+    ks          # kill session
+    kg          # kill session group
+    dev4        # standalone IDE launcher (original)
+  layouts/
+    dev4.yaml   # exported layout files
+    ...
+```

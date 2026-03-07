@@ -1,0 +1,30 @@
+name: test1
+focus: [2, 2]
+
+columns:
+  - width: 38%
+    panes:
+      - height: 77%
+        name: fstop
+        cmd: "fstop"
+      - height: 20%
+        name: fzf
+        cmd: "fzf -q .md"
+  - width: 29%
+    panes:
+      - height: 1%
+        name: claude
+        cmd: "tmux new-session -s agents-airlock-83070 claude --resume 2>/dev/null || claude"
+      - height: 96%
+        name: shell
+  - width: 30%
+    panes:
+      - height: 30%
+        name: agent-notify
+        cmd: "agent-notify"
+      - height: 37%
+        name: vim
+        cmd: "vim --servername ${SESSION} ."
+      - height: 28%
+        name: airlock
+        cmd: "airlock dash"
