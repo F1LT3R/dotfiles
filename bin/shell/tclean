@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# tclean — kill all unattached tmux sessions
+
+KILLED=0
+while read -r name attached; do
+    if [ "$attached" = "0" ]; then
+        tmux kill-session -t "$name" 2>/dev/null
+        echo "killed: $name"
+        KILLED=$((KILLED + 1))
+    fi
+done < <(tmux list-sessions -F \
+    '#{session_name} #{session_attached}' 2>/dev/null)
+
+echo "Killed $KILLED session(s)."

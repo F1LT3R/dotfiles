@@ -259,6 +259,15 @@ Tmux Mesh detects four terminal modes automatically:
 | **SSH** | `$SSH_TTY` is set (any OS) | Skip — already in a terminal | `tmux attach` (no exec) |
 | **Basic** | Everything else (TERMUX, unknown) | Skip — run in current terminal | `tmux attach` (no exec) |
 
+### Session Lifecycle
+
+| Mode | Session names | On detach/close | Reattach |
+|------|--------------|-----------------|----------|
+| **Ephemeral** (default) | `dev-foo-12345` | Auto-destroyed (`destroy-unattached`) | N/A — launch again |
+| **Shared** (`-s`) | `dev-foo` | Persists | `dev4 -s path` rejoins |
+
+Ephemeral sessions auto-clean on detach. Inner `agents-*` sessions are cleaned via a `session-closed` hook. Use `tclean` to manually kill any leftover unattached sessions.
+
 ### SSH Workflow
 
 SSH is a first-class mode. Sessions persist on the remote host:
@@ -290,6 +299,9 @@ dotfiles/
     ts               # tmux save (export layout to yaml)
     tl               # tmux load (build session from yaml)
     tls              # list available layouts
+    tclean           # kill all unattached sessions
+    treload          # restart tool panes (fstop, fzf, etc.)
+    creload          # restart claude in current workspace
     ks               # kill session
     kg               # kill session group
     tmux-window      # helper: open maximized terminal window

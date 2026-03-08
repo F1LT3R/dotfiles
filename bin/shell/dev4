@@ -111,6 +111,15 @@ if [ "$SHARED" = "1" ]; then
     HOOK+=" -y \$((H*29/100))"
     tmux set-hook -t "$OUTER" after-resize-window \
         "run-shell '$HOOK'"
+else
+    # Ephemeral: auto-destroy on detach, clean up inner
+    # Set destroy-unattached AFTER first client connects
+    # (session starts detached, so can't set it earlier)
+    tmux set-hook -t "$OUTER" client-attached \
+        "set-option -t $OUTER destroy-unattached on"
+    tmux set-hook -t "$OUTER" session-closed \
+        "run-shell 'tmux kill-session \
+        -t \"$INNER\" 2>/dev/null || true'"
 fi
 
 # Split pane 0 horizontally → 0 | 1
