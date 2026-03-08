@@ -111,15 +111,6 @@ if [ "$SHARED" = "1" ]; then
     HOOK+=" -y \$((H*29/100))"
     tmux set-hook -t "$OUTER" after-resize-window \
         "run-shell '$HOOK'"
-else
-    # Ephemeral: auto-destroy on detach, clean up inner
-    # Set destroy-unattached AFTER first client connects
-    # (session starts detached, so can't set it earlier)
-    tmux set-hook -t "$OUTER" client-attached \
-        "set-option -t $OUTER destroy-unattached on"
-    tmux set-hook -t "$OUTER" session-closed \
-        "run-shell 'tmux kill-session \
-        -t \"$INNER\" 2>/dev/null || true'"
 fi
 
 # Split pane 0 horizontally → 0 | 1
@@ -199,9 +190,22 @@ tmux select-pane -t "$OUTER:0.2"
   tmux resize-pane -t "${OUTER}:0.4" -y "$ROW_NOTIFY" && \
   tmux resize-pane -t "${OUTER}:0.6" -y "$ROW_AIRLOCK" \
 ) &
+# Ephemeral: clean up both sessions on detach/close
+if [ "$SHARED" != "1" ]; then
+    trap "tmux kill-session -t '$OUTER' 2>/dev/null; \
+        tmux kill-session -t '$INNER' 2>/dev/null" \
+        EXIT HUP TERM
+fi
+
 if [ -n "$SSH_TTY" ]; then
     tmux attach -t "$OUTER"
-    echo "Detached. Reattach: tmux attach -t $OUTER"
+    if [ "$SHARED" = "1" ]; then
+        echo "Detached. Reattach: tmux attach -t $OUTER"
+    fi
 else
-    exec tmux attach -t "$OUTER"
+    if [ "$SHARED" = "1" ]; then
+        exec tmux attach -t "$OUTER"
+    else
+        tmux attach -t "$OUTER"
+    fi
 fi

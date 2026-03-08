@@ -347,13 +347,6 @@ if [ "$SHARED" = "1" ]; then
     done
     tmux set-hook -t "$SESSION" after-resize-window \
         "run-shell '$HOOK'"
-else
-    # Ephemeral: auto-destroy on detach, clean up inner
-    tmux set-hook -t "$SESSION" client-attached \
-        "set-option -t $SESSION destroy-unattached on"
-    tmux set-hook -t "$SESSION" session-closed \
-        "run-shell 'tmux kill-session \
-        -t \"$INNER\" 2>/dev/null || true'"
 fi
 
 # --- Resize after attach ---
@@ -373,9 +366,23 @@ fi
       done; \
   done \
 ) &
+# Ephemeral: clean up both sessions on detach/close
+if [ "$SHARED" != "1" ]; then
+    trap "tmux kill-session -t '$SESSION' 2>/dev/null; \
+        tmux kill-session -t '$INNER' 2>/dev/null" \
+        EXIT HUP TERM
+fi
+
 if [ -n "$SSH_TTY" ]; then
     tmux attach -t "$SESSION"
-    echo "Detached. Reattach: tmux attach -t $SESSION"
+    if [ "$SHARED" = "1" ]; then
+        echo "Detached. Reattach: \
+tmux attach -t $SESSION"
+    fi
 else
-    exec tmux attach -t "$SESSION"
+    if [ "$SHARED" = "1" ]; then
+        exec tmux attach -t "$SESSION"
+    else
+        tmux attach -t "$SESSION"
+    fi
 fi
