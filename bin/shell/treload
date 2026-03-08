@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# treload — restart tool panes in the outer session
+# Reloads: fstop, fzf, notify, airlock
+# Skips: claude, vim, terminal
+
+if [ -z "$TMUX" ]; then
+    echo "Error: not inside a tmux session."
+    exit 1
+fi
+
+SESSION=$(tmux display-message -p '#{session_name}')
+
+# Only run on outer (dev-*) sessions
+case "$SESSION" in
+    dev-*|dev4-*) ;;
+    agents-*)
+        echo "Error: run from outer session, not agents."
+        exit 1
+        ;;
+    *)
+        echo "Warning: unknown session type: $SESSION"
+        ;;
+esac
+
+PANE_COUNT=$(tmux list-panes -t "$SESSION" | \
+    wc -l | tr -d ' ')
+
+echo "Reloading panes in $SESSION..."
+
+for i in $(seq 0 $((PANE_COUNT - 1))); do
+    TITLE=$(tmux display-message -t "$SESSION:0.$i" \
+        -p '#{pane_title}')
+
+    case "$TITLE" in
+        fstop|fzf|notify|airlock)
+            tmux send-keys -t "$SESSION:0.$i" C-c
+            sleep 0.3
+            tmux send-keys -t "$SESSION:0.$i" Up Enter
+            echo "  pane $i ($TITLE): reloaded"
+            ;;
+        *)
+            echo "  pane $i ($TITLE): skipped"
+            ;;
+    esac
+done
+
+echo "Done."

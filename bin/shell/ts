@@ -29,7 +29,7 @@ echo "Panes: $PANE_COUNT"
 echo ""
 
 # Collect pane info
-declare -a PANE_X PANE_Y PANE_W PANE_H PANE_CMD PANE_NAME
+declare -a PANE_X PANE_Y PANE_W PANE_H PANE_CMD PANE_NAME PANE_BG
 for i in $(seq 0 $((PANE_COUNT - 1))); do
     # Get pane geometry
     INFO=$(tmux display-message -t "$SESSION:0.$i" -p \
@@ -84,6 +84,13 @@ for i in $(seq 0 $((PANE_COUNT - 1))); do
         esac
     fi
 
+    # Detect pane background color
+    STYLE=$(tmux display-message -t "$SESSION:0.$i" \
+        -p '#{pane_style}')
+    CURRENT_BG=$(echo "$STYLE" | \
+        grep -o 'bg=#[0-9a-fA-F]\{6\}' | \
+        cut -d= -f2)
+
     echo "--- Pane $i (${pw}x${ph}, ${WPCT}%x${HPCT}%) ---"
     read -r -p \
         "  Title (enter=$AUTO_LABEL): " USER_NAME
@@ -133,6 +140,16 @@ for i in $(seq 0 $((PANE_COUNT - 1))); do
     else
         PANE_CMD[$i]=""
     fi
+
+    # Color picker for pane background
+    if [ -n "$CURRENT_BG" ]; then
+        PICK_DEFAULT="$CURRENT_BG"
+    else
+        PICK_DEFAULT="#000000"
+    fi
+    echo "  Bg color (esc=skip):"
+    PANE_BG[$i]=$(color-pick "$PICK_DEFAULT") || \
+        PANE_BG[$i]=""
     echo ""
 done
 
@@ -229,6 +246,10 @@ echo ""
             PNAME="${PANE_NAME[$pi]}"
             if [ -n "$PNAME" ]; then
                 echo "        name: $PNAME"
+            fi
+            BG="${PANE_BG[$pi]}"
+            if [ -n "$BG" ]; then
+                echo "        bg: \"$BG\""
             fi
             CMD="${PANE_CMD[$pi]}"
             if [ -n "$CMD" ]; then

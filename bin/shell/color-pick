@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# color-pick — interactive hex color picker
+# Usage: color-pick [default-color]
+# Outputs: #rrggbb to stdout
+
+DEFAULT="${1/#\#/}"  # strip leading # if present
+HEX="$DEFAULT"
+
+render() {
+    local h="$1"
+    local line
+    line="\r\033[K  Color: #${h}"
+    if [ ${#h} -eq 6 ]; then
+        # Parse RGB
+        local r=$((16#${h:0:2}))
+        local g=$((16#${h:2:2}))
+        local b=$((16#${h:4:2}))
+        line+="  \033[48;2;${r};${g};${b}m"
+        line+="          "  # 10 spaces = swatch
+        line+="\033[0m"
+    fi
+    printf '%b' "$line" >&2
+}
+
+render "$HEX"
+
+while IFS= read -rsn1 char; do
+    case "$char" in
+        $'\x1b')  # Esc
+            printf '\n' >&2
+            exit 1
+            ;;
+        $'\x7f'|$'\b')  # Backspace
+            HEX="${HEX%?}"
+            ;;
+        '')  # Enter
+            if [ ${#HEX} -eq 6 ]; then
+                printf '\n' >&2
+                echo "#$HEX"
+                exit 0
+            elif [ ${#HEX} -eq 0 ] && \
+                 [ -n "$DEFAULT" ]; then
+                printf '\n' >&2
+                echo "#$DEFAULT"
+                exit 0
+            fi
+            # 1-5 chars: ignore Enter
+            continue
+            ;;
+        [0-9a-fA-F])
+            if [ ${#HEX} -lt 6 ]; then
+                HEX+="${char,,}"  # lowercase
+            fi
+            ;;
+        '#')  # ignore
+            continue
+            ;;
+        *)  # ignore non-hex
+            continue
+            ;;
+    esac
+    render "$HEX"
+done

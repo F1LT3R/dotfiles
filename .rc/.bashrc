@@ -114,11 +114,8 @@ shopt -s histappend
 if [ "$OS_MODE" = "MACOS" ]; then HISTSIZE=1000000; HISTFILESIZE=200000;
 else HISTSIZE=-1; HISTFILESIZE=-1; fi
 
-if [ "$OS_MODE" = "MACOS" ]; then
-    export PROMPT_COMMAND='history -a; history -r'
-else
-    export PROMPT_COMMAND='history -a; history -c; history -r'
-fi
+# History stays per-shell; histappend writes on exit
+export PROMPT_COMMAND=''
 
 hist () { history | sed 's/^[ ]*[0-9]*[ ]*//' | cat --plain --color=always --language=bash --pager="less -R"; }
 

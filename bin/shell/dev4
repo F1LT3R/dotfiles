@@ -2,9 +2,11 @@
 
 # Parse flags
 SHARED=0
-while getopts "s" opt; do
+LAUNCHED=0
+while getopts "sL" opt; do
     case $opt in
         s) SHARED=1 ;;
+        L) LAUNCHED=1 ;;
         *) echo "Usage: dev4 [-s] [path]"; exit 1 ;;
     esac
 done
@@ -22,18 +24,20 @@ else
     INNER="agents-${DIRNAME}-$$"
 fi
 
-# Launch in a new terminal window (desktop) or run directly (SSH)
-if [ "$DEV4_READY" != "1" ]; then
+# Open in a new maximized terminal window (desktop)
+# or unset TMUX and continue (SSH/headless)
+if [ "$LAUNCHED" != "1" ]; then
     SFLAG=""
     [ "$SHARED" = "1" ] && SFLAG="-s "
 
     if [ -n "$SSH_TTY" ] || \
        [ "$OS_MODE" != "MACOS" -a -z "$DISPLAY" ]; then
-        # Direct mode — no new window, skip READY flag
-        DEV4_READY=1
+        # SSH/headless: run directly, unset TMUX
+        [ -n "$TMUX" ] && unset TMUX
     else
+        # Desktop: new maximized window
         tmux-window \
-            "exec env DEV4_READY=1 dev4 ${SFLAG}'$DIR'"
+            "exec dev4 -L ${SFLAG}'$DIR'"
         exit 0
     fi
 fi
@@ -165,6 +169,16 @@ tmux select-pane -t "$OUTER:0.3" -T "terminal"
 tmux select-pane -t "$OUTER:0.4" -T "notify"
 tmux select-pane -t "$OUTER:0.5" -T "vim"
 tmux select-pane -t "$OUTER:0.6" -T "airlock"
+
+# Set pane background colors
+tmux select-pane -t "$OUTER:0.0" -P 'bg=#0b0514'  # fstop
+tmux select-pane -t "$OUTER:0.1" -P 'bg=#000000'  # fzf
+tmux select-pane -t "$OUTER:0.2" -P 'bg=#1f0410'  # claude
+tmux select-pane -t "$OUTER:0.3" -P 'bg=#08020c'  # terminal
+tmux select-pane -t "$OUTER:0.4" -P 'bg=#060427'  # notify
+tmux select-pane -t "$OUTER:0.5" -P 'bg=#000000'  # vim
+tmux select-pane -t "$OUTER:0.6" -P 'bg=#000000'  # airlock
+
 tmux select-pane -t "$OUTER:0.2"
 
 # Resize after attach (hooks don't resolve pane targets properly)

@@ -1,25 +1,41 @@
 name: dev4
 description: IDE workflow with claude, vim, file tree
-focus: [2, 1]
+focus: [1, 0]
 
 columns:
-  - width: 5%
+  - width: 21%
     panes:
-      - height: 77%
-        cmd: "echo \"123\""
+      - height: 78%
+        name: fstop
+        bg: "#0b0514"
+        cmd: "cd $DIR && fstop"
       - height: 20%
-        cmd: "echo \"fzf\""
-  - width: 62%
+        name: fzf
+        bg: "#000000"
+        cmd: "cd $DIR && while true; do f=$(fzf -q '.md') && vim --servername ${SESSION} --remote \"$f\" && tmux select-pane -t 5; done"
+
+  - width: 47%
     panes:
-      - height: 18%
-        cmd: "echo \"claude\""
-      - height: 79%
-        cmd: "echo \"term\""
-  - width: 30%
+      - height: 69%
+        name: claude
+        bg: "#1f0410"
+        cmd: "cd $DIR && unset TMUX && { tmux attach -t ${INNER} 2>/dev/null || tmux new-session -s ${INNER} 'claude --resume 2>/dev/null || claude'; }"
+      - height: 29%
+        name: terminal
+        bg: "#08020c"
+        cmd: "cd $DIR && source ~/.secrets/llms/OPENROUTER_API_KEY && ssh-f1lt3r && clear && ll"
+
+  - width: 31%
     panes:
-      - height: 13%
-        cmd: "echo \"notify\""
-      - height: 64%
-        cmd: "echo \"vim\""
-      - height: 18%
-        cmd: "echo \"airlock\""
+      - height: 31%
+        name: notify
+        bg: "#060427"
+        cmd: "cd $DIR && agent-notify"
+      - height: 37%
+        name: vim
+        bg: "#000000"
+        cmd: "cd $DIR && vim --servername ${SESSION} ."
+      - height: 29%
+        name: airlock
+        bg: "#000000"
+        cmd: "cd $DIR && airlock dash"

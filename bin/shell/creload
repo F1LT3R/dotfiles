@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# creload — restart claude in the current workspace
+
+if [ -z "$TMUX" ]; then
+    echo "Error: not inside a tmux session."
+    exit 1
+fi
+
+SESSION=$(tmux display-message -p '#{session_name}')
+
+# Find the claude pane by title
+CPANE=""
+COUNT=$(tmux list-panes -t "$SESSION" | \
+    wc -l | tr -d ' ')
+for i in $(seq 0 $((COUNT - 1))); do
+    T=$(tmux display-message -t "$SESSION:0.$i" \
+        -p '#{pane_title}' 2>/dev/null)
+    if [ "$T" = "claude" ] || \
+       echo "$T" | grep -qi 'claude'; then
+        CPANE="$i"
+        break
+    fi
+done
+
+if [ -z "$CPANE" ]; then
+    echo "Error: no claude pane found in $SESSION"
+    exit 1
+fi
+
+# Get working directory
+DIR=$(tmux display-message -t "$SESSION:0.$CPANE" \
+    -p '#{pane_current_path}')
+
+echo "Restarting claude in pane $CPANE..."
+
+# Kill pane contents and respawn with claude
+tmux respawn-pane -k -t "$SESSION:0.$CPANE" \
+    "cd '$DIR' && claude --resume 2>/dev/null || claude"
+
+echo "Done."

@@ -72,6 +72,14 @@ in_cols && /^        name:/ {
     printf "COL%d_PANE%d_NAME='\''%s'\''\n", col, pane, nm
     next
 }
+in_cols && /^        bg:/ {
+    bg = $0
+    sub(/^        bg: *"?/, "", bg)
+    sub(/"$/, "", bg)
+    gsub(/'\''/, "'\''\\'\'''\''", bg)
+    printf "COL%d_PANE%d_BG='\''%s'\''\n", col, pane, bg
+    next
+}
 in_cols && /^        cmd:/ {
     cmd = $0
     sub(/^        cmd: *"?/, "", cmd)
@@ -295,6 +303,12 @@ for ci in $(seq 0 $((NUM_COLS - 1))); do
         if [ -n "$PNAME" ]; then
             tmux select-pane -t "$SESSION:0.${PI}" \
                 -T "$PNAME"
+        fi
+        # Set pane background color
+        eval "PBG=\$COL${ci}_PANE${ri}_BG"
+        if [ -n "$PBG" ]; then
+            tmux select-pane -t "$SESSION:0.${PI}" \
+                -P "bg=$PBG"
         fi
         PI=$((PI + 1))
     done

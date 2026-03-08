@@ -67,9 +67,10 @@ Run this inside any tmux session. It walks each pane in order:
 1. Highlights the pane so you can see which one it's asking about
 2. Detects the running process as a pre-fill guess
 3. Prompts you to confirm, edit, or clear the command
-4. Asks which pane should receive focus on restore
-5. Writes the yaml file
-6. Offers to register the layout as a named shell command
+4. Launches `color-pick` for pane background color (Esc to skip)
+5. Asks which pane should receive focus on restore
+6. Writes the yaml file
+7. Offers to register the layout as a named shell command
 
 ```
 $ ts dev4 "IDE workflow with claude, vim, file tree"
@@ -184,24 +185,38 @@ columns:
   - width: 21%
     panes:
       - height: 78%
+        name: fstop
+        bg: "#0b0514"
         cmd: "cd $DIR && fstop"
       - height: 20%
+        name: fzf
+        bg: "#000000"
         cmd: "cd $DIR && fzf"
 
   - width: 47%
     panes:
       - height: 69%
+        name: claude
+        bg: "#1f0410"
         cmd: "cd $DIR && unset TMUX && { tmux attach -t ${INNER} 2>/dev/null || tmux new-session -s ${INNER} 'claude --resume 2>/dev/null || claude'; }"
       - height: 29%
+        name: terminal
+        bg: "#08020c"
         cmd: "cd $DIR && source ~/.secrets/llms/OPENROUTER_API_KEY && ssh-f1lt3r && clear && ll"
 
   - width: 31%
     panes:
       - height: 31%
+        name: notify
+        bg: "#060427"
         cmd: "cd $DIR && agent-notify"
       - height: 37%
+        name: vim
+        bg: "#000000"
         cmd: "cd $DIR && vim --servername ${SESSION} ."
       - height: 29%
+        name: airlock
+        bg: "#000000"
         cmd: "cd $DIR && airlock dash"
 ```
 
@@ -214,6 +229,17 @@ Expanded at load time by `tl`:
 | `$DIR` | Target directory | `/Users/user/repos/airlock` |
 | `${SESSION}` | Session name | `dev4-airlock-12345` |
 | `${INNER}` | Inner session name | `agents-airlock-12345` |
+
+### Pane Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `height` | yes | Pane height as percentage of window |
+| `name` | no | Pane title (shown in terminal tab, used by `ts`) |
+| `bg` | no | Background color as `#rrggbb` hex (applied via `select-pane -P`) |
+| `cmd` | no | Command to run on startup (variables expanded) |
+
+**Note:** Transparency is handled by the terminal emulator (e.g., iTerm2 global setting), not by tmux. The `bg` field sets the pane's background color which combines with any terminal transparency.
 
 ### Why YAML
 
@@ -268,6 +294,7 @@ dotfiles/
     kg               # kill session group
     tmux-window      # helper: open maximized terminal window
     tmux-close-window # helper: close terminal window
+    color-pick       # interactive hex color picker
     dev4             # standalone IDE launcher (original)
   layouts/
     dev4.yaml        # exported layout files

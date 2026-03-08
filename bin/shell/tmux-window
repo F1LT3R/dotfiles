@@ -35,7 +35,7 @@ delay 0.5
 tell application "iTerm2"
     tell current window
         tell current session of current tab
-            write text "$CMD"
+            write text "unset TMUX; $CMD"
         end tell
     end tell
 end tell
