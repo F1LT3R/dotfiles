@@ -40,9 +40,10 @@ set -sg escape-time 0
 # Heavy pane borders
 set -g pane-border-lines heavy
 
-# Show session name in terminal/tab title
+# Show pane title in terminal/tab title
 set -g set-titles on
-set -g set-titles-string '#S — #I: #T'
+set -g set-titles-string '#T'
+set -g allow-rename off
 
 # Prefix + Shift+Arrow: resize pane by 5
 bind -r S-Left resize-pane -L 5
@@ -56,6 +57,34 @@ bind c select-pane -t 2    # claude
 ```
 
 **Tip:** Hold **Option** while clicking/dragging in iTerm2 to bypass tmux mouse capture for native text selection.
+
+## Pane Titles
+
+Pane titles render in iTerm2 tabs using Unicode Bold Sans-Serif glyphs:
+
+```
+📁 𝗢𝗥𝗕𝗜𝗧-𝗙𝗫  🖥  𝗖𝗟𝗔𝗨𝗗𝗘 [𝟬.𝟮]  🆔 𝟲𝟲𝟭𝟱𝟭
+```
+
+Format: `📁 <dir>  🖥  <pane> [<window>.<index>]  🆔 <pid>`
+
+Text is converted to styled glyphs by `unichar`. Each pane also stores a plain name in the tmux user option `@pane_name`, which `creload`, `treload`, and `ts` use for matching.
+
+### `unichar [-f font] [text]` — Unicode Glyph Converter
+
+Converts ASCII text to Unicode styled characters. Unmapped characters pass through as-is.
+
+| Font | Flag | Example |
+|------|------|---------|
+| **sansbold** (default) | `-f sansbold` | `Hello` → `𝗛𝗲𝗹𝗹𝗼` |
+| **super** | `-f super` | `(0.2)` → `⁽⁰·²⁾` |
+| **blocks** | `-f blocks` | `ABC` → `🅰🅱🅲` |
+
+```bash
+unichar "HELLO"              # 𝗛𝗘𝗟𝗟𝗢
+unichar -f super "(3.1)"     # ⁽³·¹⁾
+echo "test" | unichar        # 𝘁𝗲𝘀𝘁
+```
 
 ## Commands
 
@@ -235,7 +264,7 @@ Expanded at load time by `tl`:
 | Field | Required | Description |
 |-------|----------|-------------|
 | `height` | yes | Pane height as percentage of window |
-| `name` | no | Pane title (shown in terminal tab, used by `ts`) |
+| `name` | no | Pane name (stored in `@pane_name`, formatted into styled title via `unichar`) |
 | `bg` | no | Background color as `#rrggbb` hex (applied via `select-pane -P`) |
 | `cmd` | no | Command to run on startup (variables expanded) |
 
@@ -307,7 +336,8 @@ dotfiles/
     tmux-window      # helper: open maximized terminal window
     tmux-close-window # helper: close terminal window
     color-pick       # interactive hex color picker
-    dev4             # standalone IDE launcher (original)
+    unichar          # Unicode glyph converter (sansbold, super, blocks)
+    dev              # standalone IDE launcher (original)
   layouts/
     dev4.yaml        # exported layout files
     ...
