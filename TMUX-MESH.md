@@ -150,6 +150,22 @@ dev4         3 cols  7 panes   IDE workflow with claude, vim, file tree
 test1        3 cols  7 panes   (no description)
 ```
 
+### `tp` — Tmux Pick
+
+Interactive fzf picker for running tmux sessions. Shows the active pane's info in plain text and focuses the selected session's window on enter.
+
+```
+$ tp
+tp> 📁 dotfiles  🖥  claude [0.2]  🆔 15876
+    📁 airlock   🖥  claude [0.2]  🆔 13224
+    📁 fstop     🖥  claude [0.2]  🆔 56487
+```
+
+- Filters out inner `agents-*` sessions (top-level only)
+- Only shows sessions with styled pane titles
+- Skips fzf if only one session is running
+- Focuses window via AppleScript/iTerm2 (macOS) or bspwm/wmctrl (Linux)
+
 ### `ks` — Kill Session
 
 Kills the current tmux session and closes the terminal window (desktop) or returns to shell (SSH).
@@ -281,12 +297,12 @@ Expanded at load time by `tl`:
 
 Tmux Mesh detects four terminal modes automatically:
 
-| Mode | Detection | Window launch | Attach style |
-|------|-----------|--------------|-------------|
-| **macOS** | `OS_MODE=MACOS` + no `$SSH_TTY` | New maximized iTerm2 window | `exec tmux attach` |
-| **Linux desktop** | `OS_MODE=UBUNTU` + `$DISPLAY` set + no `$SSH_TTY` | New maximized gnome-terminal | `exec tmux attach` |
-| **SSH** | `$SSH_TTY` is set (any OS) | Skip — already in a terminal | `tmux attach` (no exec) |
-| **Basic** | Everything else (TERMUX, unknown) | Skip — run in current terminal | `tmux attach` (no exec) |
+| Mode | Detection | Window launch | Attach style | `tp` WM |
+|------|-----------|--------------|-------------|---------|
+| **macOS** | `OS_MODE=MACOS` + no `$SSH_TTY` | New maximized iTerm2 window | `exec tmux attach` | AppleScript |
+| **Linux desktop** | `OS_MODE=UBUNTU` + `$DISPLAY` set + no `$SSH_TTY` | New maximized gnome-terminal | `exec tmux attach` | bspwm+wmctrl |
+| **SSH** | `$SSH_TTY` is set (any OS) | Skip — already in a terminal | `tmux attach` (no exec) | — |
+| **Basic** | Everything else (TERMUX, unknown) | Skip — run in current terminal | `tmux attach` (no exec) | — |
 
 ### Session Lifecycle
 
@@ -325,6 +341,7 @@ Key SSH behaviors:
 ```
 dotfiles/
   bin/shell/
+    tp               # tmux pick (fzf session picker + window focus)
     ts               # tmux save (export layout to yaml)
     tl               # tmux load (build session from yaml)
     tls              # list available layouts

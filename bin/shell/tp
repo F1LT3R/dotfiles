@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+# tp — tmux pick: fzf session picker with window focus
+#
+# Usage: tp
+#
+# Shows top-level tmux sessions in an fzf menu with styled
+# pane titles. Enter focuses the selected session's window.
+#
+# Window manager: yabai (macOS), bspwm (Linux)
+
+source ~/bin/system/detect-os-mode 2>/dev/null
+
+# Get top-level sessions (exclude agents-* inner sessions)
+SESSIONS=$(tmux list-sessions \
+    -F '#{session_name}' 2>/dev/null \
+    | grep -v '^agents-')
+
+if [ -z "$SESSIONS" ]; then
+    echo "No tmux sessions running."
+    exit 0
+fi
+
+# Count sessions
+NUM=$(echo "$SESSIONS" | wc -l | tr -d ' ')
+
+# Build fzf menu entries (plain text)
+# Format: session<TAB>dir  pane [w.p]  pid
+ENTRIES=""
+while IFS= read -r sess; do
+    PTITLE=$(tmux display-message -t "$sess" \
+        -p '#{pane_title}' 2>/dev/null)
+    # Only show sessions with styled pane titles
+    case "$PTITLE" in
+        📁*) ;;
+        *) continue ;;
+    esac
+    PDIR=$(tmux display-message -t "$sess" \
+        -p '#{pane_current_path}' 2>/dev/null)
+    DNAME=$(basename "$PDIR" 2>/dev/null)
+    PNAME=$(tmux display-message -t "$sess" \
+        -p '#{@pane_name}' 2>/dev/null)
+    PIDX=$(tmux display-message -t "$sess" \
+        -p '#{window_index}.#{pane_index}' \
+        2>/dev/null)
+    TPID=$(tmux display-message -t "$sess" \
+        -p '#{pane_pid}' 2>/dev/null)
+    LINE=$(printf '📁 %s  🖥  %s [%s]  🆔 %s' \
+        "$DNAME" "$PNAME" "$PIDX" "$TPID")
+    ENTRIES+="${sess}$(printf '\t')${LINE}"$'\n'
+done <<< "$SESSIONS"
+
+if [ -z "$ENTRIES" ]; then
+    echo "No styled sessions found."
+    exit 0
+fi
+
+# Recount after filtering
+NUM=$(printf '%s' "$ENTRIES" | grep -c .)
+
+# Skip fzf if only one session
+if [ "$NUM" -eq 1 ]; then
+    SELECTED=$(echo "$SESSIONS" | head -1)
+else
+    SELECTED=$(printf '%s' "$ENTRIES" | fzf \
+        --no-sort \
+        --prompt='tp> ' \
+        --with-nth=2.. \
+        --delimiter=$'\t' \
+        | cut -f1)
+fi
+
+[ -z "$SELECTED" ] && exit 0
+
+# --- Focus the window containing this session ---
+
+# Get the active pane's title (tmux set-titles-string=#T
+# makes the terminal window title match this value)
+TITLE=$(tmux display-message -t "$SELECTED" \
+    -p '#{pane_title}')
+
+# Fallback: directory name for partial matching
+DNAME=$(tmux display-message -t "$SELECTED" \
+    -p '#{pane_current_path}' 2>/dev/null \
+    | xargs basename 2>/dev/null)
+
+_focus_macos() {
+    # Match iTerm2 window by title via AppleScript
+    osascript -e "
+        tell application \"iTerm2\"
+            set t to \"$TITLE\"
+            repeat with w in every window
+                if name of w is t then
+                    select w
+                    activate
+                    return
+                end if
+            end repeat
+        end tell
+    " 2>/dev/null && return 0
+    return 1
+}
+
+_focus_bspwm() {
+    local wid
+    wid=$(wmctrl -l 2>/dev/null \
+        | grep -F "$TITLE" \
+        | awk '{print $1}' \
+        | head -1)
+    if [ -n "$wid" ]; then
+        bspc node "$wid" -f
+        return 0
+    fi
+    return 1
+}
+
+case "$OS_MODE" in
+    MACOS)  _focus_macos ;;
+    *)      _focus_bspwm ;;
+esac
+
+if [ $? -ne 0 ]; then
+    echo "Could not find window for: $SELECTED"
+fi
