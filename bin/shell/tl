@@ -276,6 +276,24 @@ done
 
 TOTAL_PANES=$PI
 
+# --- Format pane titles ---
+# 📁 𝗗𝗜𝗥  🖥  𝗡𝗔𝗠𝗘 [𝟬.𝟬]  🆔 𝟭𝟮𝟯𝟰𝟱
+DIR_UPPER=$(echo "$DIRNAME" | \
+    tr '[:lower:]' '[:upper:]')
+BOLD_DIR=$(unichar "$DIR_UPPER")
+BOLD_PID=$(unichar "$$")
+
+_fmt_pane_title() {
+    local name="$1" idx="$2"
+    local bold_name bold_idx
+    bold_name=$(echo "$name" | \
+        tr '[:lower:]' '[:upper:]' | unichar)
+    bold_idx=$(unichar "[$idx]")
+    printf '📁 %s  🖥  %s %s  🆔 %s' \
+        "$BOLD_DIR" "$bold_name" \
+        "$bold_idx" "$BOLD_PID"
+}
+
 # --- Expand variables and send commands ---
 for ci in $(seq 0 $((NUM_COLS - 1))); do
     eval "PC=\$COL${ci}_PANE_COUNT"
@@ -301,8 +319,14 @@ for ci in $(seq 0 $((NUM_COLS - 1))); do
         # Set pane title from layout name
         eval "PNAME=\$COL${ci}_PANE${ri}_NAME"
         if [ -n "$PNAME" ]; then
-            tmux select-pane -t "$SESSION:0.${PI}" \
-                -T "$PNAME"
+            PTITLE=$(_fmt_pane_title \
+                "$PNAME" "0.${PI}")
+            tmux select-pane \
+                -t "$SESSION:0.${PI}" \
+                -T "$PTITLE"
+            tmux set-option -p \
+                -t "$SESSION:0.${PI}" \
+                @pane_name "$PNAME"
         fi
         # Set pane background color
         eval "PBG=\$COL${ci}_PANE${ri}_BG"

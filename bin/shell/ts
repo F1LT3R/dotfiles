@@ -59,9 +59,12 @@ for i in $(seq 0 $((PANE_COUNT - 1))); do
     WPCT=$((pw * 100 / WIN_W))
     HPCT=$((ph * 100 / WIN_H))
 
-    # Auto-detect short name from detected command
-    AUTO_LABEL="shell"
-    if [ -n "$GUESS" ]; then
+    # Prefer @pane_name set by dev/tl
+    STORED=$(tmux display-message \
+        -t "$SESSION:0.$i" \
+        -p '#{@pane_name}' 2>/dev/null)
+    AUTO_LABEL="${STORED:-shell}"
+    if [ -z "$STORED" ] && [ -n "$GUESS" ]; then
         AUTO_SEG=$(echo "$GUESS" | \
             sed 's/.*[;&|]\{1,2\}//' | \
             sed 's/^ *//')

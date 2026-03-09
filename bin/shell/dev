@@ -161,14 +161,47 @@ tmux send-keys -t "$OUTER:0.0" \
     "cd '$DIR' && fstop" Enter
 tmux send-keys -t "$OUTER:0.2" "$CLAUDE_CMD" Enter
 
-# Set pane titles (shown in terminal tab via set-titles)
-tmux select-pane -t "$OUTER:0.0" -T "fstop"
-tmux select-pane -t "$OUTER:0.1" -T "fzf"
-tmux select-pane -t "$OUTER:0.2" -T "claude"
-tmux select-pane -t "$OUTER:0.3" -T "terminal"
-tmux select-pane -t "$OUTER:0.4" -T "notify"
-tmux select-pane -t "$OUTER:0.5" -T "vim"
-tmux select-pane -t "$OUTER:0.6" -T "airlock"
+# Format pane titles
+# 📁 𝗗𝗜𝗥  🖥  𝗡𝗔𝗠𝗘 [𝟬.𝟬]  🆔 𝟭𝟮𝟯𝟰𝟱
+DIR_UPPER=$(echo "$DIRNAME" | \
+    tr '[:lower:]' '[:upper:]')
+BOLD_DIR=$(unichar "$DIR_UPPER")
+BOLD_PID=$(unichar "$$")
+
+_fmt_pane_title() {
+    local name="$1" idx="$2"
+    local bold_name bold_idx
+    bold_name=$(echo "$name" | \
+        tr '[:lower:]' '[:upper:]' | unichar)
+    bold_idx=$(unichar "[$idx]")
+    printf '📁 %s  🖥  %s %s  🆔 %s' \
+        "$BOLD_DIR" "$bold_name" \
+        "$bold_idx" "$BOLD_PID"
+}
+
+_set_pane() {
+    local target="$1" name="$2" idx="$3"
+    tmux select-pane -t "$target" \
+        -T "$(_fmt_pane_title "$name" "$idx")"
+    tmux set-option -p -t "$target" \
+        @pane_name "$name"
+}
+
+_set_pane "$OUTER:0.0" "fstop" "0.0"
+_set_pane "$OUTER:0.1" "fzf" "0.1"
+_set_pane "$OUTER:0.2" "claude" "0.2"
+_set_pane "$OUTER:0.3" "terminal" "0.3"
+_set_pane "$OUTER:0.4" "notify" "0.4"
+_set_pane "$OUTER:0.5" "vim" "0.5"
+_set_pane "$OUTER:0.6" "airlock" "0.6"
+
+# Set inner session title to match claude pane
+# (inner tmux controls iTerm2 title, not outer)
+CLAUDE_TITLE=$(_fmt_pane_title "claude" "0.2")
+( sleep 2 && \
+  tmux set-option -t "$INNER" \
+      set-titles-string "$CLAUDE_TITLE" \
+  2>/dev/null ) &
 
 # Set pane background colors
 tmux select-pane -t "$OUTER:0.0" -P 'bg=#0b0514'  # fstop

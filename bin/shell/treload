@@ -29,7 +29,7 @@ echo "Reloading panes in $SESSION..."
 
 for i in $(seq 0 $((PANE_COUNT - 1))); do
     TITLE=$(tmux display-message -t "$SESSION:0.$i" \
-        -p '#{pane_title}')
+        -p '#{@pane_name}')
 
     case "$TITLE" in
         fstop|fzf|notify|airlock)

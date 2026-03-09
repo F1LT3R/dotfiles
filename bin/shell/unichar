@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# unichar — convert ASCII to Unicode styled glyphs
+#
+# Usage: unichar [-f font] [text...]
+#        echo "text" | unichar [-f font]
+#
+# Fonts: sansbold (default), super, blocks
+# Unmapped characters pass through unchanged.
+
+FONT="sansbold"
+while getopts "f:" opt; do
+    case $opt in
+        f) FONT="$OPTARG" ;;
+        *)
+            echo "Usage: unichar [-f font] [text...]" >&2
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+declare -A G
+
+# --- sansbold (Mathematical Bold Sans-Serif) ---
+G[sansbold:A]=𝗔 G[sansbold:B]=𝗕 G[sansbold:C]=𝗖
+G[sansbold:D]=𝗗 G[sansbold:E]=𝗘 G[sansbold:F]=𝗙
+G[sansbold:G]=𝗚 G[sansbold:H]=𝗛 G[sansbold:I]=𝗜
+G[sansbold:J]=𝗝 G[sansbold:K]=𝗞 G[sansbold:L]=𝗟
+G[sansbold:M]=𝗠 G[sansbold:N]=𝗡 G[sansbold:O]=𝗢
+G[sansbold:P]=𝗣 G[sansbold:Q]=𝗤 G[sansbold:R]=𝗥
+G[sansbold:S]=𝗦 G[sansbold:T]=𝗧 G[sansbold:U]=𝗨
+G[sansbold:V]=𝗩 G[sansbold:W]=𝗪 G[sansbold:X]=𝗫
+G[sansbold:Y]=𝗬 G[sansbold:Z]=𝗭
+G[sansbold:a]=𝗮 G[sansbold:b]=𝗯 G[sansbold:c]=𝗰
+G[sansbold:d]=𝗱 G[sansbold:e]=𝗲 G[sansbold:f]=𝗳
+G[sansbold:g]=𝗴 G[sansbold:h]=𝗵 G[sansbold:i]=𝗶
+G[sansbold:j]=𝗷 G[sansbold:k]=𝗸 G[sansbold:l]=𝗹
+G[sansbold:m]=𝗺 G[sansbold:n]=𝗻 G[sansbold:o]=𝗼
+G[sansbold:p]=𝗽 G[sansbold:q]=𝗾 G[sansbold:r]=𝗿
+G[sansbold:s]=𝘀 G[sansbold:t]=𝘁 G[sansbold:u]=𝘂
+G[sansbold:v]=𝘃 G[sansbold:w]=𝘄 G[sansbold:x]=𝘅
+G[sansbold:y]=𝘆 G[sansbold:z]=𝘇
+G[sansbold:0]=𝟬 G[sansbold:1]=𝟭 G[sansbold:2]=𝟮
+G[sansbold:3]=𝟯 G[sansbold:4]=𝟰 G[sansbold:5]=𝟱
+G[sansbold:6]=𝟲 G[sansbold:7]=𝟳 G[sansbold:8]=𝟴
+G[sansbold:9]=𝟵
+
+# --- super (superscript) ---
+G[super:0]=⁰ G[super:1]=¹ G[super:2]=²
+G[super:3]=³ G[super:4]=⁴ G[super:5]=⁵
+G[super:6]=⁶ G[super:7]=⁷ G[super:8]=⁸
+G[super:9]=⁹ G[super:(]=⁽ G[super:)]=⁾
+G[super:.]=· G[super:-]=⁻ G[super:+]=⁺
+
+# --- blocks (negative squared) ---
+G[blocks:A]=🅰 G[blocks:B]=🅱 G[blocks:C]=🅲
+G[blocks:D]=🅳 G[blocks:E]=🅴 G[blocks:F]=🅵
+G[blocks:G]=🅶 G[blocks:H]=🅷 G[blocks:I]=🅸
+G[blocks:J]=🅹 G[blocks:K]=🅺 G[blocks:L]=🅻
+G[blocks:M]=🅼 G[blocks:N]=🅽 G[blocks:O]=🅾
+G[blocks:P]=🅿 G[blocks:Q]=🆀 G[blocks:R]=🆁
+G[blocks:S]=🆂 G[blocks:T]=🆃 G[blocks:U]=🆄
+G[blocks:V]=🆅 G[blocks:W]=🆆 G[blocks:X]=🆇
+G[blocks:Y]=🆈 G[blocks:Z]=🆉
+G[blocks:a]=🅰 G[blocks:b]=🅱 G[blocks:c]=🅲
+G[blocks:d]=🅳 G[blocks:e]=🅴 G[blocks:f]=🅵
+G[blocks:g]=🅶 G[blocks:h]=🅷 G[blocks:i]=🅸
+G[blocks:j]=🅹 G[blocks:k]=🅺 G[blocks:l]=🅻
+G[blocks:m]=🅼 G[blocks:n]=🅽 G[blocks:o]=🅾
+G[blocks:p]=🅿 G[blocks:q]=🆀 G[blocks:r]=🆁
+G[blocks:s]=🆂 G[blocks:t]=🆃 G[blocks:u]=🆄
+G[blocks:v]=🆅 G[blocks:w]=🆆 G[blocks:x]=🆇
+G[blocks:y]=🆈 G[blocks:z]=🆉
+
+_convert() {
+    local input="$1" output=""
+    local i c
+    for ((i=0; i<${#input}; i++)); do
+        c="${input:i:1}"
+        output+="${G[${FONT}:${c}]:-$c}"
+    done
+    printf '%s' "$output"
+}
+
+if [ $# -gt 0 ]; then
+    _convert "$*"
+    echo
+else
+    while IFS= read -r line || [ -n "$line" ]; do
+        _convert "$line"
+        echo
+    done
+fi

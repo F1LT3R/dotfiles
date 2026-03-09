@@ -14,9 +14,8 @@ COUNT=$(tmux list-panes -t "$SESSION" | \
     wc -l | tr -d ' ')
 for i in $(seq 0 $((COUNT - 1))); do
     T=$(tmux display-message -t "$SESSION:0.$i" \
-        -p '#{pane_title}' 2>/dev/null)
-    if [ "$T" = "claude" ] || \
-       echo "$T" | grep -qi 'claude'; then
+        -p '#{@pane_name}' 2>/dev/null)
+    if [ "$T" = "claude" ]; then
         CPANE="$i"
         break
     fi
