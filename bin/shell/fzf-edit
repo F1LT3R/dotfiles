@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# fzf pick → vim in popup (or side-by-side for markdown)
+f=$(fzf --reverse)
+[ -n "$f" ] || exit 0
+dir=$(pwd)
+
+if [[ "$f" == *.md ]]; then
+  port=$(python3 -c \
+    'import socket; s=socket.socket(); \
+    s.bind(("",0)); print(s.getsockname()[1]); \
+    s.close()')
+
+  orig=$(tmux display-message -p '#I')
+
+  # vim on left
+  vpane=$(tmux new-window -P -F '#{pane_id}' \
+    -n "md-preview" -c "$dir" \
+    "vim -c 'autocmd User GoyoLeave nested qa' \
+    -c Goyo '$f'; \
+    lsof -ti :$port | xargs kill 2>/dev/null; \
+    tmux select-window -t $orig")
+
+  # carbonyl on right
+  tmux split-window -h -t "$vpane" \
+    -c "$dir" \
+    "clear; \
+    markserv --browser false --synthwave \
+      --port $port --dir '$dir' &
+    printf 'waiting for markserv...'; \
+    for i in \$(seq 1 30); do \
+      curl -so /dev/null \
+        http://localhost:$port/$f \
+        && break; \
+      sleep 0.3; \
+    done; \
+    exec carbonyl http://localhost:$port/$f"
+
+  tmux select-pane -t "$vpane"
+else
+  tmux run-shell -b \
+    "tmux display-popup -E \
+    -w 60% -h 100% -x C -y 0 \
+    -d \"$dir\" \
+    \"vim '$f'\""
+fi

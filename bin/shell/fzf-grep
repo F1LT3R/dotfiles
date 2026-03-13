@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# fzf + ripgrep live grep → vim at match
+sel=$(rg --color=always --line-number \
+  --no-heading --smart-case "" |
+  fzf --ansi --reverse \
+    --delimiter : \
+    --preview 'rg --color=always \
+      --context 5 {q} {1}' \
+    --preview-window 'up:5:wrap' \
+    --bind 'change:reload:rg --color=always \
+      --line-number --no-heading \
+      --smart-case {q} || true' \
+    --phony --query "")
+
+[ -n "$sel" ] || exit 0
+
+file=$(echo "$sel" | cut -d: -f1)
+line=$(echo "$sel" | cut -d: -f2)
+
+tmux run-shell -b \
+  "tmux display-popup -E \
+  -w 60% -h 100% -x C -y 0 \
+  -d \"$(pwd)\" \
+  \"vim +$line '$file'\""
