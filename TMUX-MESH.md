@@ -336,6 +336,40 @@ Key SSH behaviors:
 - No delays — the 0.5s sleeps are for desktop window animation
 - `ks`/`kg` kill sessions at full power but don't close the terminal
 
+## Tmux Popup Shortcuts
+
+Popup overlays for file picking (fzf) and content search (ripgrep). All bound to `Ctrl+Space` (prefix).
+
+### File Picker (fzf → vim)
+
+| Binding | Directory | Script |
+|---------|-----------|--------|
+| `prefix + o` | Current pane dir | `fzf-edit` |
+| `` prefix + ` `` | `$HOME` | `fzf-home` |
+| `prefix + D` | `/Volumes/DATA` | `fzf-data` |
+
+Selecting a file opens it in a vim popup. Markdown files open in a split window: vim (left) + carbonyl/markserv preview (right) with synthwave theme. Markserv hot-reloads on `:w`.
+
+### Content Search (ripgrep → vim)
+
+| Binding | Directory | Script |
+|---------|-----------|--------|
+| `prefix + f` | Current pane dir | `fzf-grep` |
+| `prefix + P` | `/Volumes/DATA/PLANS` | `fzf-grep` |
+| `prefix + C` | `/Volumes/DATA/CONVERSATIONS` | `fzf-grep` |
+| `prefix + N` | `~/Notes` | `fzf-grep` |
+
+Live ripgrep-as-you-type with preview context. Selecting a match opens vim at that line in a popup.
+
+### Other Bindings
+
+| Binding | Action |
+|---------|--------|
+| `prefix + r` | Reload `~/.tmux.conf` |
+| `prefix + h` | Pulse (project activity history) |
+| `prefix + p` | Session picker (`tp`) |
+| `prefix + c` | Select claude pane |
+
 ## File Structure
 
 ```
@@ -355,6 +389,10 @@ dotfiles/
     color-pick       # interactive hex color picker
     unichar          # Unicode glyph converter (sansbold, super, blocks)
     dev              # standalone IDE launcher (original)
+    fzf-edit         # fzf file picker → vim (markdown: vim + carbonyl)
+    fzf-grep         # fzf + ripgrep live search → vim at match
+    fzf-home         # fzf from $HOME → vim
+    fzf-data         # fzf from /Volumes/DATA → vim
   layouts/
     dev4.yaml        # exported layout files
     ...

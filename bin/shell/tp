@@ -3,85 +3,108 @@
 #
 # Usage: tp
 #
-# Shows top-level tmux sessions in an fzf menu with styled
-# pane titles. Enter focuses the selected session's window.
+# Scans all tmux server sockets, shows styled sessions
+# in fzf, and focuses the selected session's window.
 #
-# Window manager: yabai (macOS), bspwm (Linux)
+# Window manager: AppleScript/iTerm2 (macOS),
+#                 bspwm+wmctrl (Linux)
 
 source ~/bin/system/detect-os-mode 2>/dev/null
 
-# Get top-level sessions (exclude agents-* inner sessions)
-SESSIONS=$(tmux list-sessions \
-    -F '#{session_name}' 2>/dev/null \
-    | grep -v '^agents-')
+# Scan all tmux server sockets for sessions
+SOCKET_DIR="/tmp/tmux-$(id -u)"
+declare -a KEYS DIRS PNAMES PIDXS TPIDS
+N=0
+MAX_DIR=0
+MAX_PNAME=0
 
-if [ -z "$SESSIONS" ]; then
-    echo "No tmux sessions running."
-    exit 0
+if [ -d "$SOCKET_DIR" ]; then
+    for sock in "$SOCKET_DIR"/*; do
+        [ -S "$sock" ] || continue
+        SNAME=$(basename "$sock")
+        while IFS= read -r sess; do
+            case "$sess" in
+                agents-*) continue ;;
+            esac
+
+            # Check if ANY pane has a styled title
+            STYLED_PANE=""
+            while IFS= read -r ptitle; do
+                case "$ptitle" in
+                    📁*) STYLED_PANE="$ptitle"; break ;;
+                esac
+            done < <(tmux -L "$SNAME" list-panes \
+                -t "$sess" \
+                -F '#{pane_title}' 2>/dev/null)
+            [ -z "$STYLED_PANE" ] && continue
+
+            PDIR=$(tmux -L "$SNAME" \
+                display-message -t "$sess" \
+                -p '#{pane_current_path}' \
+                2>/dev/null)
+            D=$(basename "$PDIR" 2>/dev/null)
+            P=$(tmux -L "$SNAME" \
+                display-message -t "$sess" \
+                -p '#{@pane_name}' 2>/dev/null)
+            IX=$(tmux -L "$SNAME" \
+                display-message -t "$sess" \
+                -p '#{window_index}.#{pane_index}' \
+                2>/dev/null)
+            TP=$(tmux -L "$SNAME" \
+                display-message -t "$sess" \
+                -p '#{pane_pid}' 2>/dev/null)
+
+            KEYS[$N]="${SNAME}/${sess}"
+            DIRS[$N]="$D"
+            PNAMES[$N]="$P"
+            PIDXS[$N]="$IX"
+            TPIDS[$N]="$TP"
+
+            [ ${#D} -gt $MAX_DIR ] && \
+                MAX_DIR=${#D}
+            [ ${#P} -gt $MAX_PNAME ] && \
+                MAX_PNAME=${#P}
+            N=$((N + 1))
+        done < <(tmux -L "$SNAME" \
+            list-sessions \
+            -F '#{session_name}' 2>/dev/null)
+    done
 fi
 
-# Count sessions
-NUM=$(echo "$SESSIONS" | wc -l | tr -d ' ')
-
-# Build fzf menu entries (plain text)
-# Format: session<TAB>dir  pane [w.p]  pid
-ENTRIES=""
-while IFS= read -r sess; do
-    PTITLE=$(tmux display-message -t "$sess" \
-        -p '#{pane_title}' 2>/dev/null)
-    # Only show sessions with styled pane titles
-    case "$PTITLE" in
-        📁*) ;;
-        *) continue ;;
-    esac
-    PDIR=$(tmux display-message -t "$sess" \
-        -p '#{pane_current_path}' 2>/dev/null)
-    DNAME=$(basename "$PDIR" 2>/dev/null)
-    PNAME=$(tmux display-message -t "$sess" \
-        -p '#{@pane_name}' 2>/dev/null)
-    PIDX=$(tmux display-message -t "$sess" \
-        -p '#{window_index}.#{pane_index}' \
-        2>/dev/null)
-    TPID=$(tmux display-message -t "$sess" \
-        -p '#{pane_pid}' 2>/dev/null)
-    LINE=$(printf '📁 %s  🖥  %s [%s]  🆔 %s' \
-        "$DNAME" "$PNAME" "$PIDX" "$TPID")
-    ENTRIES+="${sess}$(printf '\t')${LINE}"$'\n'
-done <<< "$SESSIONS"
-
-if [ -z "$ENTRIES" ]; then
+if [ "$N" -eq 0 ]; then
     echo "No styled sessions found."
     exit 0
 fi
 
-# Recount after filtering
-NUM=$(printf '%s' "$ENTRIES" | grep -c .)
+# Build aligned entries
+ENTRIES=""
+for i in $(seq 0 $((N - 1))); do
+    LINE=$(printf \
+        "📁 %-${MAX_DIR}s  🖥  %-${MAX_PNAME}s [%s]  🆔 %s" \
+        "${DIRS[$i]}" "${PNAMES[$i]}" \
+        "${PIDXS[$i]}" "${TPIDS[$i]}")
+    ENTRIES+="${KEYS[$i]}$(printf '\t')${LINE}"
+    ENTRIES+=$'\n'
+done
 
-# Skip fzf if only one session
-if [ "$NUM" -eq 1 ]; then
-    SELECTED=$(echo "$SESSIONS" | head -1)
-else
-    SELECTED=$(printf '%s' "$ENTRIES" | fzf \
-        --no-sort \
-        --prompt='tp> ' \
-        --with-nth=2.. \
-        --delimiter=$'\t' \
-        | cut -f1)
-fi
+SELECTED=$(printf '%s' "$ENTRIES" | fzf \
+    --no-sort \
+    --layout=reverse \
+    --prompt='tp> ' \
+    --with-nth=2.. \
+    --delimiter=$'\t' \
+    | cut -f1)
 
 [ -z "$SELECTED" ] && exit 0
 
-# --- Focus the window containing this session ---
+# Extract server and session from SERVER/SESSION
+SELECTED_SERVER="${SELECTED%%/*}"
+SELECTED_SESSION="${SELECTED#*/}"
 
-# Get the active pane's title (tmux set-titles-string=#T
-# makes the terminal window title match this value)
-TITLE=$(tmux display-message -t "$SELECTED" \
+# Get the active pane's title for window matching
+TITLE=$(tmux -L "$SELECTED_SERVER" \
+    display-message -t "$SELECTED_SESSION" \
     -p '#{pane_title}')
-
-# Fallback: directory name for partial matching
-DNAME=$(tmux display-message -t "$SELECTED" \
-    -p '#{pane_current_path}' 2>/dev/null \
-    | xargs basename 2>/dev/null)
 
 _focus_macos() {
     # Match iTerm2 window by title via AppleScript
@@ -119,5 +142,6 @@ case "$OS_MODE" in
 esac
 
 if [ $? -ne 0 ]; then
-    echo "Could not find window for: $SELECTED"
+    echo "Could not find window for: \
+$SELECTED_SESSION"
 fi

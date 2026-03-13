@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 # fzf + ripgrep live grep → vim at match
+dir=$(pwd)
+title=" 🔍 ripgrep: ${dir/#$HOME/\~} "
+
 sel=$(rg --color=always --line-number \
   --no-heading --smart-case "" |
   fzf --ansi --reverse \
     --delimiter : \
+    --header "$title" \
     --preview 'rg --color=always \
       --context 5 {q} {1}' \
     --preview-window 'up:5:wrap' \

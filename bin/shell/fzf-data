@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# fzf from /Volumes/DATA → open in vim popup
+f=$(fzf --reverse)
+[ -n "$f" ] || exit 0
+tmux run-shell -b \
+  "tmux display-popup -E \
+  -w 60% -h 100% -x C -y 0 \
+  -d /Volumes/DATA \
+  \"vim '$f'\""
