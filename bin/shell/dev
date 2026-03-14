@@ -97,7 +97,8 @@ fi
 # Create session with pane 0 (force full terminal size)
 tmux -L "$SERVER" new-session -d \
     -s "$OUTER" -c "$DIR" \
-    -x "$COLS" -y "$ROWS"
+    -x "$COLS" -y "$ROWS" \
+    -e "TERM=tmux-256color"
 
 # Shared mode: set window-size and resize hook
 if [ "$SHARED" = "1" ]; then
@@ -142,15 +143,9 @@ tmux -L "$SERVER" split-window \
 #                        │  pane 2 (col2 bot)  │  pane 4 (col3 bot)
 # ──────────────────────────────────────────
 
-# Inner session: attach if exists, else create
-CLAUDE_CMD="cd '$DIR' && unset TMUX"
-CLAUDE_CMD="$CLAUDE_CMD && { tmux -L '$SERVER'"
-CLAUDE_CMD="$CLAUDE_CMD attach -t '$INNER'"
-CLAUDE_CMD="$CLAUDE_CMD 2>/dev/null"
-CLAUDE_CMD="$CLAUDE_CMD || tmux -L '$SERVER'"
-CLAUDE_CMD="$CLAUDE_CMD new-session -s '$INNER'"
-CLAUDE_CMD="$CLAUDE_CMD 'claude --resume 2>/dev/null"
-CLAUDE_CMD="$CLAUDE_CMD || claude'; }"
+# Claude command (direct, no inner session)
+CLAUDE_CMD="cd '$DIR' && claude --resume 2>/dev/null"
+CLAUDE_CMD="$CLAUDE_CMD || claude"
 
 # Start programs in each pane
 tmux -L "$SERVER" send-keys -t "$OUTER:0.2" \
@@ -197,13 +192,6 @@ _set_pane "$OUTER:0.2" "terminal" "0.2"
 _set_pane "$OUTER:0.3" "notify" "0.3"
 _set_pane "$OUTER:0.4" "airlock" "0.4"
 
-# Set inner session title to match claude pane
-# (inner tmux controls iTerm2 title, not outer)
-CLAUDE_TITLE=$(_fmt_pane_title "claude" "0.1")
-( sleep 2 && \
-  tmux -L "$SERVER" set-option -t "$INNER" \
-      set-titles-string "$CLAUDE_TITLE" \
-  2>/dev/null ) &
 
 # Set pane background colors
 tmux -L "$SERVER" select-pane \
@@ -234,9 +222,7 @@ tmux -L "$SERVER" select-pane -t "$OUTER:0.1"
 # Ephemeral: clean up both sessions on detach/close
 if [ "$SHARED" != "1" ]; then
     trap "tmux -L '$SERVER' kill-session \
-        -t '$OUTER' 2>/dev/null; \
-        tmux -L '$SERVER' kill-session \
-        -t '$INNER' 2>/dev/null" \
+        -t '$OUTER' 2>/dev/null" \
         EXIT HUP TERM
 fi
 

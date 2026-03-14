@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+PROMPT_COMMAND="clear; unset PROMPT_COMMAND" exec bash -i
