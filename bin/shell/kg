@@ -1,18 +1,38 @@
 #!/usr/bin/env bash
-TARGET="${1:-$(tmux display-message -p '#{session_group}' 2>/dev/null)}"
-if [ -z "$TARGET" ]; then
-    TARGET="$(tmux display-message -p '#{session_name}' 2>/dev/null)"
-fi
-if [ -z "$TARGET" ]; then
-    echo "Not in a tmux session and no name given."
+
+if [ -n "$TMUX" ]; then
+    SERVER=$(echo "$TMUX" | \
+        cut -d, -f1 | xargs basename)
+    TARGET=$(tmux -L "$SERVER" \
+        display-message \
+        -p '#{session_group}' 2>/dev/null)
+    if [ -z "$TARGET" ]; then
+        TARGET=$(tmux -L "$SERVER" \
+            display-message \
+            -p '#{session_name}' 2>/dev/null)
+    fi
+elif [ -n "$1" ]; then
+    TARGET="$1"
+    SERVER=$(tmux-find-server "$TARGET")
+    if [ -z "$SERVER" ]; then
+        echo "Session not found: $TARGET"
+        exit 1
+    fi
+else
+    echo "Not in a tmux session \
+and no name given."
     exit 1
 fi
 
 # Kill all grouped sessions, then the target
-tmux list-sessions -F '#{session_name} #{session_group}' \
+tmux -L "$SERVER" list-sessions \
+    -F '#{session_name} #{session_group}' \
     2>/dev/null | \
     awk -v g="$TARGET" '$2 == g { print $1 }' | \
-    while read s; do tmux kill-session -t "$s"; done
-tmux kill-session -t "$TARGET" 2>/dev/null
+    while read s; do
+        tmux -L "$SERVER" kill-session -t "$s"
+    done
+tmux -L "$SERVER" kill-session \
+    -t "$TARGET" 2>/dev/null
 
 tmux-close-window

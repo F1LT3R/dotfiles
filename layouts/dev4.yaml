@@ -12,14 +12,14 @@ columns:
       - height: 20%
         name: fzf
         bg: "#000000"
-        cmd: "cd $DIR && while true; do f=$(fzf -q '.md') && vim --servername ${SESSION} --remote \"$f\" && tmux select-pane -t 5; done"
+        cmd: "cd $DIR && while true; do f=$(fzf -q '.md') && vim --servername ${SESSION} --remote \"$f\" && tmux -L ${SERVER} select-pane -t 5; done"
 
   - width: 47%
     panes:
       - height: 69%
         name: claude
         bg: "#1f0410"
-        cmd: "cd $DIR && unset TMUX && { tmux attach -t ${INNER} 2>/dev/null || tmux new-session -s ${INNER} 'claude --resume 2>/dev/null || claude'; }"
+        cmd: "cd $DIR && unset TMUX && { tmux -L ${SERVER} attach -t ${INNER} 2>/dev/null || tmux -L ${SERVER} new-session -s ${INNER} 'claude --resume 2>/dev/null || claude'; }"
       - height: 29%
         name: terminal
         bg: "#08020c"

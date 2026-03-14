@@ -34,6 +34,9 @@ fi
 
 alias devlayout='tmux select-layout "07dc,230x56,0,0{40x56,0,0,17,135x56,41,0[135x37,41,0,18,135x18,41,38,22],53x56,177,0[53x26,177,0,19,53x15,177,27,20,53x13,177,43,21]}"'
 
+alias PLANS='cd /Volumes/DATA/PLANS'
+alias CONVERSATIONS='cd /Volumes/DATA/CONVERSATIONS'
+
 # WSL2 config
 if [ "$OS_MODE" = "WSL2" ]; then
     if [[ $- == *i* ]]; then
@@ -245,3 +248,4 @@ fi
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+export CLAUDE_CODE_HIDE_ACCOUNT_INFO=1

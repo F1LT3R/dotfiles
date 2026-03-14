@@ -1,0 +1,6 @@
+#!/bin/bash
+[ -z "$1" ] && { echo "usage: export-claude <outfile>"; exit 1; }
+	security find-generic-password \
+	-s "Claude Code-credentials" -w \
+	| jq -r '.claudeAiOauth.accessToken' \
+	> "$1"

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Open the current tmux session in a new terminal window
+sock=$(tmux display-message -p '#{socket_path}')
+server=$(basename "$sock")
+sess=$(tmux display-message -p '#{session_name}')
+pane=$(tmux display-message -p '#{pane_index}')
+tmux-window \
+  "tmux -L '$server' attach -t '$sess' \\; \
+  select-pane -t $pane"

@@ -156,6 +156,8 @@ tmux -L "$SERVER" send-keys -t "$OUTER:0.4" \
     "cd '$DIR' && airlock dash" Enter
 tmux -L "$SERVER" send-keys -t "$OUTER:0.0" \
     "cd '$DIR' && fstop" Enter
+tmux -L "$SERVER" set-option -p \
+    -t "$OUTER:0.1" history-limit 0
 tmux -L "$SERVER" send-keys -t "$OUTER:0.1" \
     "$CLAUDE_CMD" Enter
 
@@ -179,11 +181,14 @@ _fmt_pane_title() {
 
 _set_pane() {
     local target="$1" name="$2" idx="$3"
+    local styled="$(_fmt_pane_title "$name" "$idx")"
     tmux -L "$SERVER" select-pane \
         -t "$target" \
-        -T "$(_fmt_pane_title "$name" "$idx")"
+        -T "$styled"
     tmux -L "$SERVER" set-option -p \
         -t "$target" @pane_name "$name"
+    tmux -L "$SERVER" set-option -p \
+        -t "$target" @pane_styled_title "$styled"
 }
 
 _set_pane "$OUTER:0.0" "fstop" "0.0"

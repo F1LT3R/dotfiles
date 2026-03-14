@@ -8,7 +8,7 @@ See also: **[Tmux Mesh](TMUX-MESH.md)** — save, load, and share multi-pane tmu
 
 ### Symlink Dotfiles
 
-⚠️ WARNING! This is a destructive action!
+⚠️   WARNING! This is a destructive action!
 
 All scripts in `~/bin` will be forably moved to `~/bin/old`. Symlinks will overwrite files and directories when linking to this repository, Eg: `~/.bashrc` and `~/.vim/`.
 

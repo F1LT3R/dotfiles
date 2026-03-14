@@ -1,9 +1,24 @@
 #!/usr/bin/env bash
-TARGET="${1:-$(tmux display-message -p '#{session_name}' 2>/dev/null)}"
-if [ -z "$TARGET" ]; then
-    echo "Not in a tmux session and no name given."
-    exit 1
-fi
-tmux kill-session -t "$TARGET"
 
+if [ -n "$1" ]; then
+    TARGET="$1"
+    SERVER=$(tmux-find-server "$TARGET")
+    if [ -z "$SERVER" ]; then
+        echo "Session not found: $TARGET"
+        exit 1
+    fi
+else
+    if [ -z "$TMUX" ]; then
+        echo "Not in a tmux session \
+and no name given."
+        exit 1
+    fi
+    SERVER=$(echo "$TMUX" | \
+        cut -d, -f1 | xargs basename)
+    TARGET=$(tmux -L "$SERVER" \
+        display-message \
+        -p '#{session_name}' 2>/dev/null)
+fi
+
+tmux -L "$SERVER" kill-session -t "$TARGET"
 tmux-close-window

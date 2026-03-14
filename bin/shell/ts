@@ -18,11 +18,19 @@ if [ -z "$TMUX" ]; then
     exit 1
 fi
 
-SESSION=$(tmux display-message -p '#{session_name}')
-SESSION_DIR=$(tmux display-message -p '#{pane_current_path}')
-WIN_W=$(tmux display-message -p '#{window_width}')
-WIN_H=$(tmux display-message -p '#{window_height}')
-PANE_COUNT=$(tmux list-panes | wc -l | tr -d ' ')
+SERVER=$(echo "$TMUX" | \
+    cut -d, -f1 | xargs basename)
+
+SESSION=$(tmux -L "$SERVER" display-message \
+    -p '#{session_name}')
+SESSION_DIR=$(tmux -L "$SERVER" display-message \
+    -p '#{pane_current_path}')
+WIN_W=$(tmux -L "$SERVER" display-message \
+    -p '#{window_width}')
+WIN_H=$(tmux -L "$SERVER" display-message \
+    -p '#{window_height}')
+PANE_COUNT=$(tmux -L "$SERVER" list-panes \
+    | wc -l | tr -d ' ')
 
 echo "Session: $SESSION  Window: ${WIN_W}x${WIN_H}"
 echo "Panes: $PANE_COUNT"
@@ -32,7 +40,8 @@ echo ""
 declare -a PANE_X PANE_Y PANE_W PANE_H PANE_CMD PANE_NAME PANE_BG
 for i in $(seq 0 $((PANE_COUNT - 1))); do
     # Get pane geometry
-    INFO=$(tmux display-message -t "$SESSION:0.$i" -p \
+    INFO=$(tmux -L "$SERVER" display-message \
+        -t "$SESSION:0.$i" -p \
         '#{pane_left} #{pane_top} #{pane_width} #{pane_height}')
     read -r px py pw ph <<< "$INFO"
     PANE_X[$i]=$px
@@ -41,12 +50,13 @@ for i in $(seq 0 $((PANE_COUNT - 1))); do
     PANE_H[$i]=$ph
 
     # Highlight this pane
-    tmux select-pane -t "$SESSION:0.$i"
+    tmux -L "$SERVER" select-pane \
+        -t "$SESSION:0.$i"
     sleep 0.3
 
     # Guess running process
-    PID=$(tmux display-message -t "$SESSION:0.$i" \
-        -p '#{pane_pid}')
+    PID=$(tmux -L "$SERVER" display-message \
+        -t "$SESSION:0.$i" -p '#{pane_pid}')
     CHILD=$(pgrep -P "$PID" 2>/dev/null | head -1)
     if [ -n "$CHILD" ]; then
         GUESS=$(ps -o command= -p "$CHILD" 2>/dev/null \
@@ -60,7 +70,7 @@ for i in $(seq 0 $((PANE_COUNT - 1))); do
     HPCT=$((ph * 100 / WIN_H))
 
     # Prefer @pane_name set by dev/tl
-    STORED=$(tmux display-message \
+    STORED=$(tmux -L "$SERVER" display-message \
         -t "$SESSION:0.$i" \
         -p '#{@pane_name}' 2>/dev/null)
     AUTO_LABEL="${STORED:-shell}"
@@ -88,8 +98,8 @@ for i in $(seq 0 $((PANE_COUNT - 1))); do
     fi
 
     # Detect pane background color
-    STYLE=$(tmux display-message -t "$SESSION:0.$i" \
-        -p '#{pane_style}')
+    STYLE=$(tmux -L "$SERVER" display-message \
+        -t "$SESSION:0.$i" -p '#{pane_style}')
     CURRENT_BG=$(echo "$STYLE" | \
         grep -o 'bg=#[0-9a-fA-F]\{6\}' | \
         cut -d= -f2)
@@ -190,7 +200,8 @@ IFS=$'\n' SORTED_COLS=($(printf '%s\n' \
 unset IFS
 
 # Ask for focus pane
-FOCUS_PANE=$(tmux display-message -p '#{pane_index}')
+FOCUS_PANE=$(tmux -L "$SERVER" display-message \
+    -p '#{pane_index}')
 echo "Focus pane: $FOCUS_PANE (range: 0-$((PANE_COUNT - 1)))"
 read -r -p \
     "Change focus pane? (enter=$FOCUS_PANE): " NEW_FOCUS

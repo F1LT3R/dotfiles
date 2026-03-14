@@ -29,6 +29,7 @@ fi
 DIR="${2:-$(pwd)}"
 DIR="$(cd "$DIR" && pwd)"
 DIRNAME="$(basename "$DIR")"
+SERVER="$DIRNAME"
 
 if [ "$SHARED" = "1" ]; then
     SESSION="${NAME}-${DIRNAME}"
@@ -104,7 +105,8 @@ if [ "$TL_READY" != "1" ]; then
         TL_READY=1
     else
         tmux-window \
-            "exec env TL_READY=1 tl ${SFLAG}'$NAME' '$DIR'"
+            "exec env TL_READY=1 \
+tl ${SFLAG}'$NAME' '$DIR'"
         exit 0
     fi
 fi
@@ -123,6 +125,7 @@ MODE="ephemeral"
 echo "Loading: $NAME → $SESSION"
 echo "Dir: $DIR"
 echo "Mode: $MODE"
+echo "Server: $SERVER"
 echo ""
 
 # Build column headers and rows
@@ -164,7 +167,8 @@ for ri in $(seq 0 $((MAX_ROWS - 1))); do
                     awk '{print $1}')
             fi
             [ -z "$LABEL" ] && LABEL="shell"
-            CELL="$(printf '%-9s %s%%' "$LABEL" "$PH")"
+            CELL="$(printf '%-9s %s%%' \
+                "$LABEL" "$PH")"
         else
             CELL=""
         fi
@@ -194,9 +198,11 @@ echo ""
 
 # --- Shared mode: reattach if session exists ---
 if [ "$SHARED" = "1" ] && \
-   tmux has-session -t "$SESSION" 2>/dev/null; then
+   tmux -L "$SERVER" has-session \
+       -t "$SESSION" 2>/dev/null; then
     GRP="${SESSION}-$$"
-    tmux new-session -d -t "$SESSION" -s "$GRP"
+    tmux -L "$SERVER" new-session -d \
+        -t "$SESSION" -s "$GRP"
 
     # Calculate focus pane index
     FPANE=0
@@ -208,7 +214,8 @@ if [ "$SHARED" = "1" ] && \
             FPANE=$((FPANE + FOCUS_ROW))
         fi
     done
-    tmux select-pane -t "${GRP}:0.${FPANE}"
+    tmux -L "$SERVER" select-pane \
+        -t "${GRP}:0.${FPANE}"
 
     # Resize panes after attach
     ( sleep 1; \
@@ -220,26 +227,30 @@ if [ "$SHARED" = "1" ] && \
           eval "CW=\$COL${ci}_WIDTH"; \
           eval "PC=\$COL${ci}_PANE_COUNT"; \
           FIRST=$PI; \
-          tmux resize-pane -t "${SESSION}:0.${FIRST}" \
+          tmux -L "$SERVER" resize-pane \
+              -t "${SESSION}:0.${FIRST}" \
               -x $((COLS * CW / 100)); \
           for ri in $(seq 0 $((PC - 1))); do
               eval "PH=\$COL${ci}_PANE${ri}_HEIGHT"; \
-              tmux resize-pane -t "${SESSION}:0.${PI}" \
+              tmux -L "$SERVER" resize-pane \
+                  -t "${SESSION}:0.${PI}" \
                   -y $((ROWS * PH / 100)); \
               PI=$((PI + 1)); \
           done; \
       done \
     ) &
     if [ -n "$SSH_TTY" ]; then
-        tmux attach -t "$GRP"
-        echo "Detached. Reattach: tmux attach -t $GRP"
+        tmux -L "$SERVER" attach -t "$GRP"
+        echo "Detached. Reattach: \
+tmux -L $SERVER attach -t $GRP"
     else
-        exec tmux attach -t "$GRP"
+        exec tmux -L "$SERVER" attach -t "$GRP"
     fi
 fi
 
 # --- Create session ---
-tmux new-session -d -s "$SESSION" -c "$DIR" \
+tmux -L "$SERVER" new-session -d \
+    -s "$SESSION" -c "$DIR" \
     -x "$COLS" -y "$ROWS"
 
 # --- Build pane structure ---
@@ -249,9 +260,11 @@ tmux new-session -d -s "$SESSION" -c "$DIR" \
 # Step 1: horizontal splits to create columns.
 # Each split adds a pane to the right.
 for ci in $(seq 1 $((NUM_COLS - 1))); do
-    tmux split-window -t "$SESSION:0.${ci}" \
+    tmux -L "$SERVER" split-window \
+        -t "$SESSION:0.${ci}" \
         -h -c "$DIR" 2>/dev/null || \
-    tmux split-window -t "$SESSION:0.$((ci - 1))" \
+    tmux -L "$SERVER" split-window \
+        -t "$SESSION:0.$((ci - 1))" \
         -h -c "$DIR"
 done
 
@@ -268,7 +281,8 @@ for ci in $(seq 0 $((NUM_COLS - 1))); do
     BASE=$PI
     for ri in $(seq 1 $((PC - 1))); do
         TARGET=$((BASE + ri - 1))
-        tmux split-window -t "$SESSION:0.${TARGET}" \
+        tmux -L "$SERVER" split-window \
+            -t "$SESSION:0.${TARGET}" \
             -v -c "$DIR"
     done
     PI=$((PI + PC))
@@ -312,8 +326,11 @@ for ci in $(seq 0 $((NUM_COLS - 1))); do
                 -e "s|\\\$SESSION|$SESSION|g" \
                 -e "s|\${SESSION}|$SESSION|g" \
                 -e "s|\\\$INNER|$INNER|g" \
-                -e "s|\${INNER}|$INNER|g")
-            tmux send-keys -t "$SESSION:0.${PI}" \
+                -e "s|\${INNER}|$INNER|g" \
+                -e "s|\\\$SERVER|$SERVER|g" \
+                -e "s|\${SERVER}|$SERVER|g")
+            tmux -L "$SERVER" send-keys \
+                -t "$SESSION:0.${PI}" \
                 "$CMD" Enter
         fi
         # Set pane title from layout name
@@ -321,17 +338,18 @@ for ci in $(seq 0 $((NUM_COLS - 1))); do
         if [ -n "$PNAME" ]; then
             PTITLE=$(_fmt_pane_title \
                 "$PNAME" "0.${PI}")
-            tmux select-pane \
+            tmux -L "$SERVER" select-pane \
                 -t "$SESSION:0.${PI}" \
                 -T "$PTITLE"
-            tmux set-option -p \
+            tmux -L "$SERVER" set-option -p \
                 -t "$SESSION:0.${PI}" \
                 @pane_name "$PNAME"
         fi
         # Set pane background color
         eval "PBG=\$COL${ci}_PANE${ri}_BG"
         if [ -n "$PBG" ]; then
-            tmux select-pane -t "$SESSION:0.${PI}" \
+            tmux -L "$SERVER" select-pane \
+                -t "$SESSION:0.${PI}" \
                 -P "bg=$PBG"
         fi
         PI=$((PI + 1))
@@ -348,29 +366,32 @@ for ci in $(seq 0 $((NUM_COLS - 1))); do
         FPANE=$((FPANE + FOCUS_ROW))
     fi
 done
-tmux select-pane -t "$SESSION:0.${FPANE}"
+tmux -L "$SERVER" select-pane \
+    -t "$SESSION:0.${FPANE}"
 
 # --- Shared mode: window-size and resize hook ---
 if [ "$SHARED" = "1" ]; then
-    tmux set-option -t "$SESSION" window-size latest
+    tmux -L "$SERVER" set-option \
+        -t "$SESSION" window-size latest
     HOOK='W=#{window_width}; H=#{window_height}; '
     PI=0
     for ci in $(seq 0 $((NUM_COLS - 1))); do
         eval "CW=\$COL${ci}_WIDTH"
         eval "PC=\$COL${ci}_PANE_COUNT"
         FIRST=$PI
-        HOOK+="tmux resize-pane -t ${SESSION}:0.${FIRST}"
+        HOOK+="tmux -L ${SERVER} resize-pane"
+        HOOK+=" -t ${SESSION}:0.${FIRST}"
         HOOK+=" -x \$((W*${CW}/100)); "
         for ri in $(seq 0 $((PC - 1))); do
             eval "PH=\$COL${ci}_PANE${ri}_HEIGHT"
-            HOOK+="tmux resize-pane"
+            HOOK+="tmux -L ${SERVER} resize-pane"
             HOOK+=" -t ${SESSION}:0.${PI}"
             HOOK+=" -y \$((H*${PH}/100)); "
             PI=$((PI + 1))
         done
     done
-    tmux set-hook -t "$SESSION" after-resize-window \
-        "run-shell '$HOOK'"
+    tmux -L "$SERVER" set-hook -t "$SESSION" \
+        after-resize-window "run-shell '$HOOK'"
 fi
 
 # --- Resize after attach ---
@@ -380,11 +401,13 @@ fi
       eval "CW=\$COL${ci}_WIDTH"; \
       eval "PC=\$COL${ci}_PANE_COUNT"; \
       FIRST=$PI; \
-      tmux resize-pane -t "${SESSION}:0.${FIRST}" \
+      tmux -L "$SERVER" resize-pane \
+          -t "${SESSION}:0.${FIRST}" \
           -x $((COLS * CW / 100)); \
       for ri in $(seq 0 $((PC - 1))); do
           eval "PH=\$COL${ci}_PANE${ri}_HEIGHT"; \
-          tmux resize-pane -t "${SESSION}:0.${PI}" \
+          tmux -L "$SERVER" resize-pane \
+              -t "${SESSION}:0.${PI}" \
               -y $((ROWS * PH / 100)); \
           PI=$((PI + 1)); \
       done; \
@@ -392,21 +415,24 @@ fi
 ) &
 # Ephemeral: clean up both sessions on detach/close
 if [ "$SHARED" != "1" ]; then
-    trap "tmux kill-session -t '$SESSION' 2>/dev/null; \
-        tmux kill-session -t '$INNER' 2>/dev/null" \
+    trap "tmux -L '$SERVER' kill-session \
+        -t '$SESSION' 2>/dev/null; \
+        tmux -L '$SERVER' kill-session \
+        -t '$INNER' 2>/dev/null" \
         EXIT HUP TERM
 fi
 
 if [ -n "$SSH_TTY" ]; then
-    tmux attach -t "$SESSION"
+    tmux -L "$SERVER" attach -t "$SESSION"
     if [ "$SHARED" = "1" ]; then
         echo "Detached. Reattach: \
-tmux attach -t $SESSION"
+tmux -L $SERVER attach -t $SESSION"
     fi
 else
     if [ "$SHARED" = "1" ]; then
-        exec tmux attach -t "$SESSION"
+        exec tmux -L "$SERVER" \
+            attach -t "$SESSION"
     else
-        tmux attach -t "$SESSION"
+        tmux -L "$SERVER" attach -t "$SESSION"
     fi
 fi

@@ -8,7 +8,10 @@ if [ -z "$TMUX" ]; then
     exit 1
 fi
 
-SESSION=$(tmux display-message -p '#{session_name}')
+SERVER=$(echo "$TMUX" | \
+    cut -d, -f1 | xargs basename)
+SESSION=$(tmux -L "$SERVER" display-message \
+    -p '#{session_name}')
 
 # Only run on outer (dev-*) sessions
 case "$SESSION" in
@@ -22,20 +25,22 @@ case "$SESSION" in
         ;;
 esac
 
-PANE_COUNT=$(tmux list-panes -t "$SESSION" | \
-    wc -l | tr -d ' ')
+PANE_COUNT=$(tmux -L "$SERVER" list-panes \
+    -t "$SESSION" | wc -l | tr -d ' ')
 
 echo "Reloading panes in $SESSION..."
 
 for i in $(seq 0 $((PANE_COUNT - 1))); do
-    TITLE=$(tmux display-message -t "$SESSION:0.$i" \
-        -p '#{@pane_name}')
+    TITLE=$(tmux -L "$SERVER" display-message \
+        -t "$SESSION:0.$i" -p '#{@pane_name}')
 
     case "$TITLE" in
         fstop|fzf|notify|airlock)
-            tmux send-keys -t "$SESSION:0.$i" C-c
+            tmux -L "$SERVER" send-keys \
+                -t "$SESSION:0.$i" C-c
             sleep 0.3
-            tmux send-keys -t "$SESSION:0.$i" Up Enter
+            tmux -L "$SERVER" send-keys \
+                -t "$SESSION:0.$i" Up Enter
             echo "  pane $i ($TITLE): reloaded"
             ;;
         *)

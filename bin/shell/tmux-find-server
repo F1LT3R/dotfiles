@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# tmux-find-server — find which server hosts a session
+# Usage: tmux-find-server <session-name>
+# Prints server name to stdout, exits 1 if not found
+
+TARGET="$1"
+SOCKET_DIR="/tmp/tmux-$(id -u)"
+[ -d "$SOCKET_DIR" ] || exit 1
+
+for sock in "$SOCKET_DIR"/*; do
+    [ -S "$sock" ] || continue
+    SNAME=$(basename "$sock")
+    if tmux -L "$SNAME" has-session \
+        -t "$TARGET" 2>/dev/null; then
+        echo "$SNAME"
+        exit 0
+    fi
+done
+exit 1

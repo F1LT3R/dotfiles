@@ -6,14 +6,18 @@ if [ -z "$TMUX" ]; then
     exit 1
 fi
 
-SESSION=$(tmux display-message -p '#{session_name}')
+SERVER=$(echo "$TMUX" | \
+    cut -d, -f1 | xargs basename)
+SESSION=$(tmux -L "$SERVER" display-message \
+    -p '#{session_name}')
 
 # Find the claude pane by title
 CPANE=""
-COUNT=$(tmux list-panes -t "$SESSION" | \
-    wc -l | tr -d ' ')
+COUNT=$(tmux -L "$SERVER" list-panes \
+    -t "$SESSION" | wc -l | tr -d ' ')
 for i in $(seq 0 $((COUNT - 1))); do
-    T=$(tmux display-message -t "$SESSION:0.$i" \
+    T=$(tmux -L "$SERVER" display-message \
+        -t "$SESSION:0.$i" \
         -p '#{@pane_name}' 2>/dev/null)
     if [ "$T" = "claude" ]; then
         CPANE="$i"
@@ -27,13 +31,16 @@ if [ -z "$CPANE" ]; then
 fi
 
 # Get working directory
-DIR=$(tmux display-message -t "$SESSION:0.$CPANE" \
+DIR=$(tmux -L "$SERVER" display-message \
+    -t "$SESSION:0.$CPANE" \
     -p '#{pane_current_path}')
 
 echo "Restarting claude in pane $CPANE..."
 
 # Kill pane contents and respawn with claude
-tmux respawn-pane -k -t "$SESSION:0.$CPANE" \
-    "cd '$DIR' && claude --resume 2>/dev/null || claude"
+tmux -L "$SERVER" respawn-pane -k \
+    -t "$SESSION:0.$CPANE" \
+    "cd '$DIR' && claude --resume \
+2>/dev/null || claude"
 
 echo "Done."
