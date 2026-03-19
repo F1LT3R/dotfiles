@@ -1,0 +1,33 @@
+name: dev
+description: IDE workflow with claude, notify, airlock
+focus: [1, 0]
+
+columns:
+  - width: 21%
+    panes:
+      - height: 100%
+        name: fstop
+        bg: "#0b0514"
+        cmd: "cd $DIR && fstop"
+
+  - width: 47%
+    panes:
+      - height: 69%
+        name: claude
+        bg: "#1f0410"
+        cmd: "cd $DIR && claude --resume 2>/dev/null || claude"
+      - height: 29%
+        name: terminal
+        bg: "#08020c"
+        cmd: "cd $DIR && source ~/.secrets/llms/OPENROUTER_API_KEY && ssh-f1lt3r && clear && ll"
+
+  - width: 31%
+    panes:
+      - height: 50%
+        name: notify
+        bg: "#060427"
+        cmd: "cd $DIR && agent-notify"
+      - height: 50%
+        name: airlock
+        bg: "#000000"
+        cmd: "cd $DIR && airlock dash"
