@@ -1,0 +1,7 @@
+1. Open a new iTerm tab
+2. Maximize the window
+3. Type asciinema rec ~/demo.cast — recording starts
+4. Do your thing
+5. Type exit — recording stops
+6. Type asciinema play ~/demo.cast — plays back
+7. Press q — stops playback

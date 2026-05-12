@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="${1:-$(pwd)}"
 DIR="$(cd "$DIR" && pwd)"
-SESSION="claude-$$"
+SESSION="pi-$$"
 
 osascript <<EOF
 tell application "iTerm2"
@@ -41,7 +41,7 @@ tell application "iTerm2"
         tell session 1
             set transparency to 0.2
             set background color to {8000, 1000, 4000, 65535}
-            write text "cd '$DIR' && tmux new-session -s $SESSION 'claude --resume 2>/dev/null || claude'"
+            write text "cd '$DIR' && tmux new-session -s $SESSION 'pi'"
         end tell
         tell session 3
             set transparency to 0.2

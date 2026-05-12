@@ -7,6 +7,7 @@
 	rebase = false
 [core]
 	pager = diff-so-fancy | less --tabs=4 -RF
+	sharedRepository = group
 [interactive]
 	diffFilter = diff-so-fancy --patch
 [color]
@@ -29,3 +30,7 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[safe]
+	directory = /Users/user/repos/laserspaces/test001
+	directory = /Users/user/repos/local-agent-test
+	directory = /Users/user/repos/loop-agent-test

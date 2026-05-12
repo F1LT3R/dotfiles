@@ -13,9 +13,9 @@ columns:
   - width: 47%
     panes:
       - height: 69%
-        name: claude
+        name: pi
         bg: "#1f0410"
-        cmd: "cd $DIR && claude --resume 2>/dev/null || claude"
+        cmd: "cd $DIR && pi"
       - height: 29%
         name: terminal
         bg: "#08020c"

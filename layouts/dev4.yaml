@@ -17,9 +17,9 @@ columns:
   - width: 47%
     panes:
       - height: 69%
-        name: claude
+        name: pi
         bg: "#1f0410"
-        cmd: "cd $DIR && unset TMUX && { tmux -L ${SERVER} attach -t ${INNER} 2>/dev/null || tmux -L ${SERVER} new-session -s ${INNER} 'claude --resume 2>/dev/null || claude'; }"
+        cmd: "cd $DIR && unset TMUX && { tmux -L ${SERVER} attach -t ${INNER} 2>/dev/null || tmux -L ${SERVER} new-session -s ${INNER} 'pi'; }"
       - height: 29%
         name: terminal
         bg: "#08020c"

@@ -34,8 +34,10 @@ fi
 
 alias devlayout='tmux select-layout "07dc,230x56,0,0{40x56,0,0,17,135x56,41,0[135x37,41,0,18,135x18,41,38,22],53x56,177,0[53x26,177,0,19,53x15,177,27,20,53x13,177,43,21]}"'
 
-alias PLANS='cd /Volumes/DATA/PLANS'
-alias CONVERSATIONS='cd /Volumes/DATA/CONVERSATIONS'
+#alias PLANS='cd /Volumes/DATA/PLANS'
+#alias CONVERSATIONS='cd /Volumes/DATA/CONVERSATIONS'
+export PLANS='/Volumes/DATA/PLANS'
+export CONVERSATIONS='/Volumes/DATA/CONVERSATIONS'
 
 # WSL2 config
 if [ "$OS_MODE" = "WSL2" ]; then
@@ -61,10 +63,10 @@ bat () {
 }
 alias cat=bat
 
-# SSH Agent
-if [[ $- == *i* ]] && [[ -z "$SSH_CLIENT" ]]; then
-    eval $(ssh-agent)
-fi
+# # SSH Agent
+# if [[ $- == *i* ]] && [[ -z "$SSH_CLIENT" ]]; then
+#     eval $(ssh-agent)
+# fi
 
 weather () { curl wttr.in/moon?QF; curl wttr.in/?n2QF; }
 
@@ -159,6 +161,18 @@ toggle_vi() {
 export PATH="/Users/user/.antigravity/antigravity/bin:$PATH"
 [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 
+# MPR - MASSIVE PIPELINE RUNNER
+export MPR_ROOT=~/repos/mpr
+export MPR_HOME=~/repos/mpr/.mpr
+export MPR_ARTIFACTS=~/repos/mpr/artifacts
+
+# CLAUDE
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+export CLAUDE_CODE_HIDE_ACCOUNT_INFO=1
+export CLAUDE_CODE_NO_FLICKER=1
+# export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1  # disabled for Remote Control
+
 if [[ $- == *i* ]]; then
 
     # Plain-text git info: no colors here
@@ -245,8 +259,11 @@ if [[ $- == *i* ]]; then
 \$(git_prompt)\n\[\033[01;35m\]\$\[\033[0m\] "
 fi
 
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-export CLAUDE_CODE_HIDE_ACCOUNT_INFO=1
-export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+umask 002 # lasercode: Shared permissions for agent and user.
+
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+
+# Find macOS system ssh-agent socket if not already set
+if [ -z "$SSH_AUTH_SOCK" ]; then
+	export SSH_AUTH_SOCK=$(ls /private/tmp/com.apple.launchd.*/Listeners 2>/dev/null | head -1)
+fi

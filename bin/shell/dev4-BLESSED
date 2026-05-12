@@ -81,10 +81,9 @@ CLAUDE_CMD="cd '$DIR' && unset TMUX"
 CLAUDE_CMD="$CLAUDE_CMD && { tmux attach -t '$INNER'"
 CLAUDE_CMD="$CLAUDE_CMD 2>/dev/null"
 CLAUDE_CMD="$CLAUDE_CMD || tmux new-session -s '$INNER'"
-CLAUDE_CMD="$CLAUDE_CMD 'claude --resume 2>/dev/null"
-CLAUDE_CMD="$CLAUDE_CMD || claude'; }"
+CLAUDE_CMD="$CLAUDE_CMD 'pi'; }"
 
-# Start programs in each pane (claude & fstop last — they capture keys)
+# Start programs in each pane (pi & fstop last — they capture keys)
 tmux send-keys -t "$OUTER:0.2" \
     "cd '$DIR' && source ~/.secrets/llms/OPENROUTER_API_KEY && ssh-f1lt3r && clear && ll" Enter
 tmux send-keys -t "$OUTER:0.3" "cd '$DIR' && agent-notify" Enter

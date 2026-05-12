@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# creload — restart claude in the current workspace
+# creload — restart pi in the current workspace
 
 if [ -z "$TMUX" ]; then
     echo "Error: not inside a tmux session."
@@ -11,7 +11,7 @@ SERVER=$(echo "$TMUX" | \
 SESSION=$(tmux -L "$SERVER" display-message \
     -p '#{session_name}')
 
-# Find the claude pane by title
+# Find the pi pane by title
 CPANE=""
 COUNT=$(tmux -L "$SERVER" list-panes \
     -t "$SESSION" | wc -l | tr -d ' ')
@@ -19,14 +19,14 @@ for i in $(seq 0 $((COUNT - 1))); do
     T=$(tmux -L "$SERVER" display-message \
         -t "$SESSION:0.$i" \
         -p '#{@pane_name}' 2>/dev/null)
-    if [ "$T" = "claude" ]; then
+    if [ "$T" = "pi" ]; then
         CPANE="$i"
         break
     fi
 done
 
 if [ -z "$CPANE" ]; then
-    echo "Error: no claude pane found in $SESSION"
+    echo "Error: no pi pane found in $SESSION"
     exit 1
 fi
 
@@ -35,12 +35,11 @@ DIR=$(tmux -L "$SERVER" display-message \
     -t "$SESSION:0.$CPANE" \
     -p '#{pane_current_path}')
 
-echo "Restarting claude in pane $CPANE..."
+echo "Restarting pi in pane $CPANE..."
 
 # Kill pane contents and respawn with claude
 tmux -L "$SERVER" respawn-pane -k \
     -t "$SESSION:0.$CPANE" \
-    "cd '$DIR' && claude --resume \
-2>/dev/null || claude"
+    "cd '$DIR' && pi"
 
 echo "Done."
