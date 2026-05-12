@@ -7,7 +7,7 @@ while getopts "sL" opt; do
     case $opt in
         s) SHARED=1 ;;
         L) LAUNCHED=1 ;;
-        *) echo "Usage: devpi2 [-s] [path]"; exit 1 ;;
+        *) echo "Usage: devpi [-s] [path]"; exit 1 ;;
     esac
 done
 shift $((OPTIND - 1))
@@ -18,9 +18,9 @@ DIRNAME="$(basename "$DIR")"
 SERVER="$DIRNAME"
 
 if [ "$SHARED" = "1" ]; then
-    OUTER="devpi2-${DIRNAME}"
+    OUTER="devpi-${DIRNAME}"
 else
-    OUTER="devpi2-${DIRNAME}-$$"
+    OUTER="devpi-${DIRNAME}-$$"
 fi
 
 # Open in a new maximized terminal window (desktop)
@@ -36,7 +36,7 @@ if [ "$LAUNCHED" != "1" ]; then
     else
         # Desktop: new maximized window
         tmux-window \
-            "exec env TL_READY=1 devpi2 -L ${SFLAG}'$DIR'"
+            "exec env TL_READY=1 devpi -L ${SFLAG}'$DIR'"
         exit 0
     fi
 fi
