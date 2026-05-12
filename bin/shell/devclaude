@@ -1,0 +1,247 @@
+#!/usr/bin/env bash
+
+# Parse flags
+SHARED=0
+LAUNCHED=0
+while getopts "sL" opt; do
+    case $opt in
+        s) SHARED=1 ;;
+        L) LAUNCHED=1 ;;
+        *) echo "Usage: dev [-s] [path]"; exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+DIR="${1:-$(pwd)}"
+DIR="$(cd "$DIR" && pwd)"
+DIRNAME="$(basename "$DIR")"
+SERVER="$DIRNAME"
+
+if [ "$SHARED" = "1" ]; then
+    OUTER="dev-${DIRNAME}"
+    INNER="agents-${DIRNAME}"
+else
+    OUTER="dev-${DIRNAME}-$$"
+    INNER="agents-${DIRNAME}-$$"
+fi
+
+# Open in a new maximized terminal window (desktop)
+# or unset TMUX and continue (SSH/headless)
+if [ "$LAUNCHED" != "1" ]; then
+    SFLAG=""
+    [ "$SHARED" = "1" ] && SFLAG="-s "
+
+    if [ -n "$SSH_TTY" ] || \
+       [ "$OS_MODE" != "MACOS" -a -z "$DISPLAY" ]; then
+        # SSH/headless: run directly, unset TMUX
+        [ -n "$TMUX" ] && unset TMUX
+    else
+        # Desktop: new maximized window
+        tmux-window \
+            "exec dev -L ${SFLAG}'$DIR'"
+        exit 0
+    fi
+fi
+
+# Only sleep in desktop mode (window animation)
+if [ -z "$SSH_TTY" ]; then
+    sleep 0.5
+fi
+
+# Calculate pane sizes (percentages of terminal)
+# ┌─────────────┬───────────────────┬──────────────┐
+# │ 0 fstop 21% │ 1 pi       47%   │ 3 notify 31% │
+# │       h:100%│           h:69%  │        h:50% │
+# │             │                   ├──────────────┤
+# │             ├───────────────────┤ 4 airlock 31%│
+# │             │ 2 terminal 47%   │        h:50% │
+# │             │           h:29%  │              │
+# └─────────────┴───────────────────┴──────────────┘
+COLS=$(tput cols)
+ROWS=$(tput lines)
+COL1=$(( COLS * 21 / 100 ))
+COL3=$(( COLS * 31 / 100 ))
+ROW_TERM=$(( ROWS * 29 / 100 ))
+ROW_NOTIFY=$(( ROWS * 50 / 100 ))
+
+# Shared mode: if session exists, create grouped
+# session and attach
+if [ "$SHARED" = "1" ] && \
+   tmux -L "$SERVER" has-session \
+       -t "$OUTER" 2>/dev/null; then
+    GRP="${OUTER}-$$"
+    tmux -L "$SERVER" new-session -d \
+        -t "$OUTER" -s "$GRP"
+    tmux -L "$SERVER" select-pane \
+        -t "${GRP}:0.1"
+    ( sleep 1 && \
+      tmux -L "$SERVER" resize-pane \
+          -t "${OUTER}:0.0" -x "$COL1" && \
+      tmux -L "$SERVER" resize-pane \
+          -t "${OUTER}:0.3" -x "$COL3" && \
+      tmux -L "$SERVER" resize-pane \
+          -t "${OUTER}:0.2" -y "$ROW_TERM" && \
+      tmux -L "$SERVER" resize-pane \
+          -t "${OUTER}:0.3" -y "$ROW_NOTIFY" \
+    ) &
+    if [ -n "$SSH_TTY" ]; then
+        tmux -L "$SERVER" attach -t "$GRP"
+        echo "Detached. Reattach: \
+tmux -L $SERVER attach -t $GRP"
+    else
+        exec tmux -L "$SERVER" \
+            attach -t "$GRP"
+    fi
+fi
+
+# Create session with pane 0 (force full terminal size)
+tmux -L "$SERVER" new-session -d \
+    -s "$OUTER" -c "$DIR" \
+    -x "$COLS" -y "$ROWS" \
+    -e "TERM=tmux-256color"
+
+# Shared mode: set window-size and resize hook
+if [ "$SHARED" = "1" ]; then
+    tmux -L "$SERVER" set-option \
+        -t "$OUTER" window-size latest
+    HOOK='W=#{window_width}; H=#{window_height}; '
+    HOOK+="tmux -L ${SERVER} resize-pane"
+    HOOK+=" -t ${OUTER}:0.0"
+    HOOK+=" -x \$((W*21/100)); "
+    HOOK+="tmux -L ${SERVER} resize-pane"
+    HOOK+=" -t ${OUTER}:0.3"
+    HOOK+=" -x \$((W*31/100)); "
+    HOOK+="tmux -L ${SERVER} resize-pane"
+    HOOK+=" -t ${OUTER}:0.2"
+    HOOK+=" -y \$((H*29/100)); "
+    HOOK+="tmux -L ${SERVER} resize-pane"
+    HOOK+=" -t ${OUTER}:0.3"
+    HOOK+=" -y \$((H*50/100))"
+    tmux -L "$SERVER" set-hook -t "$OUTER" \
+        after-resize-window "run-shell '$HOOK'"
+fi
+
+# Split pane 0 horizontally → 0 | 1
+tmux -L "$SERVER" split-window \
+    -t "$OUTER:0.0" -h -c "$DIR"
+
+# Split pane 1 horizontally → 0 | 1 | 2
+tmux -L "$SERVER" split-window \
+    -t "$OUTER:0.1" -h -c "$DIR"
+
+# Split col2 (pane 1) vertically → 0 | 1(top),2(bot) | 3
+tmux -L "$SERVER" split-window \
+    -t "$OUTER:0.1" -v -c "$DIR"
+
+# Split col3 (pane 3) vertically → 0 | 1,2 | 3(top),4(bot)
+tmux -L "$SERVER" split-window \
+    -t "$OUTER:0.3" -v -c "$DIR"
+
+# ──────────────────────────────────────────
+# Layout:
+#   pane 0 (col1)       │  pane 1 (col2 top)  │  pane 3 (col3 top)
+#                        │  pane 2 (col2 bot)  │  pane 4 (col3 bot)
+# ──────────────────────────────────────────
+
+# Pi command (direct, no inner session)
+PI_CMD="cd '$DIR' && pi"
+CLAUDE_CMD="$PI_CMD"
+
+# Start programs in each pane
+tmux -L "$SERVER" send-keys -t "$OUTER:0.2" \
+    "cd '$DIR' && source ~/.secrets/llms/OPENROUTER_API_KEY && ssh-f1lt3r && clear && ll" Enter
+tmux -L "$SERVER" send-keys -t "$OUTER:0.3" \
+    "cd '$DIR' && agent-notify" Enter
+tmux -L "$SERVER" send-keys -t "$OUTER:0.4" \
+    "cd '$DIR' && airlock dash" Enter
+tmux -L "$SERVER" send-keys -t "$OUTER:0.0" \
+    "cd '$DIR' && fstop" Enter
+tmux -L "$SERVER" set-option -p \
+    -t "$OUTER:0.1" history-limit 0
+tmux -L "$SERVER" send-keys -t "$OUTER:0.1" \
+    "$CLAUDE_CMD" Enter
+
+# Format pane titles
+# 📁 𝗗𝗜𝗥  🖥  𝗡𝗔𝗠𝗘 [𝟬.𝟬]  🆔 𝟭𝟮𝟯𝟰𝟱
+DIR_UPPER=$(echo "$DIRNAME" | \
+    tr '[:lower:]' '[:upper:]')
+BOLD_DIR=$(unichar "$DIR_UPPER")
+BOLD_PID=$(unichar "$$")
+
+_fmt_pane_title() {
+    local name="$1" idx="$2"
+    local bold_name bold_idx
+    bold_name=$(echo "$name" | \
+        tr '[:lower:]' '[:upper:]' | unichar)
+    bold_idx=$(unichar "[$idx]")
+    printf '📁 %s  🖥  %s %s  🆔 %s' \
+        "$BOLD_DIR" "$bold_name" \
+        "$bold_idx" "$BOLD_PID"
+}
+
+_set_pane() {
+    local target="$1" name="$2" idx="$3"
+    local styled="$(_fmt_pane_title "$name" "$idx")"
+    tmux -L "$SERVER" select-pane \
+        -t "$target" \
+        -T "$styled"
+    tmux -L "$SERVER" set-option -p \
+        -t "$target" @pane_name "$name"
+    tmux -L "$SERVER" set-option -p \
+        -t "$target" @pane_styled_title "$styled"
+}
+
+_set_pane "$OUTER:0.0" "fstop" "0.0"
+_set_pane "$OUTER:0.1" "pi" "0.1"
+_set_pane "$OUTER:0.2" "terminal" "0.2"
+_set_pane "$OUTER:0.3" "notify" "0.3"
+_set_pane "$OUTER:0.4" "airlock" "0.4"
+
+
+# Set pane background colors
+tmux -L "$SERVER" select-pane \
+    -t "$OUTER:0.0" -P 'bg=#0b0514'  # fstop
+tmux -L "$SERVER" select-pane \
+    -t "$OUTER:0.1" -P 'bg=#1f0410'  # pi
+tmux -L "$SERVER" select-pane \
+    -t "$OUTER:0.2" -P 'bg=#08020c'  # terminal
+tmux -L "$SERVER" select-pane \
+    -t "$OUTER:0.3" -P 'bg=#060427'  # notify
+tmux -L "$SERVER" select-pane \
+    -t "$OUTER:0.4" -P 'bg=#000000'  # airlock
+
+tmux -L "$SERVER" select-pane -t "$OUTER:0.1"
+
+# Resize after attach (hooks don't resolve
+# pane targets properly)
+( sleep 1 && \
+  tmux -L "$SERVER" resize-pane \
+      -t "${OUTER}:0.0" -x "$COL1" && \
+  tmux -L "$SERVER" resize-pane \
+      -t "${OUTER}:0.3" -x "$COL3" && \
+  tmux -L "$SERVER" resize-pane \
+      -t "${OUTER}:0.2" -y "$ROW_TERM" && \
+  tmux -L "$SERVER" resize-pane \
+      -t "${OUTER}:0.3" -y "$ROW_NOTIFY" \
+) &
+# Ephemeral: clean up both sessions on detach/close
+if [ "$SHARED" != "1" ]; then
+    trap "tmux -L '$SERVER' kill-session \
+        -t '$OUTER' 2>/dev/null" \
+        EXIT HUP TERM
+fi
+
+if [ -n "$SSH_TTY" ]; then
+    tmux -L "$SERVER" attach -t "$OUTER"
+    if [ "$SHARED" = "1" ]; then
+        echo "Detached. Reattach: \
+tmux -L $SERVER attach -t $OUTER"
+    fi
+else
+    if [ "$SHARED" = "1" ]; then
+        exec tmux -L "$SERVER" \
+            attach -t "$OUTER"
+    else
+        tmux -L "$SERVER" attach -t "$OUTER"
+    fi
+fi

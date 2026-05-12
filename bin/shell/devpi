@@ -7,7 +7,7 @@ while getopts "sL" opt; do
     case $opt in
         s) SHARED=1 ;;
         L) LAUNCHED=1 ;;
-        *) echo "Usage: dev [-s] [path]"; exit 1 ;;
+        *) echo "Usage: devpi2 [-s] [path]"; exit 1 ;;
     esac
 done
 shift $((OPTIND - 1))
@@ -18,11 +18,9 @@ DIRNAME="$(basename "$DIR")"
 SERVER="$DIRNAME"
 
 if [ "$SHARED" = "1" ]; then
-    OUTER="dev-${DIRNAME}"
-    INNER="agents-${DIRNAME}"
+    OUTER="devpi2-${DIRNAME}"
 else
-    OUTER="dev-${DIRNAME}-$$"
-    INNER="agents-${DIRNAME}-$$"
+    OUTER="devpi2-${DIRNAME}-$$"
 fi
 
 # Open in a new maximized terminal window (desktop)
@@ -38,7 +36,7 @@ if [ "$LAUNCHED" != "1" ]; then
     else
         # Desktop: new maximized window
         tmux-window \
-            "exec dev -L ${SFLAG}'$DIR'"
+            "exec env TL_READY=1 devpi2 -L ${SFLAG}'$DIR'"
         exit 0
     fi
 fi
@@ -49,20 +47,24 @@ if [ -z "$SSH_TTY" ]; then
 fi
 
 # Calculate pane sizes (percentages of terminal)
-# ┌─────────────┬───────────────────┬──────────────┐
-# │ 0 fstop 21% │ 1 claude   47%   │ 3 notify 31% │
-# │       h:100%│           h:69%  │        h:50% │
-# │             │                   ├──────────────┤
-# │             ├───────────────────┤ 4 airlock 31%│
-# │             │ 2 terminal 47%   │        h:50% │
-# │             │           h:29%  │              │
-# └─────────────┴───────────────────┴──────────────┘
+# ┌─────────────┬───────────────────┬──────────────────┐
+# │ 0 fstop 21% │ 1 pi        47%  │ 3 notify  31%    │
+# │       h:100%│            h:69% │          h:42%   │
+# │             │                   ├──────────────────┤
+# │             ├───────────────────┤ 4 spark-one 31%  │
+# │             │ 2 terminal 47%   │          h:25%   │
+# │             │            h:29%  ├──────────────────┤
+# │             │                   │ 5 spark-two 31%  │
+# │             │                   │    remaining     │
+# │             │                   │                  │
+# └─────────────┴───────────────────┴──────────────────┘
 COLS=$(tput cols)
 ROWS=$(tput lines)
 COL1=$(( COLS * 21 / 100 ))
 COL3=$(( COLS * 31 / 100 ))
-ROW_TERM=$(( ROWS * 29 / 100 ))
-ROW_NOTIFY=$(( ROWS * 50 / 100 ))
+ROW_PI=$(( ROWS * 69 / 100 ))
+ROW_NOTIFY=$(( ROWS * 42 / 100 ))
+ROW_SPARK_ONE=$(( ROWS * 25 / 100 ))
 
 # Shared mode: if session exists, create grouped
 # session and attach
@@ -80,9 +82,11 @@ if [ "$SHARED" = "1" ] && \
       tmux -L "$SERVER" resize-pane \
           -t "${OUTER}:0.3" -x "$COL3" && \
       tmux -L "$SERVER" resize-pane \
-          -t "${OUTER}:0.2" -y "$ROW_TERM" && \
+          -t "${OUTER}:0.1" -y "$ROW_PI" && \
       tmux -L "$SERVER" resize-pane \
-          -t "${OUTER}:0.3" -y "$ROW_NOTIFY" \
+          -t "${OUTER}:0.3" -y "$ROW_NOTIFY" && \
+      tmux -L "$SERVER" resize-pane \
+          -t "${OUTER}:0.4" -y "$ROW_SPARK_ONE" \
     ) &
     if [ -n "$SSH_TTY" ]; then
         tmux -L "$SERVER" attach -t "$GRP"
@@ -112,11 +116,17 @@ if [ "$SHARED" = "1" ]; then
     HOOK+=" -t ${OUTER}:0.3"
     HOOK+=" -x \$((W*31/100)); "
     HOOK+="tmux -L ${SERVER} resize-pane"
+    HOOK+=" -t ${OUTER}:0.1"
+    HOOK+=" -y \$((H*69/100)); "
+    HOOK+="tmux -L ${SERVER} resize-pane"
     HOOK+=" -t ${OUTER}:0.2"
     HOOK+=" -y \$((H*29/100)); "
     HOOK+="tmux -L ${SERVER} resize-pane"
     HOOK+=" -t ${OUTER}:0.3"
-    HOOK+=" -y \$((H*50/100))"
+    HOOK+=" -y \$((H*42/100)); "
+    HOOK+="tmux -L ${SERVER} resize-pane"
+    HOOK+=" -t ${OUTER}:0.4"
+    HOOK+=" -y \$((H*25/100))"
     tmux -L "$SERVER" set-hook -t "$OUTER" \
         after-resize-window "run-shell '$HOOK'"
 fi
@@ -133,19 +143,20 @@ tmux -L "$SERVER" split-window \
 tmux -L "$SERVER" split-window \
     -t "$OUTER:0.1" -v -c "$DIR"
 
-# Split col3 (pane 3) vertically → 0 | 1,2 | 3(top),4(bot)
+# Split col3 (pane 2, now index 3) vertically → 0 | 1,2 | 3(top),4(bot)
+tmux -L "$SERVER" split-window \
+    -t "$OUTER:0.3" -v -c "$DIR"
+
+# Split col3 top (pane 3) vertically → 0 | 1,2 | 3(top),4(mid),5(bot)
 tmux -L "$SERVER" split-window \
     -t "$OUTER:0.3" -v -c "$DIR"
 
 # ──────────────────────────────────────────
 # Layout:
 #   pane 0 (col1)       │  pane 1 (col2 top)  │  pane 3 (col3 top)
-#                        │  pane 2 (col2 bot)  │  pane 4 (col3 bot)
+#                        │  pane 2 (col2 bot)  │  pane 4 (col3 mid)
+#                        │                    │  pane 5 (col3 bot)
 # ──────────────────────────────────────────
-
-# Claude command (direct, no inner session)
-CLAUDE_CMD="cd '$DIR' && claude --resume 2>/dev/null"
-CLAUDE_CMD="$CLAUDE_CMD || claude"
 
 # Start programs in each pane
 tmux -L "$SERVER" send-keys -t "$OUTER:0.2" \
@@ -153,13 +164,15 @@ tmux -L "$SERVER" send-keys -t "$OUTER:0.2" \
 tmux -L "$SERVER" send-keys -t "$OUTER:0.3" \
     "cd '$DIR' && agent-notify" Enter
 tmux -L "$SERVER" send-keys -t "$OUTER:0.4" \
-    "cd '$DIR' && airlock dash" Enter
+    "ssh spark-one" Enter
+tmux -L "$SERVER" send-keys -t "$OUTER:0.5" \
+    "ssh spark-two" Enter
 tmux -L "$SERVER" send-keys -t "$OUTER:0.0" \
     "cd '$DIR' && fstop" Enter
 tmux -L "$SERVER" set-option -p \
     -t "$OUTER:0.1" history-limit 0
 tmux -L "$SERVER" send-keys -t "$OUTER:0.1" \
-    "$CLAUDE_CMD" Enter
+    "cd '$DIR' && pi" Enter
 
 # Format pane titles
 # 📁 𝗗𝗜𝗥  🖥  𝗡𝗔𝗠𝗘 [𝟬.𝟬]  🆔 𝟭𝟮𝟯𝟰𝟱
@@ -192,23 +205,25 @@ _set_pane() {
 }
 
 _set_pane "$OUTER:0.0" "fstop" "0.0"
-_set_pane "$OUTER:0.1" "claude" "0.1"
+_set_pane "$OUTER:0.1" "pi" "0.1"
 _set_pane "$OUTER:0.2" "terminal" "0.2"
 _set_pane "$OUTER:0.3" "notify" "0.3"
-_set_pane "$OUTER:0.4" "airlock" "0.4"
-
+_set_pane "$OUTER:0.4" "spark-one" "0.4"
+_set_pane "$OUTER:0.5" "spark-two" "0.5"
 
 # Set pane background colors
 tmux -L "$SERVER" select-pane \
     -t "$OUTER:0.0" -P 'bg=#0b0514'  # fstop
 tmux -L "$SERVER" select-pane \
-    -t "$OUTER:0.1" -P 'bg=#1f0410'  # claude
+    -t "$OUTER:0.1" -P 'bg=#1f0410'  # pi
 tmux -L "$SERVER" select-pane \
     -t "$OUTER:0.2" -P 'bg=#08020c'  # terminal
 tmux -L "$SERVER" select-pane \
     -t "$OUTER:0.3" -P 'bg=#060427'  # notify
 tmux -L "$SERVER" select-pane \
-    -t "$OUTER:0.4" -P 'bg=#000000'  # airlock
+    -t "$OUTER:0.4" -P 'bg=#000000'  # spark-one
+tmux -L "$SERVER" select-pane \
+    -t "$OUTER:0.5" -P 'bg=#000000'  # spark-two
 
 tmux -L "$SERVER" select-pane -t "$OUTER:0.1"
 
@@ -220,11 +235,13 @@ tmux -L "$SERVER" select-pane -t "$OUTER:0.1"
   tmux -L "$SERVER" resize-pane \
       -t "${OUTER}:0.3" -x "$COL3" && \
   tmux -L "$SERVER" resize-pane \
-      -t "${OUTER}:0.2" -y "$ROW_TERM" && \
+      -t "${OUTER}:0.1" -y "$ROW_PI" && \
   tmux -L "$SERVER" resize-pane \
-      -t "${OUTER}:0.3" -y "$ROW_NOTIFY" \
+      -t "${OUTER}:0.3" -y "$ROW_NOTIFY" && \
+  tmux -L "$SERVER" resize-pane \
+      -t "${OUTER}:0.4" -y "$ROW_SPARK_ONE" \
 ) &
-# Ephemeral: clean up both sessions on detach/close
+# Ephemeral: clean up session on detach/close
 if [ "$SHARED" != "1" ]; then
     trap "tmux -L '$SERVER' kill-session \
         -t '$OUTER' 2>/dev/null" \
