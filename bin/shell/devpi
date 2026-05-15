@@ -102,7 +102,24 @@ fi
 tmux -L "$SERVER" new-session -d \
     -s "$OUTER" -c "$DIR" \
     -x "$COLS" -y "$ROWS" \
-    -e "TERM=tmux-256color"
+    -e "TERM=screen-256color"
+
+# Load mouse/copy bindings into this isolated server so drag→pbcopy works
+tmux -L "$SERVER" source-file ~/.tmux.conf 2>/dev/null || true
+
+# Enable mouse for wheel-scrollback + per-pane selection.
+# Without this, multi-pane tmux relies on terminal-native selection
+# which spans pane borders and bypasses tmux scrollback.
+tmux -L "$SERVER" set-option -g mouse on
+# set-clipboard=on (not 'external') is required so tmux's own copy
+# commands emit OSC 52 — works locally and over SSH. The terminal app
+# must allow OSC 52 writes (iTerm2: General > Selection > Applications
+# in terminal may access clipboard).
+tmux -L "$SERVER" set-option -g set-clipboard on
+# Drag-end copies via OSC 52. -no-clear keeps the selection visible
+# and keeps you scrolled in place, like text selection in a document.
+tmux -L "$SERVER" bind -T copy-mode-vi MouseDragEnd1Pane \
+    send -X copy-selection-no-clear
 
 # Shared mode: set window-size and resize hook
 if [ "$SHARED" = "1" ]; then
@@ -169,10 +186,8 @@ tmux -L "$SERVER" send-keys -t "$OUTER:0.5" \
     "ssh spark-two" Enter
 tmux -L "$SERVER" send-keys -t "$OUTER:0.0" \
     "cd '$DIR' && fstop" Enter
-tmux -L "$SERVER" set-option -p \
-    -t "$OUTER:0.1" history-limit 0
 tmux -L "$SERVER" send-keys -t "$OUTER:0.1" \
-    "cd '$DIR' && pi --resume" Enter
+    "cd '$DIR' && pi --resume || pi" Enter
 
 # Format pane titles
 # 📁 𝗗𝗜𝗥  🖥  𝗡𝗔𝗠𝗘 [𝟬.𝟬]  🆔 𝟭𝟮𝟯𝟰𝟱
