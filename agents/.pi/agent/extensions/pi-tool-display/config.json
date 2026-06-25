@@ -1,0 +1,27 @@
+{
+  "registerToolOverrides": {
+    "read": true,
+    "grep": true,
+    "find": true,
+    "ls": true,
+    "bash": true,
+    "edit": true,
+    "write": true
+  },
+  "enableNativeUserMessageBox": true,
+  "readOutputMode": "preview",
+  "searchOutputMode": "preview",
+  "mcpOutputMode": "preview",
+  "previewLines": 12,
+  "expandedPreviewMaxLines": 4000,
+  "bashOutputMode": "preview",
+  "bashCollapsedLines": 20,
+  "diffViewMode": "unified",
+  "diffIndicatorMode": "bars",
+  "diffSplitMinWidth": 120,
+  "diffCollapsedLines": 200,
+  "diffWordWrap": true,
+  "showTruncationHints": false,
+  "showRtkCompactionHints": false
+}
+

@@ -1,0 +1,46 @@
+{
+  "lastChangelogVersion": "0.79.6",
+  "defaultProvider": "spark-one",
+  "defaultModel": "qwen-coder",
+  "defaultThinkingLevel": "high",
+  "extensions": [
+    "/Users/user/.pi/agent/extensions/agent-notify.ts",
+    "/Users/user/.nvm/versions/node/v22.20.0/lib/node_modules/@earendil-works/pi-coding-agent/examples/extensions/modal-editor.ts"
+  ],
+  "retry": {
+    "provider": {
+      "timeoutMs": 3600000
+    }
+  },
+  "compaction": {
+    "enabled": true,
+    "reserveTokens": 12288,
+    "keepRecentTokens": 16384
+  },
+  "packages": [
+    "git:github.com/nicobailon/pi-mcp-adapter",
+    "npm:pi-subagents",
+    {
+      "source": "npm:pi-web-access",
+      "extensions": [
+        "-index.ts"
+      ]
+    },
+    "npm:pi-markdown-preview",
+    "npm:pi-btw",
+    "npm:pi-agent-browser-native",
+    "npm:@narumitw/pi-goal",
+    "npm:@ifi/oh-pi-themes",
+    "npm:pi-mermaid",
+    "npm:@narumitw/pi-chrome-devtools",
+    "npm:pi-diff-review",
+    "npm:pi-extension-manager"
+  ],
+  "showHardwareCursor": true,
+  "terminal": {
+    "showTerminalProgress": true
+  },
+  "enableInstallTelemetry": false,
+  "treeFilterMode": "default",
+  "theme": "lasercode"
+}
