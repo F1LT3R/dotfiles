@@ -5,7 +5,7 @@ title=" 🔍 ripgrep: ${dir/#$HOME/\~} "
 
 sel=$(rg --color=always --line-number \
   --no-heading --smart-case "" |
-  fzf --ansi --reverse \
+  fzf --no-mouse --ansi --reverse \
     --delimiter : \
     --header "$title" \
     --preview 'rg --color=always \
@@ -21,8 +21,15 @@ sel=$(rg --color=always --line-number \
 file=$(echo "$sel" | cut -d: -f1)
 line=$(echo "$sel" | cut -d: -f2)
 
-tmux run-shell -b \
-  "tmux display-popup -E \
-  -w 60% -h 100% -x C -y 0 \
-  -d \"$(pwd)\" \
-  \"vim +$line '$file'\""
+# Open vim in a new iTerm2 window (not inside tmux)
+# Escape double quotes for osascript strings
+safe_dir="$(echo "$dir" | sed 's/"/\\\\\\"/g')"
+safe_file="$(echo "$file" | sed 's/"/\\\\\\"/g')"
+safe_line="$(echo "$line" | sed 's/"/\\\\\\"/g')"
+osascript -e 'tell application "iTerm2"' \
+  -e 'activate' \
+  -e 'set newWindow to (create window with default profile)' \
+  -e 'tell current session of newWindow' \
+  -e "write text \"cd '$safe_dir' && clear && vim +'$safe_line' '$safe_file'\"" \
+  -e 'end tell' \
+  -e 'end tell'

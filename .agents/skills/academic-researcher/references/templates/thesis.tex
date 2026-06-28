@@ -1,0 +1,415 @@
+% PhD Thesis / Master's Thesis Template
+% Compatible with most universities (adjust as needed)
+% Use with the book class by default (frontmatter/mainmatter are supported).
+
+\documentclass[12pt,oneside]{book}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}  % Times New Roman
+\usepackage{graphicx}
+\usepackage{appendix}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{amsthm}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+% Page margins (adjust for your university)
+\geometry{
+  letterpaper,
+  left=1.5in,
+  right=1in,
+  top=1in,
+  bottom=1in
+}
+
+% Hyperlink setup
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+% Theorem environments (optional)
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+
+% Chapter title format
+\titleformat{\chapter}
+  {\normalfont\fontsize{14pt}{\baselineskip}\bfseries}
+  {\thechapter}{20pt}{\fontsize{14pt}{\baselineskip}\bfseries}
+
+\titleformat{\section}
+  {\normalfont\fontsize{12pt}{\baselineskip}\bfseries}
+  {\thesection}{15pt}{\fontsize{12pt}{\baselineskip}\bfseries}
+
+\titleformat{\subsection}
+  {\normalfont\fontsize{12pt}{\baselineskip}\itshape}
+  {\thesubsection}{15pt}{\fontsize{12pt}{\baselineskip}\itshape}
+
+% Spacing
+\doublespacing
+%\onehalfspacing  % Use if preferred
+
+% Title Page
+\title{
+  \fontsize{16pt}{\baselineskip}\textbf{Your Thesis Title: A Comprehensive Study}\\[2cm]
+  \fontsize{14pt}{\baselineskip}A Dissertation Submitted to the Graduate Faculty\\
+  in Partial Fulfillment of the Requirements for the Degree of\\[0.5cm]
+  \fontsize{14pt}{\baselineskip}\textbf{Doctor of Philosophy}\\[0.5cm]
+  \fontsize{12pt}{\baselineskip}in\\[0.5cm]
+  \fontsize{12pt}{\baselineskip}\textbf{Computer Science}
+}
+
+\author{
+  \fontsize{14pt}{\baselineskip}\textbf{By}\\[0.5cm]
+  \fontsize{14pt}{\baselineskip}\textbf{Your Name}\\[2cm]
+}
+
+\date{
+  \fontsize{12pt}{\baselineskip}\textbf{Year: 2024}\\[1cm]
+  \fontsize{12pt}{\baselineskip}Department of Computer Science\\
+  University Name\\
+  City, State, Country
+}
+
+\begin{document}
+
+% Front matter
+\frontmatter
+\pagenumbering{roman}
+
+% Title
+\maketitle
+
+% Copyright
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{center}
+Copyright \copyright\ Your Name, 2024\\
+All Rights Reserved
+\end{center}
+\vspace*{\fill}
+\clearpage
+
+% Committee
+\thispagestyle{empty}
+\vspace*{3cm}
+\begin{center}
+\textbf{APPROVAL OF THE DISSERTATION COMMITTEE}
+\end{center}
+\vspace{1cm}
+
+\begin{center}
+This dissertation has been accepted by the Graduate Faculty of the University in partial fulfillment of the requirements for the degree of Doctor of Philosophy.
+\end{center}
+
+\vspace{2cm}
+
+\begin{center}
+\begin{tabular}{lr}
+\hline
+Dr. Committee Chair Name & \hspace{2in} \\
+Chair of Committee & Date \\
+\end{tabular}
+\end{center}
+
+\vspace{1cm}
+
+\begin{center}
+\begin{tabular}{lr}
+\hline
+Dr. Committee Member Name & \hspace{2in} \\
+Committee Member & Date \\
+\end{tabular}
+\end{center}
+
+\clearpage
+
+% Abstract
+\begin{center}
+\textbf{ABSTRACT}\\[1cm]
+\textbf{Your Name}\\
+\textbf{Your Thesis Title: A Comprehensive Study}\\[0.5cm]
+\textbf{Doctor of Philosophy in Computer Science}\\[0.5cm]
+\textbf{University Name, 2024}
+\end{center}
+
+\vspace{1cm}
+
+\begin{singlespace}
+Your abstract goes here. It should be 150-350 words summarizing:
+\begin{itemize}
+  \item The problem being addressed
+  \item The methodology used
+  \item The main findings/results
+  \item The contributions and implications
+\end{itemize}
+Keep it concise and informative. This is what people read to decide if they want to read the full thesis.
+\end{singlespace}
+
+\clearpage
+
+% Acknowledgments
+\chapter*{Acknowledgments}
+
+I would like to express my gratitude to:
+
+\begin{itemize}
+  \item My advisor, Dr. Advisor Name, for guidance and support
+  \item My committee members for valuable feedback
+  \item My colleagues and collaborators
+  \item My family and friends for their encouragement
+  \item Funding agencies (if applicable)
+\end{itemize}
+
+\clearpage
+
+% Table of Contents
+\tableofcontents
+
+% List of Tables
+\listoftables
+
+% List of Figures
+\listoffigures
+
+% List of Algorithms
+\listofalgorithms
+
+% List of Abbreviations
+\chapter*{List of Abbreviations}
+\begin{tabular}{ll}
+AI & Artificial Intelligence \\
+ML & Machine Learning \\
+DL & Deep Learning \\
+CNN & Convolutional Neural Network \\
+RNN & Recurrent Neural Network \\
+NLP & Natural Language Processing \\
+API & Application Programming Interface \\
+\end{tabular}
+
+\clearpage
+
+% Main body
+\mainmatter
+\pagenumbering{arabic}
+
+\chapter{Introduction}
+\label{chapter:introduction}
+
+\section{Background and Motivation}
+
+Provide context for your research. Why is this problem important? 
+What are the real-world applications?
+
+Example text: Recent advances in machine learning have led to 
+significant breakthroughs in various domains \cite{smith2023}. 
+However, challenges remain in [specific area] \cite{jones2022}.
+
+\section{Problem Statement}
+
+Clearly define the problem your research addresses. Be specific 
+and precise about what you are solving.
+
+\section{Research Objectives}
+
+List your main research objectives:
+
+\begin{enumerate}
+  \item Objective 1
+  \item Objective 2
+  \item Objective 3
+\end{enumerate}
+
+\section{Contributions}
+
+Summarize the key contributions of this dissertation:
+
+\begin{enumerate}
+  \item A novel framework for [contribution 1]
+  \item Theoretical analysis proving [contribution 2]
+  \item Extensive empirical validation demonstrating [contribution 3]
+\end{enumerate}
+
+\section{Organization}
+
+This dissertation is organized as follows. Chapter~\ref{chapter:literature} 
+reviews related work. Chapter~\ref{chapter:methodology} describes the 
+proposed methodology. Chapter~\ref{chapter:results} presents experimental 
+results. Chapter~\ref{chapter:discussion} discusses implications and 
+limitations. Chapter~\ref{chapter:conclusion} concludes with a summary 
+and future directions.
+
+\chapter{Literature Review}
+\label{chapter:literature}
+
+This chapter reviews relevant literature and establishes the 
+theoretical foundation for this research.
+
+\section{Theoretical Background}
+
+Provide necessary background theory and concepts.
+
+\section{Related Work}
+
+Review existing approaches and methods. Organize thematically:
+
+\subsection{Approach A}
+
+[Review of Approach A]
+
+\subsection{Approach B}
+
+[Review of Approach B]
+
+\section{Research Gap}
+
+Identify what is missing in existing work and how this dissertation 
+addresses that gap.
+
+\chapter{Methodology}
+\label{chapter:methodology}
+
+This chapter describes your research methodology.
+
+\section{System Overview}
+
+Provide an overview of your approach. Include figures showing 
+the overall architecture.
+
+\section{Component Description}
+
+Describe each component in detail.
+
+\section{Theoretical Analysis}
+
+Present any theoretical guarantees or analysis.
+
+\section{Algorithm}
+
+Present your algorithm (see Algorithm~\ref{alg:main}).
+
+\begin{algorithm}
+\caption{Algorithm Name}
+\label{alg:main}
+\begin{algorithmic}
+\State \textbf{Input:} [Input description]
+\State \textbf{Output:} [Output description]
+\State Initialize parameters
+\For{each iteration}
+  \State [Step description]
+\EndFor
+\State \textbf{return} [Final result]
+\end{algorithmic}
+\end{algorithm}
+
+\chapter{Results}
+\label{chapter:results}
+
+This chapter presents experimental results.
+
+\section{Experimental Setup}
+
+Describe datasets, baselines, metrics, and implementation details.
+
+\section{Main Results}
+
+Present main results in tables and figures.
+
+\begin{table}[htbp]
+\caption{Performance comparison.}
+\label{tab:results}
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+Method & Metric 1 & Metric 2 & Metric 3 \\
+\hline
+Baseline 1 & 85.2 & 84.8 & 85.5 \\
+Baseline 2 & 87.1 & 86.5 & 87.8 \\
+Our Approach & \textbf{91.3} & \textbf{90.9} & \textbf{91.5} \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Ablation Studies}
+
+Analyze contribution of each component.
+
+\section{Statistical Analysis}
+
+Include statistical significance tests where appropriate.
+
+\chapter{Discussion}
+\label{chapter:discussion}
+
+\section{Interpretation of Results}
+
+Explain what the results mean.
+
+\section{Implications}
+
+Discuss broader implications of findings.
+
+\section{Limitations}
+
+Acknowledge limitations of your work:
+
+\begin{itemize}
+  \item Limitation 1
+  \item Limitation 2
+  \item Limitation 3
+\end{itemize}
+
+\section{Future Work}
+
+Suggest directions for future research.
+
+\chapter{Conclusion}
+\label{chapter:conclusion}
+
+Summarize the dissertation:
+
+\begin{itemize}
+  \item What problem was addressed?
+  \item What was the approach?
+  \item What were the main findings?
+  \item What are the contributions?
+  \item What are the future directions?
+\end{itemize}
+
+% Bibliography
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+% Appendices
+\appendix
+
+\chapter{Additional Material}
+
+Include supplementary material here.
+
+\section{Extra Tables}
+
+\section{Extra Figures}
+
+\section{Code}
+
+Include pseudocode or key implementation details.
+
+\end{document}

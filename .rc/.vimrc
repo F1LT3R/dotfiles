@@ -2,6 +2,8 @@ let g:ale_disable_lsp = 1
 filetype plugin indent on
 "set termguicolors
 
+set mouse=a
+
 set noerrorbells
 set noswapfile
 set noundofile
@@ -312,6 +314,10 @@ endif
 " hi Normal guibg=#000000 guifg=#DDDDDD
 " set cursorline
 " hi CursorLine guibg=Grey10
+
+" Copy current file's full path to system clipboard
+" Usage: ,fp  (Leader+fp)
+nnoremap <leader>fp :let @+=expand('%:p')<CR>:echom 'Copied: ' . expand('%:p')<CR>
 
 " Clear showbreak after plugins load
 autocmd VimEnter * set showbreak=

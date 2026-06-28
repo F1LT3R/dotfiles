@@ -1,0 +1,55 @@
+{
+  "name": "academic-researcher-skill",
+  "version": "1.2.0",
+  "description": "Expert-level academic research skill for AI coding assistants. Creates peer-reviewed research papers, literature reviews, and theses with IEEE/APA citations and LaTeX output.",
+  "author": "Academic Researcher",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SiluPanda/academic-researcher.git"
+  },
+  "keywords": [
+    "academic-researcher",
+    "claude-code",
+    "opencode",
+    "ai-agent",
+    "skill",
+    "research",
+    "academic",
+    "latex",
+    "paper",
+    "thesis",
+    "systematic-review",
+    "literature-review",
+    "bibtex"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "index.js",
+    "SKILL.md",
+    "references/",
+    "examples/",
+    "scripts/",
+    "install-skill.js",
+    "uninstall-skill.js",
+    ".claude-skill.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "postinstall": "node install-skill.js",
+    "preuninstall": "node uninstall-skill.js",
+    "sync:platforms": "node scripts/sync-platform-skills.js",
+    "check:citations": "node scripts/check-citations.js",
+    "resolve": "node scripts/resolve-papers.js",
+    "validate:bib": "node scripts/validate-bib.js"
+  },
+  "bugs": {
+    "url": "https://github.com/SiluPanda/academic-researcher/issues"
+  },
+  "homepage": "https://github.com/SiluPanda/academic-researcher#readme"
+}

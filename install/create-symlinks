@@ -82,3 +82,30 @@ if [ ! -d "~/notes" ]; then
 else
   echo "Directory '~/notes' already exists."
 fi
+
+# ---- Pi Coding Agent ----
+mkdir -p "$HOME/.pi/agent"
+
+echo "Linking ~/.pi/agent/AGENTS.md"
+rm -f $HOME/.pi/agent/AGENTS.md
+ln -s $BASE/agents/.pi/agent/AGENTS.md $HOME/.pi/agent/AGENTS.md
+
+echo "Linking ~/.pi/agent/settings.json"
+rm -f $HOME/.pi/agent/settings.json
+ln -s $BASE/agents/.pi/agent/settings.json $HOME/.pi/agent/settings.json
+
+echo "Linking ~/.pi/agent/extensions/"
+rm -rf $HOME/.pi/agent/extensions
+ln -s $BASE/agents/.pi/agent/extensions $HOME/.pi/agent/extensions
+
+echo "Linking ~/.pi/agent/skills/"
+rm -rf $HOME/.pi/agent/skills
+ln -s $BASE/agents/.pi/agent/skills $HOME/.pi/agent/skills
+
+echo "Linking ~/.pi/agent/themes/"
+rm -rf $HOME/.pi/agent/themes
+ln -s $BASE/agents/.pi/agent/themes $HOME/.pi/agent/themes
+
+echo "Linking ~/.agents/"
+rm -rf $HOME/.agents
+ln -s $BASE/.agents $HOME/.agents

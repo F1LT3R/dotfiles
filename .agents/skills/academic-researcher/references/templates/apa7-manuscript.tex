@@ -1,0 +1,186 @@
+% APA 7th edition manuscript template (LaTeX)
+% Requires: apa7 + biblatex + biblatex-apa + biber (Overleaf supports this).
+%
+% Compile (local): latexmk -pdf -interaction=nonstopmode -bibtex -usebiber apa7-manuscript.tex
+% Compile (Overleaf): set "Biber" as the bibliography tool.
+
+\documentclass[man]{apa7}
+
+\usepackage[american]{babel}
+\usepackage{csquotes}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+\usepackage[style=apa,backend=biber,natbib=true,sortcites=true]{biblatex}
+\addbibresource{references.bib}
+
+\title{Your Paper Title: A Subtitle if Needed}
+\shorttitle{SHORT TITLE}
+
+% --- Authors and Affiliations ---
+\authorsnames[1,2,1]{First A. Author, Second B. Author, Third C. Author}
+\authorsaffiliations{
+  {Department of Psychology, University of Example},
+  {School of Education, Another University}
+}
+
+% --- Author Note ---
+\authornote{
+  \addORCIDlink{First A. Author}{0000-0000-0000-0000}
+
+  Correspondence concerning this article should be addressed to
+  First A. Author, Department of Psychology, University of Example,
+  123 Academic Way, City, State 12345.
+  E-mail: first.author@example.edu
+}
+
+\abstract{Write a 150--250 word abstract that summarizes the problem,
+method, main results, and implications. The abstract should be a single
+paragraph without citations. It should state the purpose, describe the
+participants and methods, report the main findings with effect sizes,
+and note the conclusions and implications.}
+
+\keywords{keyword1, keyword2, keyword3, keyword4, keyword5}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+\section{Introduction}
+% ============================================================
+
+Introduce the research problem and its significance. Provide
+background that motivates the study \parencite{smith2023}. State
+the research question or hypothesis clearly.
+
+\subsection{Theoretical Framework}
+
+Describe the theoretical lens through which this study is framed.
+\textcite{jones2022} proposed a framework that is relevant to the
+current investigation.
+
+\subsection{Present Study}
+
+State the purpose of the current study and the specific hypotheses.
+Based on prior work \parencite{smith2023,jones2022}, we hypothesize
+that\ldots
+
+% ============================================================
+\section{Literature Review}
+% ============================================================
+
+\subsection{Theme 1}
+
+Summarize the relevant literature organized by theme rather than
+chronologically. \textcite{author2020} established foundational
+findings in this area.
+
+\subsection{Theme 2}
+
+Discuss converging and diverging evidence. Several studies have
+examined this phenomenon \parencite{other2021,diff2022}, with
+mixed results.
+
+% ============================================================
+\section{Method}
+% ============================================================
+
+\subsection{Participants}
+
+Describe the sample. Participants were $N = 120$ undergraduate
+students ($M_{\text{age}} = 19.8$, $SD = 1.4$; 65\% female).
+
+\subsection{Materials}
+
+Describe instruments, measures, and their psychometric properties.
+
+\subsection{Procedure}
+
+Describe the study procedure in sufficient detail for replication.
+
+\subsection{Data Analysis}
+
+Describe the analytic strategy, including any software used.
+
+% ============================================================
+\section{Results}
+% ============================================================
+
+Report results in order of the hypotheses. Use tables and figures
+to present key findings.
+
+% --- Example Table ---
+\begin{table}[ht]
+  \caption{Descriptive Statistics by Condition}
+  \label{tab:descriptives}
+  \begin{tabular}{lrrr}
+    \toprule
+    Condition & $n$ & $M$ & $SD$ \\
+    \midrule
+    Control       & 60 & 4.21 & 1.03 \\
+    Experimental  & 60 & 5.47 & 0.98 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Results indicated a significant effect, $t(118) = 3.42$,
+$p < .001$, $d = 0.63$, 95\% CI $[0.27, 0.99]$.
+
+% --- Example Figure ---
+\begin{figure}[ht]
+  \centering
+  % \includegraphics[width=0.8\textwidth]{figures/results-plot.pdf}
+  \caption{Mean scores by condition. Error bars represent 95\%
+  confidence intervals.}
+  \label{fig:results}
+\end{figure}
+
+% --- Example Equation ---
+The regression model is specified as:
+\begin{equation}
+  Y_i = \beta_0 + \beta_1 X_{1i} + \beta_2 X_{2i} + \varepsilon_i
+  \label{eq:regression}
+\end{equation}
+
+where $\varepsilon_i \sim N(0, \sigma^2)$.
+
+% ============================================================
+\section{Discussion}
+% ============================================================
+
+Interpret the findings in relation to the hypotheses and prior
+literature. The results are consistent with \textcite{smith2023},
+who found similar effects.
+
+\subsection{Limitations}
+
+Acknowledge methodological limitations and their implications
+for interpreting the results.
+
+\subsection{Implications and Future Directions}
+
+Discuss theoretical and practical implications. Suggest directions
+for future research that address the identified limitations.
+
+% ============================================================
+\section{Conclusion}
+% ============================================================
+
+Provide a concise summary of the main findings and their
+significance.
+
+% ============================================================
+\printbibliography
+
+% ============================================================
+% Appendices (if needed)
+% ============================================================
+\appendix
+
+\section{Supplementary Materials}
+
+Include supplementary tables, figures, or instrument descriptions
+that support but are not essential to the main text.
+
+\end{document}

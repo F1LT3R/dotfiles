@@ -1,0 +1,164 @@
+% Systematic review template (LaTeX, PRISMA-style headings)
+% Use this when you need a reproducible search and screening protocol.
+
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[numbers]{natbib}
+
+\title{Title of Systematic Review}
+\author{Author Name}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Summarize: (1) objective, (2) methods (databases, dates, criteria), (3) key findings/themes, (4) main gaps and implications.
+\end{abstract}
+
+\section{Introduction}
+State the research question and why a systematic review is needed.
+
+\section{Methods}
+
+\subsection{Eligibility Criteria}
+Define inclusion/exclusion criteria (time window, languages, study types, task scope).
+
+\subsection{Information Sources}
+List databases and any additional sources (backward/forward citation chasing).
+
+\subsection{Search Strategy}
+Provide the exact query strings and the dates executed.
+
+% --- Search Strategy Table ---
+\begin{table}[ht]
+  \centering
+  \caption{Search Strategy Summary}
+  \label{tab:search-strategy}
+  \begin{tabular}{llrl}
+    \toprule
+    Database & Query String & Results & Date \\
+    \midrule
+    IEEE Xplore     & ``topic'' AND ``method''   & 342 & 2024-01-15 \\
+    ACM DL          & ``topic'' AND ``method''   & 218 & 2024-01-15 \\
+    Google Scholar  & ``topic'' + ``method''     & 1,240 & 2024-01-16 \\
+    Scopus          & TITLE-ABS-KEY(topic AND method) & 567 & 2024-01-16 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Screening and Selection}
+Describe title/abstract and full-text screening, duplicates handling, and reasons-for-exclusion logging.
+
+% --- PRISMA Flow Diagram (Text-Based) ---
+\begin{figure}[ht]
+  \centering
+  \fbox{\parbox{0.85\textwidth}{%
+    \centering\bfseries PRISMA Flow Diagram\par
+    \vspace{6pt}\normalfont\small
+    \begin{tabular}{c}
+      Records identified through database searching ($n = 2{,}367$) \\
+      $\downarrow$ \\
+      Records after duplicates removed ($n = 1{,}843$) \\
+      $\downarrow$ \\
+      Records screened by title/abstract ($n = 1{,}843$) \\
+      $\rightarrow$ Records excluded ($n = 1{,}612$) \\
+      $\downarrow$ \\
+      Full-text articles assessed for eligibility ($n = 231$) \\
+      $\rightarrow$ Full-text articles excluded with reasons ($n = 178$) \\
+      $\downarrow$ \\
+      Studies included in the review ($n = 53$) \\
+    \end{tabular}
+  }}
+  \caption{PRISMA flow diagram of study selection. Replace counts with your data.}
+  \label{fig:prisma}
+\end{figure}
+
+% --- Screening Summary Table ---
+\begin{table}[ht]
+  \centering
+  \caption{Screening Summary}
+  \label{tab:screening}
+  \begin{tabular}{lr}
+    \toprule
+    Stage & Count \\
+    \midrule
+    Total records identified    & 2,367 \\
+    Duplicates removed          & 524 \\
+    Title/abstract screened     & 1,843 \\
+    Excluded at title/abstract  & 1,612 \\
+    Full-text assessed          & 231 \\
+    Excluded at full-text       & 178 \\
+    \textbf{Included in review} & \textbf{53} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Data Extraction}
+Define the extraction fields (method, data, metrics, results, limitations, reproducibility artifacts).
+
+% --- Evidence Extraction Table ---
+\begin{table}[ht]
+  \centering
+  \caption{Evidence Extraction Summary (Sample)}
+  \label{tab:extraction}
+  \begin{tabular}{llllll}
+    \toprule
+    Study & Method & Data & Metric & Result & Limitations \\
+    \midrule
+    \citet{smith2023} & Method A & Dataset 1 & F1 & 0.87 & Single dataset \\
+    \citet{jones2022} & Method B & Dataset 1 & F1 & 0.83 & No ablation \\
+    \citet{other2021} & Method C & Dataset 2 & Acc. & 0.91 & Small sample \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Quality Appraisal}
+State the appraisal rubric and how disagreements were resolved.
+
+% --- Quality Appraisal Summary ---
+\begin{table}[ht]
+  \centering
+  \caption{Quality Appraisal Summary}
+  \label{tab:quality}
+  \begin{tabular}{lccccc}
+    \toprule
+    Study & Clear RQ & Sound Method & Reproducible & Limitations Stated & Overall \\
+    \midrule
+    \citet{smith2023} & Yes & Yes & Partial & Yes & High \\
+    \citet{jones2022} & Yes & Yes & No      & Yes & Medium \\
+    \citet{other2021} & Yes & Partial & Yes  & No  & Medium \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Results}
+Report selection counts and summarize themes. Include an evidence table.
+
+% --- Forest Plot / Summary Figure Placeholder ---
+\begin{figure}[ht]
+  \centering
+  % \includegraphics[width=0.8\textwidth]{figures/forest-plot.pdf}
+  \caption{Summary of effect sizes across included studies. Replace this
+  placeholder with a forest plot or summary visualization.}
+  \label{fig:forest}
+\end{figure}
+
+\section{Discussion}
+Interpret findings, highlight contradictions and limitations, and propose future work.
+
+\section{Conclusion}
+Concise summary of what is known and what remains open.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

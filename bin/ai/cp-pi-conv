@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+#
+# cp-pi-conv — Copy Pi Coding Agent session JSONL files into the repo.
+#
+# Usage:
+#   cp-pi-conv [source-session-dir] [dest-session-dir]
+#
+# Installed in ~/repos/dotfiles/bin/ai/ (auto-added to PATH).
+#
+# Arguments:
+#   source-session-dir  Full path to source session dir
+#                       (default: ~/.pi/agent/sessions/<encoded-cwd>)
+#   dest-session-dir    Relative path inside the repo to copy into
+#                       (default: ./pi/agent/sessions/<session-name>)
+#
+# The session dir name is derived from the working directory by:
+#   1. Strip leading /
+#   2. Replace all / with -
+#   3. Prepend -- and append --
+#   e.g. /Users/user/repos/ctx2loc → --Users-user-repos-ctx2loc--
+#
+set -euo pipefail
+
+# Derive session directory name from a working directory
+session_dir_name() {
+  local cwd="$1"
+  printf '%s' "$cwd" \
+    | sed 's|^/||' \
+    | sed 's|/|-|g' \
+    | sed 's|^|--|' \
+    | sed 's|$|--|'
+}
+
+# --- determine source ---
+if [ $# -ge 1 ]; then
+  SRC="$1"
+else
+  CWD="$(pwd)"
+  SNAME=$(session_dir_name "$CWD")
+  SRC="$HOME/.pi/agent/sessions/$SNAME"
+fi
+
+# --- determine destination ---
+if [ $# -ge 2 ]; then
+  DEST="$2"
+else
+  SNAME=$(session_dir_name "$(pwd)")
+  DEST="./pi/agent/sessions/$SNAME"
+fi
+
+# --- validate source ---
+if [ ! -d "$SRC" ]; then
+  echo "ERROR: source session directory does not exist: $SRC" >&2
+  exit 1
+fi
+
+# Find JSONL files in source
+jsonl_files=()
+for f in "$SRC"/*.jsonl; do
+  [ -f "$f" ] && jsonl_files+=("$f")
+done
+
+if [ ${#jsonl_files[@]} -eq 0 ]; then
+  echo "WARNING: no .jsonl files found in $SRC" >&2
+  exit 0
+fi
+
+# --- create destination and copy ---
+mkdir -p "$DEST"
+
+copied=0
+for f in "${jsonl_files[@]}"; do
+  base=$(basename "$f")
+  cp "$f" "$DEST/$base"
+  echo "  copied: $f → $DEST/$base"
+  copied=$((copied + 1))
+done
+
+echo "Copied $copied session file(s) to $DEST"

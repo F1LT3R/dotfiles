@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "skills": {
+    "remotion-best-practices": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/remotion-dev/skills.git",
+      "skillPath": "skills/remotion/SKILL.md",
+      "skillFolderHash": "d0bc7b74666ce228ba1e37156520d5ada5bbc889",
+      "installedAt": "2026-04-01T19:11:54.686Z",
+      "updatedAt": "2026-04-01T19:11:54.686Z"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "3013fdeb8a11b10b1eb795ec3ae8bfca38f7c26d",
+      "installedAt": "2026-04-01T19:11:58.453Z",
+      "updatedAt": "2026-04-01T19:11:58.453Z"
+    },
+    "venue-templates": {
+      "source": "ovachiever/droid-tings",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/ovachiever/droid-tings.git",
+      "skillPath": "skills/venue-templates/SKILL.md",
+      "skillFolderHash": "c27b2c9eabaeb150901149d1a0c524baef15059a",
+      "installedAt": "2026-04-06T16:12:00.636Z",
+      "updatedAt": "2026-04-06T16:12:00.636Z"
+    },
+    "research-paper-writing": {
+      "source": "akillness/oh-my-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/akillness/oh-my-skills.git",
+      "skillPath": ".agent-skills/research-paper-writing/SKILL.md",
+      "skillFolderHash": "761f915ccc164213fe20536770161773d8265190",
+      "installedAt": "2026-04-06T16:12:03.180Z",
+      "updatedAt": "2026-04-06T16:12:03.180Z"
+    },
+    "academic-researcher": {
+      "source": "silupanda/academic-researcher",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/silupanda/academic-researcher.git",
+      "skillPath": "SKILL.md",
+      "skillFolderHash": "e75d70d1b044cb7341b44becf99f75557681809c",
+      "installedAt": "2026-04-06T16:12:05.322Z",
+      "updatedAt": "2026-04-06T16:12:05.322Z"
+    },
+    "paper-writing": {
+      "source": "vishalsachdev/claude-code-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vishalsachdev/claude-code-skills.git",
+      "skillPath": "skills/paper-writing/SKILL.md",
+      "skillFolderHash": "4f6dcdcaa6b8ffdbb35364752de3a04214bb399a",
+      "installedAt": "2026-04-06T16:12:07.646Z",
+      "updatedAt": "2026-04-06T16:12:07.646Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  }
+}

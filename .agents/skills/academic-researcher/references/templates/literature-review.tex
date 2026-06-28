@@ -1,0 +1,116 @@
+% Narrative literature review template (LaTeX)
+% This is a lightweight starting point for surveys/related-work sections.
+
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[numbers]{natbib}
+
+\title{Title of Literature Review}
+\author{Author Name}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+State the scope of the review, the selection methodology (briefly), and the main themes and gaps (150--250 words).
+\end{abstract}
+
+\section{Introduction}
+Define the problem area and why it matters. Clarify the scope and what is out-of-scope.
+
+\section{Method (Source Selection)}
+Describe where you searched (databases), the time window, and the inclusion/exclusion criteria. This is required for defensible reviews.
+
+\section{Thematic Synthesis}
+Organize work by themes rather than by paper-by-paper summaries.
+
+\subsection{Theme A: Foundational Approaches}
+Summarize what is known and where results agree or disagree \citep{smith2023,jones2022}.
+Discuss seminal contributions and how they shaped the field.
+\citet{author2020} introduced the foundational framework that subsequent work builds upon.
+
+\subsection{Theme B: Methodological Advances}
+Compare approaches under consistent dimensions (assumptions, data, metrics, settings).
+Recent studies \citep{other2021,diff2022} have proposed alternative methodologies with
+varying degrees of success.
+
+\subsection{Theme C: Applications and Evaluation}
+Discuss how methods have been applied in practice and what evaluation criteria
+are commonly used \citep{recent2023}.
+
+% --- Comparison Table ---
+\begin{table}[ht]
+  \centering
+  \caption{Comparison of Major Approaches}
+  \label{tab:comparison}
+  \begin{tabular}{llccc}
+    \toprule
+    Study & Approach & Dataset & Metric & Result \\
+    \midrule
+    \citet{smith2023}   & Method A & Dataset 1 & F1    & 0.87 \\
+    \citet{jones2022}   & Method B & Dataset 1 & F1    & 0.83 \\
+    \citet{other2021}   & Method C & Dataset 2 & Acc.  & 0.91 \\
+    \citet{diff2022}    & Method D & Dataset 2 & Acc.  & 0.89 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% --- Evidence Summary Table ---
+\begin{table}[ht]
+  \centering
+  \caption{Evidence Summary Across Reviewed Studies}
+  \label{tab:evidence}
+  \begin{tabular}{lp{3cm}p{3cm}p{3cm}}
+    \toprule
+    Theme & Key Finding & Strength & Gaps \\
+    \midrule
+    Theme A & Established theoretical basis & Strong (multiple replications) & Limited to controlled settings \\
+    Theme B & Improved efficiency & Moderate (few large-scale studies) & Scalability untested \\
+    Theme C & Practical applicability & Emerging (case studies) & Lacks longitudinal data \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% --- Conceptual Framework Figure ---
+\begin{figure}[ht]
+  \centering
+  % \includegraphics[width=0.7\textwidth]{figures/conceptual-framework.pdf}
+  \caption{Conceptual framework illustrating the relationships between the
+  three identified themes. Replace this placeholder with your diagram.}
+  \label{fig:framework}
+\end{figure}
+
+\section{Open Problems and Gaps}
+List gaps backed by evidence (e.g., missing ablations, weak external validity, lack of reproducibility artifacts).
+
+\subsection{Research Gaps}
+\begin{itemize}
+  \item \textbf{Gap 1:} Limited cross-domain evaluation --- most studies validate on a single benchmark.
+  \item \textbf{Gap 2:} Reproducibility concerns --- fewer than 30\% of reviewed papers release code or data.
+  \item \textbf{Gap 3:} Lack of longitudinal studies --- current evidence is predominantly cross-sectional.
+\end{itemize}
+
+\section{Future Directions}
+\begin{enumerate}
+  \item Conduct large-scale, multi-site evaluations to improve external validity.
+  \item Develop standardized benchmarks and reporting protocols.
+  \item Investigate the long-term effects through longitudinal study designs.
+\end{enumerate}
+
+\section{Conclusion}
+Summarize themes and propose future directions. Restate the most critical gaps
+and their implications for the field.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

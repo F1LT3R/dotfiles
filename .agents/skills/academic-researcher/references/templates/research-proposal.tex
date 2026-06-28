@@ -1,0 +1,131 @@
+% Research proposal template (LaTeX)
+% Suitable for grant applications, thesis proposals, and funding requests.
+%
+% Compile: pdflatex research-proposal.tex && bibtex research-proposal && pdflatex research-proposal.tex && pdflatex research-proposal.tex
+
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[numbers]{natbib}
+\usepackage[margin=1in]{geometry}
+
+\title{Research Proposal:\\Your Project Title}
+\author{
+  Principal Investigator: Your Name\\
+  \textit{Department, Institution}\\
+  \texttt{email@example.edu}
+}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+\section{Abstract / Executive Summary}
+% ============================================================
+
+Provide a concise overview (200--300 words) of the proposed research:
+the problem, approach, expected outcomes, and significance.
+
+% ============================================================
+\section{Introduction and Background}
+% ============================================================
+
+Describe the research area and its importance. Summarize the current
+state of knowledge and cite key prior work \citep{smith2023,jones2022}.
+Clearly identify the gap or problem that motivates this proposal.
+
+% ============================================================
+\section{Research Questions and Hypotheses}
+% ============================================================
+
+State the specific research questions or hypotheses:
+
+\begin{enumerate}
+  \item \textbf{RQ1:} What is the effect of X on Y?
+  \item \textbf{RQ2:} How does Z mediate the relationship between X and Y?
+  \item \textbf{H1:} We hypothesize that X leads to improved Y under condition Z.
+\end{enumerate}
+
+% ============================================================
+\section{Proposed Methodology}
+% ============================================================
+
+\subsection{Research Design}
+Describe the overall research design (experimental, quasi-experimental,
+qualitative, mixed methods, etc.).
+
+\subsection{Data Collection}
+Describe data sources, participants, instruments, and sampling strategy.
+
+\subsection{Analysis Plan}
+Describe the analytical methods and tools to be used.
+
+\subsection{Ethical Considerations}
+Note any IRB/ethics board requirements and how they will be addressed.
+
+% ============================================================
+\section{Timeline and Milestones}
+% ============================================================
+
+\begin{table}[ht]
+  \centering
+  \caption{Proposed Project Timeline}
+  \label{tab:timeline}
+  \begin{tabular}{llp{7cm}}
+    \toprule
+    Phase & Period & Activities \\
+    \midrule
+    1 & Months 1--3  & Literature review, protocol development, IRB submission \\
+    2 & Months 4--8  & Data collection and preliminary analysis \\
+    3 & Months 9--11 & Full analysis, write-up of results \\
+    4 & Month 12     & Final report, dissemination, submission for publication \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ============================================================
+\section{Expected Outcomes and Impact}
+% ============================================================
+
+Describe the anticipated contributions:
+\begin{itemize}
+  \item \textbf{Theoretical:} New framework or model for understanding X.
+  \item \textbf{Practical:} Tools, guidelines, or recommendations for practitioners.
+  \item \textbf{Methodological:} Novel approach or benchmark for future research.
+\end{itemize}
+
+% ============================================================
+\section{Budget Justification}
+% ============================================================
+
+\begin{table}[ht]
+  \centering
+  \caption{Budget Summary}
+  \label{tab:budget}
+  \begin{tabular}{lr}
+    \toprule
+    Item & Cost (USD) \\
+    \midrule
+    Personnel (RA, 12 months)       & 30,000 \\
+    Equipment and software licenses & 5,000 \\
+    Travel (conferences)            & 3,000 \\
+    Participant compensation        & 2,000 \\
+    \midrule
+    \textbf{Total}                  & \textbf{40,000} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

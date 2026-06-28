@@ -154,9 +154,9 @@ tmux -L "$SERVER" split-window \
 tmux -L "$SERVER" send-keys -t "$OUTER:0.0" \
     "cd '$DIR' && fstop" Enter
 tmux -L "$SERVER" send-keys -t "$OUTER:0.1" \
-    "pi --model 'deepseek-v4-flash:think'" Enter
+    "pi --model 'deepseek-v4-flash'" Enter
 tmux -L "$SERVER" send-keys -t "$OUTER:0.2" \
-    "pi --model 'qwen-coder:think'" Enter
+    "pi --model 'qwen-coder'" Enter
 tmux -L "$SERVER" send-keys -t "$OUTER:0.3" \
     "cd '$DIR' && clear && ll" Enter
 
