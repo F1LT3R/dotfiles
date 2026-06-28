@@ -11,7 +11,7 @@
 #   source-session-dir  Full path to source session dir
 #                       (default: ~/.pi/agent/sessions/<encoded-cwd>)
 #   dest-session-dir    Relative path inside the repo to copy into
-#                       (default: ./pi/agent/sessions/<session-name>)
+#                       (default: ./.pi/agent/sessions/<session-name>)
 #
 # The session dir name is derived from the working directory by:
 #   1. Strip leading /
@@ -40,13 +40,23 @@ else
   SRC="$HOME/.pi/agent/sessions/$SNAME"
 fi
 
+
 # --- determine destination ---
 if [ $# -ge 2 ]; then
   DEST="$2"
 else
   SNAME=$(session_dir_name "$(pwd)")
-  DEST="./pi/agent/sessions/$SNAME"
+  DEST="./.pi/agent/sessions/$SNAME"
 fi
+
+# --- enforce ./.pi/ only (uniformity across projects) ---
+case "$DEST" in
+  ./.pi/*) ;;
+  *)
+    echo "ERROR: destination must be under ./.pi/, got: $DEST" >&2
+    exit 1
+    ;;
+esac
 
 # --- validate source ---
 if [ ! -d "$SRC" ]; then
